@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:momeet/join_page.dart';
 
-class loginPage extends StatelessWidget {
+class joinPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFFBFBFB),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40.0),
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                '로그인',
+                '회원가입',
                 style: TextStyle(
                   fontFamily: 'freesentation',
                   fontSize: 24,
@@ -24,6 +23,7 @@ class loginPage extends StatelessWidget {
               ),
               SizedBox(height: 50),
 
+              // 아이디 입력 필드 (한 줄로 배치)
               Row(
                 children: [
                   SizedBox(
@@ -63,6 +63,7 @@ class loginPage extends StatelessWidget {
               ),
               SizedBox(height: 15),
 
+              // 비밀번호 입력 필드 (한 줄로 배치)
               Row(
                 children: [
                   SizedBox(
@@ -103,8 +104,9 @@ class loginPage extends StatelessWidget {
               ),
               SizedBox(height: 30),
 
+              // 로그인 버튼
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.6,
+                width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {},
@@ -126,6 +128,8 @@ class loginPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
+
+              // 회원가입 안내 문구
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -133,18 +137,13 @@ class loginPage extends StatelessWidget {
                     '아직 회원이 아니신가요?',
                     style: TextStyle(
                       fontFamily: 'freesentation',
-                        fontWeight: FontWeight.w400,
-                        color: Colors.grey
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey,
                     ),
                   ),
                   SizedBox(width: 5),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => joinPage()),
-                      );
-                    },
+                    onTap: () {},
                     child: Text(
                       '회원가입',
                       style: TextStyle(
