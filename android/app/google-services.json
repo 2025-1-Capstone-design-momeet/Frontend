@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "944716110280",
+    "project_id": "mo-meet-bbbf0",
+    "storage_bucket": "mo-meet-bbbf0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:944716110280:android:b2509e014dcb772738c8fd",
+        "android_client_info": {
+          "package_name": "com.example.momeet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmvW1qv5MlDW18W335p3RRr67W_-Q6sXk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
