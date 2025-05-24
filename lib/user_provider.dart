@@ -25,7 +25,12 @@ class UserProvider extends ChangeNotifier {
   }
 
   void logout() {
-
+    _userId = null;
+    _pw = null;
+    _name = null;
+    _phoneNum = null;
+    _gender = null;
+    notifyListeners();
   }
 
   void updateUser() {
