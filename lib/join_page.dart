@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:momeet/login_page.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
 import 'http_service.dart';
 
 class joinPage extends StatefulWidget {
+  const joinPage({super.key});
+
   @override
   _joinPageState createState() => _joinPageState();
 }
@@ -25,17 +28,17 @@ class _joinPageState extends State<joinPage> {
     _userIdController.text = user.userId ?? "";
   }
 
-  void _showDialog(String message) {
+  void _showDialog(String title, String message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("알림"),
+          title: Text(title),
           content: Text(message),
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // 다이얼로그 닫기
               },
               child: const Text("확인"),
             ),
@@ -72,24 +75,47 @@ class _joinPageState extends State<joinPage> {
       "gender": gender
     };
 
-    print("$requestBody");
-
     try {
-      final response = await HttpService().postRequest('user/register', requestBody);
-
-      print(response.body);
+      final response =
+      await HttpService().postRequest('user/register', requestBody);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data['success'] == "true") {
-          _showDialog('성공!');
 
+        if (data['success'] == "true") {
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('회원가입 성공!'),
+                content: Text('회원가입에 성공하셨습니다.'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // 다이얼로그 닫기
+                    },
+                    child: const Text("확인"),
+                  ),
+                ],
+              );
+            },
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => loginPage()),
+          );
+        } else {
+          _showDialog("회원가입 실패", "회원가입에 실패하였습니다. 잠시후 다시 시도해 주십시오.");
         }
       } else if (response.statusCode == 409) {
-        _showDialog('이미 존재하는 사용자 ID 입니다');
+        _showDialog("존재하는 회원", "이미 등록된 사용자입니다.");
+      } else {
+        _showDialog('서버 오류', "서버와의 통신 중 오류가 발생했습니다.");
       }
     } catch (e) {
-      _showDialog('요청 실패: $e');
+      print(e);
+      _showDialog('네트워크 오류', "네트워크 연결이 원활하지 않습니다.");
     }
   }
 
@@ -99,11 +125,12 @@ class _joinPageState extends State<joinPage> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Color(0xFFFBFBFB),
+      resizeToAvoidBottomInset: true,
+      backgroundColor: const Color(0xFFFBFBFB),
       appBar: AppBar(
-        title: Text('회원가입'),
+        title: const Text('회원가입'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
@@ -112,101 +139,47 @@ class _joinPageState extends State<joinPage> {
         foregroundColor: Colors.black,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(height: screenHeight * 0.04),
-                Text(
-                  '회원가입',
-                  style: TextStyle(
-                    fontFamily: 'freesentation',
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black87,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+          child: ListView(
+            children: [
+              SizedBox(height: screenHeight * 0.04),
+              _buildTextField('아이디', '아이디 입력', _userIdController),
+              SizedBox(height: screenHeight * 0.02),
+              _buildTextField('비밀번호', '비밀번호 입력', _pwController, obscure: true),
+              SizedBox(height: screenHeight * 0.02),
+              _buildTextField('전화번호', '010xxxxnnnn', _phoneController),
+              SizedBox(height: screenHeight * 0.02),
+              _buildTextField('이름', '홍길동', _nameController),
+              SizedBox(height: screenHeight * 0.02),
+              _buildTextField('이메일', 'example@example.com', _emailController),
+              SizedBox(height: screenHeight * 0.02),
+              _buildGenderSelector(),
+              SizedBox(height: screenHeight * 0.05),
+              SizedBox(
+                width: screenWidth * 0.6 > 250 ? screenWidth * 0.6 : 250,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: register,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF69B36D),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
                   ),
-                ),
-                SizedBox(height: screenHeight * 0.04),
-
-                _buildTextField('아이디', '아이디 입력', _userIdController),
-                SizedBox(height: screenHeight * 0.02),
-                _buildTextField('비밀번호', '비밀번호 입력', _pwController, obscure: true),
-                SizedBox(height: screenHeight * 0.02),
-                _buildTextField('전화번호', '010xxxxnnnn', _phoneController),
-                SizedBox(height: screenHeight * 0.02),
-                _buildTextField('이름', '홍길동', _nameController),
-                SizedBox(height: screenHeight * 0.02),
-                _buildTextField('이메일', 'example@example.com', _emailController),
-                SizedBox(height: screenHeight * 0.02),
-
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '성별',
-                      style: TextStyle(
-                        fontFamily: 'freesentation',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Radio<bool>(
-                          value: true,
-                          groupValue: gender,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              gender = value ?? false;
-                            });
-                          },
-                        ),
-                        Text('남자', style: TextStyle(fontFamily: 'freesentation')),
-                        SizedBox(width: 20),
-                        Radio<bool>(
-                          value: false,
-                          groupValue: gender,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              gender = value ?? false;
-                            });
-                          },
-                        ),
-                        Text('여자', style: TextStyle(fontFamily: 'freesentation')),
-                      ],
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: screenHeight * 0.05),
-                SizedBox(
-                  width: screenWidth * 0.6 > 250 ? screenWidth * 0.6 : 250,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: register,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF69B36D),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                    child: Text(
-                      '회원가입',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontFamily: 'freesentation',
-                        fontWeight: FontWeight.w800,
-                      ),
+                  child: const Text(
+                    '회원가입',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontFamily: 'freesentation',
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.04),
-              ],
-            ),
+              ),
+              SizedBox(height: screenHeight * 0.04),
+            ],
           ),
         ),
       ),
@@ -219,19 +192,19 @@ class _joinPageState extends State<joinPage> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: 'freesentation',
             fontWeight: FontWeight.w600,
             fontSize: 16,
           ),
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         TextFormField(
           controller: controller,
           obscureText: obscure,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(
+            hintStyle: const TextStyle(
               fontFamily: 'freesentation',
               fontWeight: FontWeight.w400,
               color: Color(0xFF818585),
@@ -241,7 +214,57 @@ class _joinPageState extends State<joinPage> {
               borderSide: BorderSide.none,
             ),
             filled: true,
-            fillColor: Color(0xFFF0F0F0),
+            fillColor: const Color(0xFFF0F0F0),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGenderSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '성별',
+          style: TextStyle(
+            fontFamily: 'freesentation',
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0F0F0),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: ToggleButtons(
+            isSelected: [gender == true, gender == false],
+            onPressed: (int index) {
+              setState(() {
+                gender = index == 0; // 0이면 남자(true), 1이면 여자(false)
+              });
+            },
+            borderRadius: BorderRadius.circular(10),
+            fillColor: const Color(0xFF69B36D),
+            selectedColor: Colors.white,
+            color: Colors.black,
+            textStyle: const TextStyle(
+              fontFamily: 'freesentation',
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+            children: const [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text('남자'),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text('여자'),
+              ),
+            ],
           ),
         ),
       ],

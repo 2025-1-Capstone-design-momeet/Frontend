@@ -6,6 +6,9 @@ import 'package:momeet/clubMain_page.dart';
 import 'package:momeet/calendar_page.dart';
 import 'package:momeet/approvalRequest_page.dart';
 import 'package:momeet/verification_page.dart';
+import 'package:momeet/vote_page.dart';
+import 'package:momeet/vote_create_page.dart';
+import 'package:momeet/calculate_member_page.dart';
 import 'user_provider.dart';
 
 
@@ -31,7 +34,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: VerificationPage(), // 메인 페이지 설정
+      home: ApprovalRequestPage(), // 메인 페이지 설정
     );
   }
 }

@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:momeet/join_page.dart';
 
-class loginPage extends StatelessWidget {
+class loginPage extends StatefulWidget {
+  @override
+  _loginPageState createState() => _loginPageState();
+}
+
+class _loginPageState extends State<loginPage> {
+  final TextEditingController _userIdController = TextEditingController();
+  final TextEditingController _pwController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -154,6 +162,41 @@ class loginPage extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(String label, String hint, TextEditingController controller, {bool obscure = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'freesentation',
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+        SizedBox(height: 5),
+        TextFormField(
+          controller: controller,
+          obscureText: obscure,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              fontFamily: 'freesentation',
+              fontWeight: FontWeight.w400,
+              color: Color(0xFF818585),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: Color(0xFFF0F0F0),
+          ),
+        ),
+      ],
     );
   }
 }
