@@ -1,5 +1,5 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import "package:carousel_slider/carousel_slider.dart";
 
 void main() {
   runApp(MyApp());
@@ -41,6 +41,7 @@ class _MainPageState extends State<MainPage> {
   ];
 
   int _currentIndex = 0; // 현재 슬라이드 인덱스
+  bool _isSidebarOpen = false; // 사이드바 열림/닫힘 상태 변수
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +49,13 @@ class _MainPageState extends State<MainPage> {
       appBar: AppBar(
         backgroundColor: Color(0xFFFBFBFB),
         elevation: 0,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: Icon(Icons.menu, color: Colors.black),
-            onPressed: () {
-              Scaffold.of(context).openDrawer(); // 사이드바 열기
-            },
-          ),
+        leading: IconButton(
+          icon: Icon(Icons.menu, color: Colors.black),
+          onPressed: () {
+            setState(() {
+              _isSidebarOpen = !_isSidebarOpen; // 사이드바 열기/닫기 상태 토글
+            });
+          },
         ),
         title: Text(
           'mo.meet',
@@ -66,48 +67,6 @@ class _MainPageState extends State<MainPage> {
             onPressed: () {},
           ),
         ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.green),
-              child: Text(
-                '메뉴',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('내 동아리 / 소모임'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.group),
-              title: Text('내 동아리'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.event),
-              title: Text('이벤트'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('설정'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
       ),
       body: SingleChildScrollView(
         child: Padding(

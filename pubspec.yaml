@@ -11,14 +11,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  file_picker: ^6.1.1
+  image_picker: ^1.0.4
 
   http: ^1.2.2
 
   cupertino_icons: ^1.0.8
   table_calendar: ^3.2.0
-  carousel_slider: ^5.0.0
-  provider: ^6.0.5
-  fluttertoast: ^8.2.4
 
 dev_dependencies:
   flutter_test:
@@ -43,5 +42,9 @@ flutter:
           weight: 400
         - asset: assets/fonts/런드리고딕-Bold.ttf
           weight: 700
+
+  assets:
+    - assets/mainImg_01.jpg
+    - assets/clubAct_01.jpg
 
   uses-material-design: true
