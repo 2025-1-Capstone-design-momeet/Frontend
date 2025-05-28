@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:momeet/approvalRequest_page.dart';
+import 'package:momeet/delegation_page.dart';
 import 'package:provider/provider.dart';
 import 'package:momeet/login_page.dart';
+import 'package:momeet/settlement_info_page.dart';
+
+import 'clubMain_page.dart';
 import 'package:momeet/join_page.dart';
 import 'package:momeet/clubMain_page.dart';
 import 'package:momeet/calendar_page.dart';
@@ -31,7 +36,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: VerificationPage(), // 메인 페이지 설정
+      home: loginPage(), // 로그인 페이지를 첫 화면으로 설정
     );
   }
 }

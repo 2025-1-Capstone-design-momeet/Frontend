@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:momeet/meeting_page.dart';
+import 'package:momeet/wating_list_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,173 +11,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ClubMemberSidebar(),
-    );
-  }
-}
-
-class ClubMemberSidebar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.logout, color: Colors.black),
-          onPressed: () {},
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      // Drawer 위젯을 사이드바로 설정
-      drawer: CustomDrawer(),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+      home: Scaffold(
+        body: Stack(
           children: [
-            // 중앙 제목과 이미지, 이름, 학과 정보
-            Text(
-              '4학년',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage('assets/profile_pic.jpg'),
-            ),
-            SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '강채희',
-                  style: TextStyle(fontSize: 18),
-                ),
-                SizedBox(width: 8),
-                Icon(Icons.female, size: 18),
-              ],
-            ),
-            SizedBox(height: 8),
-            Text(
-              '금오공과대학교',
-              style: TextStyle(color: Colors.green, fontSize: 16),
-            ),
-            SizedBox(height: 4),
-            Text(
-              '소프트웨어전공',
-              style: TextStyle(color: Colors.grey, fontSize: 14),
-            ),
-            SizedBox(height: 4),
-            Text(
-              '20220031',
-              style: TextStyle(color: Colors.grey, fontSize: 14),
-            ),
-            SizedBox(height: 32),
+            Center(child: Text("메인 화면")),
 
-            // 내 동아리 / 소모임
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '내 동아리 / 소모임',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(height: 16),
-            Column(
-              children: [
-                // 버튼들을 가로로 꽉 차게 만들기 위해 Expanded 사용
-                Row(
-                  children: [
-                    Expanded(child: MenuButton(title: '불모지대')),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(child: MenuButton(title: '하모니')),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(child: MenuButton(title: '불멸의 용사들')),
-                  ],
-                ),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text('더보기'),
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.blue),
-                  ),
-                ),
-              ],
-            ),
-            Divider(color: Colors.grey, thickness: 1),
-
-            // 동아리 섹션
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '동아리',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(height: 8),
-            Padding(
-              padding: EdgeInsets.only(left: 20),
-              child: Column(
-                children: [
-                  Text('모집 공고'),
-                  SizedBox(height: 4),
-                  Text('동아리 활동'),
-                  SizedBox(height: 4),
-                  Text('창설 하기'),
-                ],
-              ),
+            Container(
+              color: Colors.black.withOpacity(0.2),
             ),
 
-            // 소모임 섹션
-            SizedBox(height: 32),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '소모임',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(height: 8),
-            Padding(
-              padding: EdgeInsets.only(left: 20),
-              child: Column(
-                children: [
-                  Text('모집 공고'),
-                  SizedBox(height: 4),
-                  Text('동아리 활동'),
-                  SizedBox(height: 4),
-                  Text('창설 하기'),
-                ],
-              ),
-            ),
-
-            // 기타 섹션
-            SizedBox(height: 32),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '기타',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(height: 8),
-            Padding(
-              padding: EdgeInsets.only(left: 20),
-              child: Text('문의 하기'),
-            ),
+            // ✅ 사이드바
+            ClubMemberSidebar(),
           ],
         ),
       ),
@@ -183,62 +29,191 @@ class ClubMemberSidebar extends StatelessWidget {
   }
 }
 
-// CustomDrawer 클래스를 생성하여 사이드바를 구현
-class CustomDrawer extends StatelessWidget {
+
+class ClubMemberSidebar extends StatelessWidget {
+  final List<Member> members = List.generate(
+    15,
+        (index) => Member(
+      name: ['전장혁', '강채희', '송채빈', '임나경', '허결'][index % 5],
+      department: [
+        '기계시스템공학과',
+        '컴퓨터소프트웨어공학과',
+        '토목공학과',
+        '경영학과'
+      ][index % 4],
+      role: [null, '부회장', '간부', '회장'][index % 4],
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: Column(
-        children: [
-          // 사이드바 헤더 (프로필 이미지와 이름)
-          UserAccountsDrawerHeader(
-            accountName: Text('강채희'),
-            accountEmail: Text('20220031@kumoh.ac.kr'),
-            currentAccountPicture: CircleAvatar(
-              backgroundImage: AssetImage('assets/profile_pic.jpg'),
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Material(
+        elevation: 8,
+        child: Container(
+          width: screenWidth * 0.8,
+          color: Colors.white,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 상단 프로필
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 32,
+                        backgroundImage:
+                        AssetImage('assets/mainImg_01.jpg'), // 프로필 이미지
+                      ),
+                      SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '불모지대',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(width: 4),
+                              Text(
+                                '예술',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                          ),]
+                          ),
+                          SizedBox(height: 4),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => WaitingListPage()),
+                                );
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.green.shade800,
+                                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2), // 패딩 줄임
+                                minimumSize: Size(0, 0), // 최소 크기 제거
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap, // 터치 영역도 줄임
+                                textStyle: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14, // 글자 크기도 조절 가능
+                                ),
+                              ),
+                              child: Text('가입 대기'),
+                            ),
+
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 24),
+                  Text(
+                    '부원',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 5),
+
+                  // 구성원 리스트
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: members.length,
+                      itemBuilder: (context, index) {
+                        return MemberTile(member: members[index]);
+                      },
+                    ),
+                  )
+                ],
+              ),
             ),
-            decoration: BoxDecoration(color: Colors.green),
           ),
-          ListTile(
-            title: Text('내 동아리 / 소모임'),
-            onTap: () {},
-          ),
-          ListTile(
-            title: Text('동아리'),
-            onTap: () {},
-          ),
-          ListTile(
-            title: Text('소모임'),
-            onTap: () {},
-          ),
-          Divider(),
-          ListTile(
-            title: Text('기타'),
-            onTap: () {},
-          ),
-          ListTile(
-            title: Text('설정'),
-            onTap: () {},
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class MenuButton extends StatelessWidget {
-  final String title;
+class Member {
+  final String name;
+  final String department;
+  final String? role;
 
-  MenuButton({required this.title});
+  Member({required this.name, required this.department, this.role});
+}
+
+class MemberTile extends StatelessWidget {
+  final Member member;
+
+  const MemberTile({required this.member});
+
+  Color getBadgeColor(String role) {
+    switch (role) {
+      case '회장':
+        return Colors.red.shade300;
+      case '부회장':
+        return Colors.blue.shade300;
+      case '간부':
+        return Colors.green.shade300;
+      default:
+        return Colors.grey;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {},
-      child: Text(title),
-      style: ButtonStyle(
-        padding: MaterialStateProperty.all(EdgeInsets.symmetric(vertical: 16)),
-        backgroundColor: MaterialStateProperty.all(Colors.grey.shade200),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        children: [
+          Icon(Icons.account_circle, size: 28, color: Colors.grey.shade800),
+          SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  member.name,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  member.department,
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+          if (member.role != null)
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: getBadgeColor(member.role!),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                member.role!,
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+        ],
       ),
     );
   }
