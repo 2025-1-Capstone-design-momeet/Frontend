@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:momeet/settlement_personal_page.dart';
+import 'package:momeet/settlement_president_page.dart';
 import 'package:provider/provider.dart';
 import 'package:momeet/login_page.dart';
 import 'package:momeet/join_page.dart';
@@ -34,7 +36,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: ApprovalRequestPage(), // 메인 페이지 설정
+      home: SettlementPresidentPage(), // 메인 페이지 설정
     );
   }
 }

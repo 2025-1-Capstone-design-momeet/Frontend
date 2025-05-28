@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:momeet/calendar_page.dart';
+import 'package:momeet/vote_page.dart';
 
 class clubMainPage extends StatelessWidget {
   @override
@@ -164,10 +166,10 @@ class clubMainPage extends StatelessWidget {
                   physics: NeverScrollableScrollPhysics(),
                   crossAxisCount: isLandscape ? 6 : 4,
                   children: [
-                    _buildBottomButton(Icons.calendar_today, '캘린더'),
-                    _buildBottomButton(Icons.calculate, '정산'),
-                    _buildBottomButton(Icons.check, '투표'),
-                    _buildBottomButton(Icons.assignment, '회의'),
+                    _buildBottomButton(context, Icons.calendar_today, '캘린더'),
+                    _buildBottomButton(context, Icons.calculate, '정산'),
+                    _buildBottomButton(context, Icons.check, '투표'),
+                    _buildBottomButton(context, Icons.assignment, '회의'),
                   ],
                 ),
               ],
@@ -178,17 +180,41 @@ class clubMainPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomButton(IconData icon, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 40, color: Colors.green),
-        SizedBox(height: 4),
-        Text(label, style: TextStyle(fontSize: 14)),
-      ],
+  Widget _buildBottomButton(BuildContext context, IconData icon, String label) {
+    return InkWell(
+      onTap: () {
+        if (label == '캘린더') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CalendarPage()),
+          );
+        } else if (label == '정산') {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => ),
+          // );
+        } else if (label == '투표') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => VotePage()),
+          );
+        } else if (label == '회의') {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => ),
+          // );
+        }
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 40, color: Colors.green),
+          SizedBox(height: 4),
+          Text(label, style: TextStyle(fontSize: 14)),
+        ],
+      ),
     );
   }
-
   Widget _buildSideMenu(bool isLandscape) {
     return Drawer(
       child: ListView(

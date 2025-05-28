@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:momeet/clubMain_page.dart';
 import 'package:momeet/join_page.dart';
 
 class loginPage extends StatefulWidget {
@@ -9,6 +10,11 @@ class loginPage extends StatefulWidget {
 class _loginPageState extends State<loginPage> {
   final TextEditingController _userIdController = TextEditingController();
   final TextEditingController _pwController = TextEditingController();
+
+  Future<void> login() async {
+    //로그인 넣고
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +113,12 @@ class _loginPageState extends State<loginPage> {
                 width: screenWidth * 0.6 > 250 ? screenWidth * 0.6 : 250,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => clubMainPage())
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF69B36D),
                     shape: RoundedRectangleBorder(
@@ -143,7 +154,7 @@ class _loginPageState extends State<loginPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => joinPage()),
+                        MaterialPageRoute(builder: (context) => const joinPage()),
                       );
                     },
                     child: Text(

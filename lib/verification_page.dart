@@ -24,7 +24,7 @@ class _VerificationPageState extends State<VerificationPage> {
     _userIdController.text = user.userId ?? "";
   }
 
-  void _showDialog(String message) { // dialog 메시지 띄우기
+  void _showDialog(String message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -44,7 +44,7 @@ class _VerificationPageState extends State<VerificationPage> {
     );
   }
 
-  void _showToast(String message) { // toast 메시지 띄우기
+  void _showToast(String message) {
     Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,
@@ -92,12 +92,12 @@ class _VerificationPageState extends State<VerificationPage> {
 
   Future<void> sendEmail() async {
     final userId = _userIdController.text.trim();
-    final email = _schoolEmailController.text.trim();
+    final email = "${_schoolEmailController.text.trim()}@kumoh.ac.kr"; // 👈 이메일 조합
 
     final requestBody = {
-      "email" : email,
-      "code" : "",
-      "userId" : userId
+      "email": email,
+      "code": "",
+      "userId": userId,
     };
 
     print("$requestBody");
@@ -109,25 +109,27 @@ class _VerificationPageState extends State<VerificationPage> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         if (data['success'] == "true" && data['data'] == true) {
+          _showToast("이메일 전송 완료!");
+        } else {
+          _showToast(data['message']);
         }
       }
-
     } catch (e) {
       print('요청 실패: $e');
+      _showDialog("이메일 전송 실패: $e");
     }
   }
 
   Future<void> verifyCode() async {
     final userId = _userIdController.text.trim();
-    final email = _schoolEmailController.text.trim();
+    final email = "${_schoolEmailController.text.trim()}@kumoh.ac.kr"; // 👈 이메일 조합
     final code = _codeController.text.trim();
 
     final requestBody = {
-      "email" : email,
-      "code" : code,
-      "userId" : userId
+      "email": email,
+      "code": code,
+      "userId": userId,
     };
 
     try {
@@ -138,20 +140,18 @@ class _VerificationPageState extends State<VerificationPage> {
 
         if (data['success'] == "true") {
           _showToast(data['message']);
-        }
-        else {
+        } else {
           isCodeWrong = true;
           _showToast(data['message']);
         }
       }
-    } catch(e) {
-      _showDialog("요청 실패: $e");
+    } catch (e) {
+      _showDialog("인증 실패: $e");
     }
-  }// 인증 성공 처리
+  }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
@@ -168,8 +168,8 @@ class _VerificationPageState extends State<VerificationPage> {
         foregroundColor: Colors.black,
       ),
       body: SafeArea(
-        child: Center( // ⭐ 전체를 화면 중앙에 배치
-          child: SingleChildScrollView( // 화면이 작을 경우 스크롤 가능
+        child: Center(
+          child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(30.0),
               child: Column(
@@ -178,40 +178,79 @@ class _VerificationPageState extends State<VerificationPage> {
                 children: [
                   SizedBox(height: screenHeight * 0.04),
                   Text(
-                      '인증할 학교 이메일을 입력해주세요',
-                      style: TextStyle(
-                        fontFamily: 'freesentation',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey
-                      )
+                    '인증할 학교 이메일을 입력해주세요',
+                    style: TextStyle(
+                      fontFamily: 'freesentation',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey,
+                    ),
                   ),
-                  _buildTextField('', "ex) 123abc@kumoh.ac.kr", _schoolEmailController),
-
                   SizedBox(height: screenHeight * 0.02),
+                  Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 5),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF0F0F0),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _schoolEmailController,
+                              decoration: InputDecoration(
+                                hintText: "ex) 123abc",
+                                hintStyle: TextStyle(
+                                  fontFamily: 'freesentation',
+                                  fontWeight: FontWeight.w400,
+                                  color: Color(0xFF818585),
+                                ),
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            "@kumoh.ac.kr",
+                            style: TextStyle(
+                              fontFamily: 'freesentation',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                  SizedBox(height: screenHeight * 0.04),
                   ElevatedButton(
                     onPressed: sendEmail,
                     style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF69B870)),
                     child: Text(
-                        '인증번호 보내기',
+                      '인증번호 보내기',
                       style: TextStyle(
                         fontSize: 16,
                         fontFamily: 'freesentation',
                         fontWeight: FontWeight.w500,
-                        color: Colors.white
-                      )
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   Divider(height: screenHeight * 0.1),
 
                   Text(
-                      '메일에 전송된 코드를 입력해주세요',
-                      style: TextStyle(
-                        fontFamily: 'freesentation',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey
-                      )
+                    '메일에 전송된 코드를 입력해주세요',
+                    style: TextStyle(
+                      fontFamily: 'freesentation',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey,
+                    ),
                   ),
                   _buildTextField('', '', _codeController),
 
@@ -228,13 +267,13 @@ class _VerificationPageState extends State<VerificationPage> {
                     onPressed: verifyCode,
                     style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF69B870)),
                     child: Text(
-                        '인증',
+                      '인증',
                       style: TextStyle(
                         fontFamily: 'freesentation',
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white
-                      )
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
@@ -242,7 +281,7 @@ class _VerificationPageState extends State<VerificationPage> {
             ),
           ),
         ),
-      )
+      ),
     );
   }
 }
