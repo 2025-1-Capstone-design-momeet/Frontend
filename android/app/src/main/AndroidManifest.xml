@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/> <!-- Android 13 이상 대응 -->
 
     <application
+        android:usesCleartextTraffic="true"
         android:label="momeet"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
