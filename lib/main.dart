@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: SettlementPresidentPage(), // 메인 페이지 설정
+      home: loginPage(), // 메인 페이지 설정
     );
   }
 }
