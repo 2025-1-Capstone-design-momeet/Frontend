@@ -4,6 +4,8 @@ import 'package:table_calendar/table_calendar.dart';
 import 'create_schedule_page.dart';
 
 class CalendarPage extends StatefulWidget {
+  const CalendarPage({super.key});
+
   @override
   _CalendarPageState createState() => _CalendarPageState();
 }
@@ -51,7 +53,7 @@ class _CalendarPageState extends State<CalendarPage> {
         actions: [
           Row(
             children: [
-              Text(
+              const Text(
                 '불모지대',
                 style: TextStyle(
                   fontSize: 16,
@@ -60,14 +62,14 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
               ),
               if (isApproved) ...[
-                SizedBox(width: 4),
-                Icon(
+                const SizedBox(width: 4),
+                const Icon(
                   Icons.verified,
                   color: Colors.green,
                   size: 20,
                 ),
               ],
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
             ],
           ),
         ],
@@ -79,7 +81,7 @@ class _CalendarPageState extends State<CalendarPage> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Align(
+                const Align(
                   alignment: Alignment.center,
                   child: Text(
                     '캘린더',
@@ -94,7 +96,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: IconButton(
-                    icon: Icon(Icons.edit),
+                    icon: const Icon(Icons.edit),
                     onPressed: () {
                       if (_selectedDay != null) {
                         Navigator.push(
@@ -105,7 +107,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('날짜를 먼저 선택해주세요!')),
+                          const SnackBar(content: Text('날짜를 먼저 선택해주세요!')),
                         );
                       }
                     },
@@ -114,7 +116,7 @@ class _CalendarPageState extends State<CalendarPage> {
               ],
             ),
           ),
-          Divider(
+          const Divider(
             color: Colors.black26,
             thickness: 0.7,
           ),
@@ -138,7 +140,7 @@ class _CalendarPageState extends State<CalendarPage> {
               });
             },
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           if (normalizedSelectedDay != null &&
               events.containsKey(normalizedSelectedDay))
             Padding(
@@ -157,7 +159,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       children: [
                         Text(
                           '${normalizedSelectedDay.month}월',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -165,7 +167,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         ),
                         Text(
                           '${normalizedSelectedDay.day}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -191,7 +193,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.of(context).pop(),
-                                child: Text('닫기'),
+                                child: const Text('닫기'),
                               ),
                             ],
                           ),
@@ -199,7 +201,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       },
                       child: Text(
                         '“${events[normalizedSelectedDay]![0]['title']!}”',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           overflow: TextOverflow.ellipsis,
@@ -218,8 +220,8 @@ class _CalendarPageState extends State<CalendarPage> {
               children: events[normalizedSelectedDay]!
                   .map(
                     (event) => Container(
-                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  padding: EdgeInsets.all(16),
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.green[50], // 배경 색
                     borderRadius: BorderRadius.circular(16), // 둥근 테두리
@@ -241,7 +243,7 @@ class _CalendarPageState extends State<CalendarPage> {
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(),
-                              child: Text('닫기'),
+                              child: const Text('닫기'),
                             ),
                           ],
                         ),
@@ -250,11 +252,11 @@ class _CalendarPageState extends State<CalendarPage> {
                     child: Row(
                       children: [
                         Icon(Icons.sunny, color: Colors.green[800]),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             event['title']!,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
@@ -267,7 +269,7 @@ class _CalendarPageState extends State<CalendarPage> {
               )
                   .toList(),
             )
-                : Center(
+                : const Center(
               child: Text('선택된 날짜의 일정이 없습니다.'),
             ),
           ),

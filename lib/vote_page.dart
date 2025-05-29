@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class VotePage extends StatefulWidget {
+  const VotePage({super.key});
+
   @override
   State<VotePage> createState() => _VotePageState();
 }
@@ -33,7 +35,7 @@ class _VotePageState extends State<VotePage> {
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },
@@ -42,7 +44,7 @@ class _VotePageState extends State<VotePage> {
         actions: [
           Row(
             children: [
-              Text(
+              const Text(
                 '불모지대',
                 style: TextStyle(
                   fontSize: 16,
@@ -51,10 +53,10 @@ class _VotePageState extends State<VotePage> {
                 ),
               ),
               if (isApproved) ...[
-                SizedBox(width: 4),
-                Icon(Icons.verified, color: Colors.green, size: 20),
+                const SizedBox(width: 4),
+                const Icon(Icons.verified, color: Colors.green, size: 20),
               ],
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
             ],
           )
         ],
@@ -173,7 +175,7 @@ class _VotePageState extends State<VotePage> {
                                         Text(voteOptions[i]),
                                         Row(
                                           children: [
-                                            Icon(Icons.person),
+                                            const Icon(Icons.person),
                                             const SizedBox(width: 4),
                                             Text("${20 + i * 10}"),
                                           ],

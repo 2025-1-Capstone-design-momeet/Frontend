@@ -42,7 +42,7 @@ class _SettlementInfoPageState extends State<SettlementInfoPage> {
         leading: Builder(
           builder: (context) => TextButton(
             onPressed: () { },
-            child: Text(
+            child: const Text(
             '취소'
           ),
           )
@@ -51,7 +51,7 @@ class _SettlementInfoPageState extends State<SettlementInfoPage> {
           Builder(
             builder: (context) => TextButton(
                 onPressed: () {},
-                child: Text(
+                child: const Text(
                     '확인',
                 ),
             )
@@ -66,7 +66,7 @@ class _SettlementInfoPageState extends State<SettlementInfoPage> {
             Stack(
               alignment: Alignment.center,
               children: [
-                Align(
+                const Align(
                   alignment: Alignment.center,
                   child: Text(
                     '정산',
@@ -80,7 +80,7 @@ class _SettlementInfoPageState extends State<SettlementInfoPage> {
                 ),
                 Row(
                   children: [
-                    Text(
+                    const Text(
                         'C.O.K',
                         style: TextStyle(
                           fontSize: 16,
@@ -89,15 +89,15 @@ class _SettlementInfoPageState extends State<SettlementInfoPage> {
                         )
                     ),
                     if (isApproved) ...[
-                      SizedBox(width: 4),
-                      Icon(Icons.verified, color: Colors.green, size: 20),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.verified, color: Colors.green, size: 20),
                     ],
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                   ],
                 ),
               ],
             ),
-            Divider(
+            const Divider(
               color: Colors.black26,
               thickness: 0.7
             ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CreateVotePage extends StatefulWidget {
+  const CreateVotePage({super.key});
+
   @override
   State<CreateVotePage> createState() => _CreateVotePageState();
 }

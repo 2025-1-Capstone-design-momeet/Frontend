@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:momeet/clubMain_page.dart';
 import 'package:momeet/http_service.dart';
 import 'package:momeet/join_page.dart';
-import 'package:momeet/main_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class loginPage extends StatefulWidget {
+  const loginPage({super.key});
+
   @override
   _loginPageState createState() => _loginPageState();
 }
@@ -22,7 +23,7 @@ class _loginPageState extends State<loginPage> {
 
     if (userId.isEmpty|| pw.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(
                 '아이디와 비밀번호를 입력하세요.'),
           ));
@@ -59,7 +60,7 @@ class _loginPageState extends State<loginPage> {
 
           Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => clubMainPage())
+              MaterialPageRoute(builder: (context) => const clubMainPage())
           );
         } else {
           _showDialog('오류', '회원 정보 조회 서버 오류가 발생했습니다.');
@@ -99,16 +100,16 @@ class _loginPageState extends State<loginPage> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Color(0xFFFBFBFB),
+      backgroundColor: const Color(0xFFFBFBFB),
       body: Center(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Spacer(flex: 2), // 로그인 텍스트 위쪽 공간 추가
+              const Spacer(flex: 2), // 로그인 텍스트 위쪽 공간 추가
 
-              Text(
+              const Text(
                 '로그인',
                 style: TextStyle(
                   fontFamily: 'freesentation',
@@ -123,7 +124,7 @@ class _loginPageState extends State<loginPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   _buildTextField('아이디', '아이디를 입력하세요', _userIdController),
                 ],
               ),
@@ -136,7 +137,7 @@ class _loginPageState extends State<loginPage> {
                   _buildTextField('비밀번호', '비밀번호를 입력하세요', _pwController),
                 ],
               ),
-              Spacer(flex: 3), // 로그인 버튼을 좀 더 아래로 내리기 위한 공간 추가
+              const Spacer(flex: 3), // 로그인 버튼을 좀 더 아래로 내리기 위한 공간 추가
 
               SizedBox(
                 width: screenWidth * 0.6 > 250 ? screenWidth * 0.6 : 250,
@@ -144,12 +145,12 @@ class _loginPageState extends State<loginPage> {
                 child: ElevatedButton(
                   onPressed: login,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF69B36D),
+                    backgroundColor: const Color(0xFF69B36D),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  child: Text(
+                  child: const Text(
                     '로그인',
                     style: TextStyle(
                       color: Colors.white,
@@ -165,7 +166,7 @@ class _loginPageState extends State<loginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     '아직 회원이 아니신가요?',
                     style: TextStyle(
                       fontFamily: 'freesentation',
@@ -173,7 +174,7 @@ class _loginPageState extends State<loginPage> {
                       color: Colors.grey,
                     ),
                   ),
-                  SizedBox(width: 5),
+                  const SizedBox(width: 5),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -181,7 +182,7 @@ class _loginPageState extends State<loginPage> {
                         MaterialPageRoute(builder: (context) => const joinPage()),
                       );
                     },
-                    child: Text(
+                    child: const Text(
                       '회원가입',
                       style: TextStyle(
                         fontFamily: 'freesentation',
@@ -192,7 +193,7 @@ class _loginPageState extends State<loginPage> {
                   ),
                 ],
               ),
-              Spacer(flex: 2), // 아래쪽 공간 추가
+              const Spacer(flex: 2), // 아래쪽 공간 추가
             ],
           ),
         ),
@@ -206,19 +207,19 @@ class _loginPageState extends State<loginPage> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: 'freesentation',
             fontWeight: FontWeight.w600,
             fontSize: 16,
           ),
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         TextFormField(
           controller: controller,
           obscureText: obscure,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(
+            hintStyle: const TextStyle(
               fontFamily: 'freesentation',
               fontWeight: FontWeight.w400,
               color: Color(0xFF818585),
@@ -228,7 +229,7 @@ class _loginPageState extends State<loginPage> {
               borderSide: BorderSide.none,
             ),
             filled: true,
-            fillColor: Color(0xFFF0F0F0),
+            fillColor: const Color(0xFFF0F0F0),
           ),
         ),
       ],
