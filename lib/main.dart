@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: loginPage(), // 로그인 페이지를 첫 화면으로 설정
+      home: loginPage(), // 메인 페이지 설정
     );
   }
 }

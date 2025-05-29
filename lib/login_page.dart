@@ -1,6 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:momeet/clubMain_page.dart';
+import 'package:momeet/http_service.dart';
 import 'package:momeet/join_page.dart';
+import 'package:momeet/main_page.dart';
+import 'package:momeet/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class loginPage extends StatefulWidget {
   @override
@@ -12,8 +17,80 @@ class _loginPageState extends State<loginPage> {
   final TextEditingController _pwController = TextEditingController();
 
   Future<void> login() async {
-    //로그인 넣고
+    final userId = _userIdController.text.trim();
+    final pw = _pwController.text.trim();
 
+    if (userId.isEmpty|| pw.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                '아이디와 비밀번호를 입력하세요.'),
+          ));
+      return;
+    }
+
+    final loginData = {
+      "userId": userId,
+      "pw": pw
+    };
+
+    try {
+      final response = await HttpService().postRequest("user/login", loginData);
+
+      print("LoginData: $loginData");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if(data['success'] == 'true') {
+          final userData = data['data'];
+
+          context.read<UserProvider>().login(
+              userId,
+              pw,
+              name: userData['name'],
+              univName: userData['univName'],
+              schoolCertification: userData['schoolCertification'],
+              department: userData['department'],
+              grade: userData['grade']
+          );
+
+          _showDialog('로그인 성공!', '즐거운 동아리 생활되세요!');
+
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => clubMainPage())
+          );
+        } else {
+          _showDialog('오류', '회원 정보 조회 서버 오류가 발생했습니다.');
+        }
+      } else {
+        _showDialog('오류', '아이디와 비밀번호를 확인해주세요.');
+      }
+    } catch (e) {
+      _showDialog("네트워크 오류.", "네트워크 오류가 발생했습니다.");
+      print("Error: $e");
+    }
+  }
+
+  void _showDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+              child: const Text("확인"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -46,31 +123,8 @@ class _loginPageState extends State<loginPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '아이디',
-                    style: TextStyle(
-                      fontFamily: 'freesentation',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
                   SizedBox(height: 5),
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: '아이디 입력',
-                      hintStyle: TextStyle(
-                        fontFamily: 'freesentation',
-                        fontWeight: FontWeight.w400,
-                        color: Colors.grey,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(color: Colors.grey),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
+                  _buildTextField('아이디', '아이디를 입력하세요', _userIdController),
                 ],
               ),
               SizedBox(height: screenHeight * 0.02),
@@ -79,32 +133,7 @@ class _loginPageState extends State<loginPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '비밀번호',
-                    style: TextStyle(
-                      fontFamily: 'freesentation',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: '비밀번호 입력',
-                      hintStyle: TextStyle(
-                        fontFamily: 'freesentation',
-                        fontWeight: FontWeight.w400,
-                        color: Colors.grey,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(color: Colors.grey),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
+                  _buildTextField('비밀번호', '비밀번호를 입력하세요', _pwController),
                 ],
               ),
               Spacer(flex: 3), // 로그인 버튼을 좀 더 아래로 내리기 위한 공간 추가
@@ -113,12 +142,7 @@ class _loginPageState extends State<loginPage> {
                 width: screenWidth * 0.6 > 250 ? screenWidth * 0.6 : 250,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => clubMainPage())
-                    );
-                  },
+                  onPressed: login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF69B36D),
                     shape: RoundedRectangleBorder(

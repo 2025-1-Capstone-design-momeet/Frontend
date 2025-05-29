@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import 'create_schedule_page.dart';
+
 class CalendarPage extends StatefulWidget {
   @override
   _CalendarPageState createState() => _CalendarPageState();
@@ -94,7 +96,18 @@ class _CalendarPageState extends State<CalendarPage> {
                   child: IconButton(
                     icon: Icon(Icons.edit),
                     onPressed: () {
-                      // 추가 버튼 동작 정의
+                      if (_selectedDay != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CreateSchedulePage(selectedDate: _selectedDay!),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('날짜를 먼저 선택해주세요!')),
+                        );
+                      }
                     },
                   ),
                 ),
@@ -205,52 +218,52 @@ class _CalendarPageState extends State<CalendarPage> {
               children: events[normalizedSelectedDay]!
                   .map(
                     (event) => Container(
-                      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      padding: EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.green[50], // 배경 색
-                        borderRadius: BorderRadius.circular(16), // 둥근 테두리
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.black12,
-                        //     blurRadius: 4,
-                        //     offset: Offset(0, 2),
-                        //   ),
-                        // ],
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: Text(event['title']!),
-                              content: Text(event['description']!),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: Text('닫기'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            Icon(Icons.sunny, color: Colors.green[800]),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                event['title']!,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.green[50], // 배경 색
+                    borderRadius: BorderRadius.circular(16), // 둥근 테두리
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: Colors.black12,
+                    //     blurRadius: 4,
+                    //     offset: Offset(0, 2),
+                    //   ),
+                    // ],
+                  ),
+                  child: InkWell(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: Text(event['title']!),
+                          content: Text(event['description']!),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text('닫기'),
                             ),
                           ],
                         ),
-                      ),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.sunny, color: Colors.green[800]),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            event['title']!,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                ),
               )
                   .toList(),
             )

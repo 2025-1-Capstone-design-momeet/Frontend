@@ -60,4 +60,5 @@ flutter:
       fonts:
         - asset: assets/fonts/TheJamsil2Light.ttf
           weight: 200
+          
   uses-material-design: true
