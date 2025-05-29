@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:momeet/settlement_personal_page.dart';
-import 'package:momeet/settlement_president_page.dart';
+import 'package:momeet/approvalRequest_page.dart';
+import 'package:momeet/delegation_page.dart';
 import 'package:provider/provider.dart';
 import 'package:momeet/login_page.dart';
+import 'package:momeet/settlement_info_page.dart';
+
+import 'clubMain_page.dart';
 import 'package:momeet/join_page.dart';
 import 'package:momeet/clubMain_page.dart';
 import 'package:momeet/calendar_page.dart';
 import 'package:momeet/approvalRequest_page.dart';
 import 'package:momeet/verification_page.dart';
-import 'package:momeet/vote_page.dart';
-import 'package:momeet/vote_create_page.dart';
-import 'package:momeet/calculate_member_page.dart';
 import 'user_provider.dart';
 
 

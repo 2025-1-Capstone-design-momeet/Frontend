@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:momeet/settlement_info_page.dart';
+
+import 'club_member_sidebar.dart';
 import 'package:momeet/calendar_page.dart';
 import 'package:momeet/vote_page.dart';
 
@@ -59,19 +62,36 @@ class clubMainPage extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          clubName,
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF69B36D)),
+                        Row(
+                          children: [
+                            Text(
+                              clubName,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF69B36D),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Text(category),
+                            Checkbox(value: true, onChanged: (bool? value) {}),
+                          ],
                         ),
-                        SizedBox(width: 8),
-                        Text(category),
-                        Checkbox(value: true, onChanged: (bool? value) {}),
+                        SizedBox(width: 15),
+                        TextButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(_createSlideTransition());
+                          },
+                          icon: Icon(Icons.person, color: Colors.grey),
+                          label: Text(
+                            '24',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
                       ],
-                    ),
+                    )
                   ],
                 ),
 
@@ -166,10 +186,20 @@ class clubMainPage extends StatelessWidget {
                   physics: NeverScrollableScrollPhysics(),
                   crossAxisCount: isLandscape ? 6 : 4,
                   children: [
-                    _buildBottomButton(context, Icons.calendar_today, '캘린더'),
-                    _buildBottomButton(context, Icons.calculate, '정산'),
-                    _buildBottomButton(context, Icons.check, '투표'),
-                    _buildBottomButton(context, Icons.assignment, '회의'),
+                    _buildBottomButton(Icons.calendar_today, '캘린더', () {
+                      // 캘린더 페이지로 이동 등 향후 구현
+                    }),
+                    _buildBottomButton(Icons.calculate, '정산', () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => SettlementInfoPage()),
+                      );
+                    }),
+                    _buildBottomButton(Icons.check, '투표', () {
+                      // 투표 페이지로 이동 등 향후 구현
+                    }),
+                    _buildBottomButton(Icons.assignment, '회의', () {
+                      // 회의 페이지로 이동 등 향후 구현
+                    }),
                   ],
                 ),
               ],
@@ -180,31 +210,46 @@ class clubMainPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomButton(BuildContext context, IconData icon, String label) {
-    return InkWell(
-      onTap: () {
-        if (label == '캘린더') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CalendarPage()),
-          );
-        } else if (label == '정산') {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => ),
-          // );
-        } else if (label == '투표') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => VotePage()),
-          );
-        } else if (label == '회의') {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => ),
-          // );
-        }
+  Route _createSlideTransition() {
+    return PageRouteBuilder(
+      opaque: false,  // 배경이 보이도록 false로 설정
+      barrierColor: Colors.black.withOpacity(0.3),  // 전체 배경 어둡게 (optional)
+      pageBuilder: (context, animation, secondaryAnimation) => ClubMemberSidebar(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return Stack(
+          children: [
+            // 배경 반투명 오버레이
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop(); // 배경 탭 시 닫히도록 처리 가능
+              },
+              child: Container(
+                color: Colors.black.withOpacity(0.3),
+              ),
+            ),
+            // 슬라이드되는 사이드바
+            SlideTransition(
+              position: offsetAnimation,
+              child: child,
+            ),
+          ],
+        );
       },
+    );
+  }
+
+
+
+  Widget _buildBottomButton(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -215,6 +260,7 @@ class clubMainPage extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildSideMenu(bool isLandscape) {
     return Drawer(
       child: ListView(
