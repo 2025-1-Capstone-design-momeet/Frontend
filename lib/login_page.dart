@@ -6,6 +6,8 @@ import 'package:momeet/join_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'main_page.dart';
+
 class loginPage extends StatefulWidget {
   const loginPage({super.key});
 
@@ -16,6 +18,21 @@ class loginPage extends StatefulWidget {
 class _loginPageState extends State<loginPage> {
   final TextEditingController _userIdController = TextEditingController();
   final TextEditingController _pwController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // 로그인 상태 확인
+    Future.delayed(Duration.zero, () {
+      final userProvider = context.read<UserProvider>();
+      if (userProvider.userId != null && userProvider.pw != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainPage()),
+        );
+      }
+    });
+  }
 
   Future<void> login() async {
     final userId = _userIdController.text.trim();

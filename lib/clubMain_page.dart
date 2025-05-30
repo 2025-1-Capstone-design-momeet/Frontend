@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:momeet/club_member_sidebar.dart';
 
-class clubMainPage extends StatelessWidget {
+class clubMainPage extends StatefulWidget {
   const clubMainPage({super.key});
+
+  @override
+  State<clubMainPage> createState() => _clubMainPageState();
+}
+
+class _clubMainPageState extends State<clubMainPage> {
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isLandscape = screenWidth > screenHeight;
+
+    bool isApproved = true;
 
     const String university = "금오공과대학교";
     const String clubName = "불모지대";
@@ -74,7 +82,9 @@ class clubMainPage extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             const Text(category),
-                            Checkbox(value: true, onChanged: (bool? value) {}),
+                            if (isApproved) ... [
+                              const Icon(Icons.verified, color: Colors.green, size: 20),
+                            ],
                           ],
                         ),
                         const SizedBox(width: 15),
@@ -118,7 +128,7 @@ class clubMainPage extends StatelessWidget {
                     color: Colors.green.shade100,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text('환영띠 ~~( ˘ ³˘ )',
+                  child: const Text('여긴 불모지대!! 환영합니당 ~~( ˘ ³˘ )',
                       style: TextStyle(fontSize: 16)),
                 ),
 

@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:momeet/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -9,6 +13,16 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  String? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = Provider.of<UserProvider>(
+        context, listen: false); // listen: false로 값을 가져옴
+    userId = user.userId ?? "";
+  }
+
   final List<String> imagePath = [
     'assets/mainImg_01.jpg',
     'assets/mainImg_01.jpg',
