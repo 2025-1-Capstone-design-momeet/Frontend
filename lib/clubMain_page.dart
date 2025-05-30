@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:momeet/settlement_info_page.dart';
 
+import 'buildSideMenu.dart';
 import 'club_member_sidebar.dart';
 import 'package:momeet/calendar_page.dart';
 import 'package:momeet/vote_page.dart';
 
 class clubMainPage extends StatelessWidget {
+
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -17,6 +20,7 @@ class clubMainPage extends StatelessWidget {
     final String category = "예술";
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
@@ -41,10 +45,11 @@ class clubMainPage extends StatelessWidget {
           ),
         ],
       ),
-      drawer: _buildSideMenu(isLandscape),
+      drawer: buildSideMenu(),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
+
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,9 +195,9 @@ class clubMainPage extends StatelessWidget {
                       // 캘린더 페이지로 이동 등 향후 구현
                     }),
                     _buildBottomButton(Icons.calculate, '정산', () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => SettlementInfoPage()),
-                      );
+                      // Navigator.of(context).push(
+                        // MaterialPageRoute(builder: (context) => SettlementInfoPage()),
+                      // );
                     }),
                     _buildBottomButton(Icons.check, '투표', () {
                       // 투표 페이지로 이동 등 향후 구현
@@ -261,101 +266,4 @@ class clubMainPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSideMenu(bool isLandscape) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(color: Colors.grey.shade200),
-            child: isLandscape
-                ? Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.grey,
-                  child:
-                  Icon(Icons.person, size: 40, color: Colors.white),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('강채희 ♀',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold)),
-                      Text('금오공과대학교',
-                          style: TextStyle(
-                              color: Color(0xFF69B36D),
-                              fontWeight: FontWeight.bold)),
-                      Text('소프트웨어전공'),
-                      Text('20220031'),
-                    ],
-                  ),
-                ),
-                Text('로그아웃', style: TextStyle(color: Colors.grey)),
-              ],
-            )
-                : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Text('로그아웃',
-                      style: TextStyle(color: Colors.grey)),
-                ),
-                SizedBox(height: 8),
-                Center(
-                  child: CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.grey,
-                    child:
-                    Icon(Icons.person, size: 40, color: Colors.white),
-                  ),
-                ),
-                SizedBox(height: 8),
-                Center(
-                    child: Text('강채희 ♀',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold))),
-                Center(
-                    child: Text('금오공과대학교',
-                        style: TextStyle(
-                            color: Color(0xFF69B36D),
-                            fontWeight: FontWeight.bold))),
-                Center(child: Text('소프트웨어전공')),
-                Center(child: Text('20220031')),
-              ],
-            ),
-          ),
-          ListTile(title: Text('불모지대 ✅'), onTap: () {}),
-          ListTile(title: Text('달리고'), onTap: () {}),
-          ListTile(title: Text('컴소공 4학년 모임'), onTap: () {}),
-          ListTile(title: Text('더보기 ⌄'), onTap: () {}),
-          Divider(),
-          _buildDrawerSection('동아리', ['모집 공고', '동아리 활동', '창설하기']),
-          _buildDrawerSection('소모임', ['모집 공고', '소모임 활동', '창설하기']),
-          _buildDrawerSection('기타', ['문의하기']),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDrawerSection(String title, List<String> items) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 16, top: 8),
-          child: Text(title,
-              style:
-              TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF69B36D))),
-        ),
-        ...items.map((item) => ListTile(title: Text(item), onTap: () {})).toList(),
-      ],
-    );
-  }
 }

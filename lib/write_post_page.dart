@@ -1,6 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:momeet/write_promotion_post_page.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
+import 'package:http_parser/http_parser.dart';
+
+
 import 'meeting_page.dart';
 
 void main() {
@@ -9,6 +17,7 @@ void main() {
 
 class WritePostPage extends StatefulWidget {
   WritePostPage({super.key});
+  late String date;
 
   @override
   State<WritePostPage> createState() => _WritePostPageState();
@@ -17,11 +26,94 @@ class WritePostPage extends StatefulWidget {
 }
 
 class _WritePostPageState extends State<WritePostPage> {
+  final TextEditingController _controller = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
+  final TextEditingController fileNameController = TextEditingController();
+
+  late String date;
+
+  final DateTime now = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    date = DateTime.now().toIso8601String().split('.').first; // initState에서 초기화
+  }
+
+
   bool showScript = false;
+
+
+  String? _title;
+  String? _content;
+  File? postFile;
   bool isChecked = false;
 
   String? selectedFileName;
-  final TextEditingController fileNameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose(); // 메모리 누수 방지
+    _contentController.dispose();
+    fileNameController.dispose();
+    super.dispose();
+  }
+
+
+
+  Future<void> uploadPost(File postFile) async {
+    final uri = Uri.parse("http://momeet.meowning.kr/api/post/write");
+
+    final Map<String, dynamic> postWriteDTO = {
+      "clubId": "7163f660e44a4a398b28e4653fe35507",
+      "userId": "gam1017",
+      "title": _title ?? "",
+      "content": _content ?? "",
+      "type": 0,
+      "like": 0,
+      "fixation": isChecked ? 1 : 0,
+      "date": DateTime.now().toIso8601String().split('.').first
+    };
+
+    final request = http.MultipartRequest('POST', uri);
+
+    // 이미지 파일 추가
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'file',
+        postFile.path,
+        filename: basename(postFile.path),
+      ),
+    );
+
+    // JSON 데이터 MultipartFile로 추가하면서 content-type 지정
+    request.files.add(
+      http.MultipartFile.fromString(
+        'postWriteDTO',
+        jsonEncode(postWriteDTO),
+        contentType: MediaType('application', 'json'),
+      ),
+    );
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        print("✅ 업로드 성공: ${response.body}");
+      } else {
+        print("❌ 업로드 실패: ${response.statusCode} ${response.body}");
+        print(postWriteDTO);
+      }
+    } catch (e) {
+      print("🚨 에러 발생: $e");
+    }
+  }
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -93,16 +185,20 @@ class _WritePostPageState extends State<WritePostPage> {
                     ),
                     const SizedBox(width: 60),
                     TextButton(
-                      onPressed: () {},
-                      style: TextButton.styleFrom(
-                        // padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                      ),
+                      onPressed: () {
+                        if (postFile != null) {
+                          uploadPost(postFile!);
+                        } else {
+                          print("❗ 첨부파일이 없습니다.");
+                          // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('첨부파일을 선택해주세요')));
+                        }
+                      },
                       child: const Text(
                         '완료',
                         style: TextStyle(
-                            color: Color(0xFF858585),
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400
+                          color: Color(0xFF858585),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ),
@@ -172,7 +268,13 @@ class _WritePostPageState extends State<WritePostPage> {
 
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.8,
-                    child: TextField(
+                    child:  TextField(
+                      controller: _controller,
+                      onChanged: (value) {
+                        setState(() {
+                          _title = value;
+                        });
+                      },
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderSide: BorderSide(
@@ -215,10 +317,14 @@ class _WritePostPageState extends State<WritePostPage> {
                         FilePickerResult? result = await FilePicker.platform.pickFiles();
 
                         if (result != null && result.files.isNotEmpty) {
-                          setState(() {
-                            selectedFileName = result.files.first.name;
-                            fileNameController.text = selectedFileName!;
-                          });
+                          String? path = result.files.first.path;
+                          if (path != null) {
+                            setState(() {
+                              selectedFileName = result.files.first.name;
+                              fileNameController.text = selectedFileName!;
+                              postFile = File(path); // 📌 실제 File 객체 저장
+                            });
+                          }
                         }
                       },
                       child: AbsorbPointer(
@@ -233,7 +339,7 @@ class _WritePostPageState extends State<WritePostPage> {
                             suffixIcon: const Icon(Icons.attach_file),
                           ),
                           style: const TextStyle(
-                            overflow: TextOverflow.ellipsis, // 말줄임 설정
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
@@ -263,14 +369,20 @@ class _WritePostPageState extends State<WritePostPage> {
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.8,
                     child: TextField(
+                      controller: _contentController,
+                      onChanged: (value) {
+                        setState(() {
+                          _content = value;
+                        });
+                      },
                       maxLines: null, // 여러 줄 입력 가능하게
                       keyboardType: TextInputType.multiline,
                       textAlignVertical: TextAlignVertical.top, // 텍스트 시작 위치를 위쪽으로
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         border: OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12), // 너무 크던 세로 패딩 줄임
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         hintText: '내용을 입력하세요',
-                        hintStyle: const TextStyle(color: Color(0xFFA9A9A9)),
+                        hintStyle: TextStyle(color: Color(0xFFA9A9A9)),
                       ),
                     ),
                   ),

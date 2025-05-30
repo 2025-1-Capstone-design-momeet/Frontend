@@ -1,12 +1,62 @@
+import 'dart:convert';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:momeet/user_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+
+
+import 'buildSideMenu.dart';
 
 class MainPage extends StatefulWidget {
   @override
   _MainPageState createState() => _MainPageState();
+
 }
 
 class _MainPageState extends State<MainPage> {
+  String? _userId;
+
+  Future<void> fetchMainPageData() async {
+    final url = Uri.parse('http://momeet.meowning.kr/api/user/main');
+
+    final body = jsonEncode({"userId": _userId});
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print("✅✅✅요청 성공: ${utf8.decode(response.bodyBytes)}");
+        print(data);
+        print("이름: ${data['data']['name']}");
+      } else {
+        print('❌❌❌❌서버 오류: ${response.statusCode}');
+        print('응답 내용: ${response.body}');
+      }
+    } catch (e) {
+      print('⭐⭐⭐⭐예외 발생: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final user = Provider.of<UserProvider>(context, listen: false);
+    _userId = user.userId ?? "";
+
+    if (_userId != null && _userId!.isNotEmpty) {
+      fetchMainPageData();
+    } else {
+      print("⚠️ 사용자 ID가 없습니다.");
+    }
+  }
+
   final List<String> imagePath = [
     'assets/mainImg_01.jpg',
     'assets/mainImg_01.jpg',
@@ -31,17 +81,24 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isLandscape = screenWidth > screenHeight;
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFFFBFBFB),
+        backgroundColor: Color(0xFFFFFFFF),
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.black),
-          onPressed: () {
-            setState(() {
-              _isSidebarOpen = !_isSidebarOpen; // 사이드바 열기/닫기 상태 토글
-            });
-          },
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu, color: Colors.black),
+            onPressed: () {
+              Scaffold.of(context).openDrawer(); // 이제 제대로 작동!
+            },
+          ),
         ),
         title: Text(
           'mo.meet',
@@ -54,6 +111,7 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
+      drawer: buildSideMenu(),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16.0),
@@ -183,9 +241,12 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ),
               ),
+              SizedBox(height: 50),
             ],
           ),
+
         ),
+
       ),
     );
   }

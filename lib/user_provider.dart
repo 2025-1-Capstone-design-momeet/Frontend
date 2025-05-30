@@ -8,6 +8,11 @@ class UserProvider extends ChangeNotifier {
   String? _email;
   bool? _gender;
 
+  String? _univName;
+  bool? _schoolCertification;
+  String? _department;
+  int? _grade;
+
   String? get userId => _userId;
   String? get pw => _pw;
   String? get phoneNum => _phoneNum;
@@ -15,12 +20,19 @@ class UserProvider extends ChangeNotifier {
   String? get email => _email;
   bool? get gender => _gender;
 
-  void login(String userId, String pw, {String? phoneNum, String? name, String? email, bool? gender}) {
+  String? get univName => _univName;
+  bool? get schoolCertification => _schoolCertification;
+  String? get department => _department;
+  int? get grade => _grade;
+
+  void login(String userId, String pw, {String? name, String? univName, bool? schoolCertification, String? department, int? grade}) {
     _userId = userId;
     _pw = pw;
-    _phoneNum = phoneNum;
     _name = name;
-    _gender = gender;
+    _univName = univName;
+    _department = department;
+    _grade = grade;
+
     notifyListeners();
   }
 
