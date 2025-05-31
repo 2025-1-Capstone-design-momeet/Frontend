@@ -1,21 +1,76 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:momeet/board_page.dart';
+import 'package:http/http.dart' as http;
+import 'package:momeet/user_provider.dart';
+import 'package:provider/provider.dart';
 
-import 'meeting_page.dart';
-
-void main() {
-  runApp(const MaterialApp(home: MeetingDetailPage()));
-}
+import 'board_page.dart';
 
 class MeetingDetailPage extends StatefulWidget {
-  const MeetingDetailPage({super.key});
+  final String clubId; // 전달받은 clubId 저장
+
+  const MeetingDetailPage({Key? key, required this.clubId}) : super(key: key);
 
   @override
-  State<MeetingDetailPage> createState() => _MeetingDetailPageState();
+  MeetingDetailPageState createState() => MeetingDetailPageState();
 }
 
-class _MeetingDetailPageState extends State<MeetingDetailPage> {
-  bool showScript = false; // 스크립트 박스 표시 여부
+class MeetingDetailPageState extends State<MeetingDetailPage> {
+  String? _userId;
+  List<String> imageUrls = [];
+  bool showScript = false;
+  bool _showAllClubs = false;
+
+  // 서버 데이터 저장 변수들
+  String minuteId = 'cd9413a685d54469ad6142ffadd06e01';
+  String date = '';
+  String title = '';
+  String summary = '';
+  List<Map<String, dynamic>> scriptList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    final user = Provider.of<UserProvider>(context, listen: false);
+    fetchMainPageData();
+  }
+
+  Future<void> fetchMainPageData() async {
+    final url = Uri.parse('http://momeet.meowning.kr/api/minute/detail');
+    final body = jsonEncode({"minuteId": minuteId});
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+        print("✅ 요청 성공: $decoded");
+
+        final data = decoded['data'];
+
+        setState(() {
+          final dateList = List<int>.from(data['date'] ?? []);
+          if (dateList.length >= 3) {
+            date = '${dateList[0]}년 ${dateList[1]}월 ${dateList[2]}일';
+          }
+          title = data['title'] ?? '';
+          summary = data['summary'] ?? '';
+
+          scriptList = List<Map<String, dynamic>>.from(data['script'] ?? []);
+        });
+      } else {
+        print('❌ 서버 오류: ${response.statusCode}');
+        print('응답 내용: ${response.body}');
+      }
+    } catch (e) {
+      print('❗ 예외 발생: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,8 +152,8 @@ class _MeetingDetailPageState extends State<MeetingDetailPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     width: double.infinity,
-                    child: const Text(
-                      '개강파티 일정과 장소 잡기 및 다음 회의 안건',
+                    child: Text(
+                      title,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -109,10 +164,11 @@ class _MeetingDetailPageState extends State<MeetingDetailPage> {
                   ),
 
                   // 날짜
-                  const Center(
-                    child: Text('2025.03.05', style: TextStyle(color: Colors.grey)),
-                  ),
-                  const SizedBox(height: 16),
+              Center(
+                child: Text(date, style: TextStyle(color: Colors.grey)),
+              ),
+
+              const SizedBox(height: 16),
 
                   // AI 요약 결과 카드
                   Card(
@@ -129,7 +185,7 @@ class _MeetingDetailPageState extends State<MeetingDetailPage> {
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children:  [
                           Row(
                             children: [
                               Icon(Icons.smart_toy, color: Colors.grey),
@@ -138,15 +194,8 @@ class _MeetingDetailPageState extends State<MeetingDetailPage> {
                             ],
                           ),
                           SizedBox(height: 16),
-                          Text('1. 개강파티 일정\n- 개강파티는 3월 13일로 결정됨.'),
-                          SizedBox(height: 8),
-                          Text('2. 개강파티 장소\n- 장소는 학교 앞 아리랑으로 정해짐.\n- 예약은 하민이 담당하기로 함.'),
-                          SizedBox(height: 8),
-                          Text('3. 동아리 박람회\n- 동아리 박람회 행사에 대한 공지가 필요함.\n- 포스터를 3월 7일까지 제작해야 함.\n- 포스터는 기혁쌤이 담당하기로 함.'),
-                          SizedBox(height: 8),
-                          Text('4. 신입생 환영회 공연 준비\n- 공연 연습을 3월 8일에 진행하기로 함.\n- 장소는 동방으로 정해짐.'),
-                          SizedBox(height: 8),
-                          Text('5. 다음 회의 안건\n- 다음 회의는 3월 12일로 정해짐.\n- 향후 계획 및 포스터 디자인 검토, 개강파티 준비 상황 점검을 다룰 예정임.'),
+                          Text(summary, style: TextStyle(color: Color(0xFF393939)),),
+
                         ],
                       ),
                     ),
@@ -199,7 +248,7 @@ class _MeetingDetailPageState extends State<MeetingDetailPage> {
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children:  [
                           Text(
                             '회의 스크립트',
                             style: TextStyle(
@@ -210,10 +259,8 @@ class _MeetingDetailPageState extends State<MeetingDetailPage> {
                           ),
                           SizedBox(height: 12),
                           Text(
-                            '여기에 회의 스크립트 내용이 들어갑니다.\n'
-                                '회의 참여자들이 나눈 대화 및 토론 내용 등을 자세히 기록합니다.\n'
-                                '필요 시 줄바꿈과 문단 구분을 포함할 수 있습니다.',
-                            style: TextStyle(color: Colors.black87),
+                            scriptList.map((script) => '${script["speaker"]} ${script["text"]}').join('\n'),
+                            style: const TextStyle(color: Colors.black87),
                           ),
                         ],
                       ),

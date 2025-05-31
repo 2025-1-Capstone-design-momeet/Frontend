@@ -167,7 +167,7 @@ class _MeetingPageState extends State<MeetingPage> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => MeetingDetailPage()),
+                                MaterialPageRoute(builder: (context) => MeetingPage()),
                               );
                               // Navigator.pop(context);
                             },
@@ -407,9 +407,6 @@ class _MeetingPageState extends State<MeetingPage> {
                         ),
                       ),
                     )
-
-
-
                   ],
                 ),
               ),

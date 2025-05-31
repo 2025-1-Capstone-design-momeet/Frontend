@@ -10,6 +10,7 @@ import 'package:momeet/vote_page.dart';
 import 'package:provider/provider.dart';
 import 'package:momeet/login_page.dart';
 import 'main_page.dart';
+import 'meeting_detail_page.dart';
 import 'user_provider.dart';
 
 

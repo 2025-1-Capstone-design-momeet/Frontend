@@ -6,6 +6,8 @@ import 'club_member_sidebar.dart';
 import 'package:momeet/calendar_page.dart';
 import 'package:momeet/vote_page.dart';
 
+import 'meeting_page.dart';
+
 class clubMainPage extends StatelessWidget {
 
 
@@ -45,7 +47,7 @@ class clubMainPage extends StatelessWidget {
           ),
         ],
       ),
-      drawer: buildSideMenu(),
+      drawer: BuildSideMenu(),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -195,16 +197,19 @@ class clubMainPage extends StatelessWidget {
                       // 캘린더 페이지로 이동 등 향후 구현
                     }),
                     _buildBottomButton(Icons.calculate, '정산', () {
-                      // Navigator.of(context).push(
-                        // MaterialPageRoute(builder: (context) => SettlementInfoPage()),
-                      // );
+                      // 정산 페이지 이동 코드 넣기
                     }),
                     _buildBottomButton(Icons.check, '투표', () {
-                      // 투표 페이지로 이동 등 향후 구현
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => VotePage()),
+                      );
                     }),
                     _buildBottomButton(Icons.assignment, '회의', () {
-                      // 회의 페이지로 이동 등 향후 구현
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => MeetingPage()),
+                      );
                     }),
+
                   ],
                 ),
               ],
