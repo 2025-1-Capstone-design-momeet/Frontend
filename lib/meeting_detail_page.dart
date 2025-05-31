@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:momeet/board_page.dart';
 
-import 'meeting_page.dart';
 
 void main() {
   runApp(const MaterialApp(home: MeetingDetailPage()));
@@ -43,7 +42,7 @@ class _MeetingDetailPageState extends State<MeetingDetailPage> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => BoardPage()),
+                              MaterialPageRoute(builder: (context) => const BoardPage()),
                             );
                           },
                         ),
@@ -57,8 +56,8 @@ class _MeetingDetailPageState extends State<MeetingDetailPage> {
                         ),
                       ],
                     ),
-                    Row(
-                      children: const [
+                    const Row(
+                      children: [
                         Text(
                           'C.O.K',
                           style: TextStyle(fontSize: 18, color: Color(0xFF68B26C)),
@@ -118,18 +117,18 @@ class _MeetingDetailPageState extends State<MeetingDetailPage> {
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
+                      side: const BorderSide(
                         color: Color(0xFF69B36D), // 테두리 색상 #69B36D
                         width: 1.5, // 테두리 두께 (원하는 대로 조절 가능)
                       ),
                     ),
                     // elevation: 0,
                     color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
+                    child: const Padding(
+                      padding: EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Row(
                             children: [
                               Icon(Icons.smart_toy, color: Colors.grey),
@@ -167,11 +166,11 @@ class _MeetingDetailPageState extends State<MeetingDetailPage> {
                         children: [
                           Text(
                             showScript ? '스크립트 접기' : '스크립트 보기',
-                            style: TextStyle(color: Color(0xFF929292)),
+                            style: const TextStyle(color: Color(0xFF929292)),
                           ),
                           Icon(
                             showScript ? Icons.chevron_left : Icons.chevron_right,
-                            color: Color(0xFF929292),
+                            color: const Color(0xFF929292),
                           ),
                         ],
                       ),
@@ -197,9 +196,9 @@ class _MeetingDetailPageState extends State<MeetingDetailPage> {
                           ),
                         ],
                       ),
-                      child: Column(
+                      child: const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             '회의 스크립트',
                             style: TextStyle(

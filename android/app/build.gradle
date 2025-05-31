@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "momeet.front.momeet"
-    compileSdk = 35
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

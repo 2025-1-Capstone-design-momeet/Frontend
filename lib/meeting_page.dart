@@ -49,7 +49,7 @@ class _MeetingPageState extends State<MeetingPage> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => MeetingDetailPage()),
+                                MaterialPageRoute(builder: (context) => const MeetingDetailPage()),
                               );
                               // Navigator.pop(context);
                             },
@@ -64,8 +64,8 @@ class _MeetingPageState extends State<MeetingPage> {
                           ),
                         ],
                       ),
-                      Row(
-                        children: const [
+                      const Row(
+                        children: [
                           Text(
                             'C.O.K',
                             style: TextStyle(fontSize: 18, color: Color(0xFF68B26C)),
@@ -90,7 +90,7 @@ class _MeetingPageState extends State<MeetingPage> {
             ),
             Container(
               height: 1,
-              color: Color(0xFFE0E0E0), // 조금 더 연한 회색
+              color: const Color(0xFFE0E0E0), // 조금 더 연한 회색
             ),
 
             // 스크롤 가능한 콘텐츠
@@ -116,8 +116,8 @@ class _MeetingPageState extends State<MeetingPage> {
                             color: const Color(0xFFF27070),
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          child: Row(
-                            children: const [
+                          child: const Row(
+                            children: [
                               Icon(Icons.fiber_manual_record, color: Colors.white, size: 16),
                               SizedBox(width: 4),
                               Text('녹음중', style: TextStyle(color: Colors.white, fontSize: 12)),
@@ -143,9 +143,9 @@ class _MeetingPageState extends State<MeetingPage> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Icon(Icons.file_upload, color: Color(0xFF9F9F9F)),
                                 SizedBox(width: 8),
                                 Text(
@@ -222,9 +222,9 @@ class _MeetingPageState extends State<MeetingPage> {
                         style: TextButton.styleFrom(
                           foregroundColor: const Color(0xFF929292), // 텍스트 및 아이콘 색상
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Text('더보기'),
                             SizedBox(width: 4),
                             Icon(Icons.chevron_right, color: Color(0xFF929292)),

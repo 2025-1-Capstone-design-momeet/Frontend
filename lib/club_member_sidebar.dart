@@ -1,40 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:momeet/meeting_page.dart';
-import 'package:momeet/wating_list_page.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Stack(
-          children: [
-            Center(child: Text("메인 화면")),
-
-            Container(
-              color: Colors.black.withOpacity(0.2),
-            ),
-
-            // ✅ 사이드바
-            ClubMemberSidebar(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
+import 'package:momeet/waiting_list_page.dart';
 
 class ClubMemberSidebar extends StatelessWidget {
   final List<Member> members = List.generate(
     15,
         (index) => Member(
-      name: ['전장혁', '강채희', '송채빈', '임나경', '허결'][index % 5],
+      name: ['전장혁', '강채희', '송채빈', '임나경', '허겸'][index % 5],
       department: [
         '기계시스템공학과',
         '컴퓨터소프트웨어공학과',
@@ -82,16 +54,16 @@ class ClubMemberSidebar extends StatelessWidget {
                             ),
                           ),
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(width: 4),
-                              Text(
-                                '예술',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                          ),]
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(width: 4),
+                                Text(
+                                  '예술',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                ),]
                           ),
                           SizedBox(height: 4),
                           Container(

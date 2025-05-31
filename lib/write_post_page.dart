@@ -1,7 +1,5 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:momeet/write_promotion_post_page.dart';
-import 'meeting_page.dart';
+//import 'package:momeet/write_promotion_post_page.dart';
 
 void main() {
   runApp(MaterialApp(home: WritePostPage()));
@@ -51,10 +49,10 @@ class _WritePostPageState extends State<WritePostPage> {
                         IconButton(
                           icon: const Icon(Icons.arrow_back),
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => WritePromotionPostPage()),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(builder: (context) => WritePromotionPostPage()),
+                            // );
                           },
                         ),
                         const SizedBox(width: 0),
@@ -67,8 +65,8 @@ class _WritePostPageState extends State<WritePostPage> {
                         ),
                       ],
                     ),
-                    Row(
-                      children: const [
+                    const Row(
+                      children: [
                         Text(
                           'C.O.K',
                           style: TextStyle(fontSize: 18, color: Color(0xFF68B26C)),
@@ -139,7 +137,7 @@ class _WritePostPageState extends State<WritePostPage> {
                               isChecked = newValue ?? false;
                             });
                           },
-                          activeColor: Color(0xFF69B36D),
+                          activeColor: const Color(0xFF69B36D),
                         ),
                         const Text(
                           '핀 고정',
@@ -172,17 +170,17 @@ class _WritePostPageState extends State<WritePostPage> {
 
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.8,
-                    child: TextField(
+                    child: const TextField(
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: const Color(0xFFA9A9A9), // 테두리 색상
+                            color: Color(0xFFA9A9A9), // 테두리 색상
                             width: 5.0, // 테두리 두께
                           ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         hintText: '제목을 입력하세요',
-                        hintStyle: const TextStyle(color: Color(0xFFA9A9A9)),
+                        hintStyle: TextStyle(color: Color(0xFFA9A9A9)),
                       ),
                     ),
                   ),
@@ -212,25 +210,25 @@ class _WritePostPageState extends State<WritePostPage> {
                     width: MediaQuery.of(context).size.width * 0.8,
                     child: GestureDetector(
                       onTap: () async {
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
-
-                        if (result != null && result.files.isNotEmpty) {
-                          setState(() {
-                            selectedFileName = result.files.first.name;
-                            fileNameController.text = selectedFileName!;
-                          });
-                        }
+                        // FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        //
+                        // if (result != null && result.files.isNotEmpty) {
+                        //   setState(() {
+                        //     selectedFileName = result.files.first.name;
+                        //     fileNameController.text = selectedFileName!;
+                        //   });
+                        // }
                       },
                       child: AbsorbPointer(
                         child: TextField(
                           readOnly: true,
                           controller: fileNameController,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             border: OutlineInputBorder(),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                             hintText: '첨부파일 없음',
-                            hintStyle: const TextStyle(color: Color(0xFFA9A9A9)),
-                            suffixIcon: const Icon(Icons.attach_file),
+                            hintStyle: TextStyle(color: Color(0xFFA9A9A9)),
+                            suffixIcon: Icon(Icons.attach_file),
                           ),
                           style: const TextStyle(
                             overflow: TextOverflow.ellipsis, // 말줄임 설정
@@ -262,15 +260,15 @@ class _WritePostPageState extends State<WritePostPage> {
 
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.8,
-                    child: TextField(
+                    child: const TextField(
                       maxLines: null, // 여러 줄 입력 가능하게
                       keyboardType: TextInputType.multiline,
                       textAlignVertical: TextAlignVertical.top, // 텍스트 시작 위치를 위쪽으로
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12), // 너무 크던 세로 패딩 줄임
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12), // 너무 크던 세로 패딩 줄임
                         hintText: '내용을 입력하세요',
-                        hintStyle: const TextStyle(color: Color(0xFFA9A9A9)),
+                        hintStyle: TextStyle(color: Color(0xFFA9A9A9)),
                       ),
                     ),
                   ),

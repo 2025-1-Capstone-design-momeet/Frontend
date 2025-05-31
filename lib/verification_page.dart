@@ -6,6 +6,8 @@ import 'user_provider.dart';
 import 'http_service.dart';
 
 class VerificationPage extends StatefulWidget {
+  const VerificationPage({super.key});
+
   @override
   _VerificationPageState createState() => _VerificationPageState();
 }
@@ -61,19 +63,19 @@ class _VerificationPageState extends State<VerificationPage> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: 'freesentation',
             fontWeight: FontWeight.w600,
             fontSize: 16,
           ),
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         TextFormField(
           controller: controller,
           obscureText: obscure,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(
+            hintStyle: const TextStyle(
               fontFamily: 'freesentation',
               fontWeight: FontWeight.w400,
               color: Color(0xFF818585),
@@ -83,7 +85,7 @@ class _VerificationPageState extends State<VerificationPage> {
               borderSide: BorderSide.none,
             ),
             filled: true,
-            fillColor: Color(0xFFF0F0F0),
+            fillColor: const Color(0xFFF0F0F0),
           ),
         ),
       ],
@@ -155,11 +157,11 @@ class _VerificationPageState extends State<VerificationPage> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Color(0xFFFBFBFB),
+      backgroundColor: const Color(0xFFFBFBFB),
       appBar: AppBar(
-        title: Text('학교 인증'),
+        title: const Text('학교 인증'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
@@ -177,7 +179,7 @@ class _VerificationPageState extends State<VerificationPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: screenHeight * 0.04),
-                  Text(
+                  const Text(
                     '인증할 학교 이메일을 입력해주세요',
                     style: TextStyle(
                       fontFamily: 'freesentation',
@@ -190,19 +192,19 @@ class _VerificationPageState extends State<VerificationPage> {
                   Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Container(
                       decoration: BoxDecoration(
-                        color: Color(0xFFF0F0F0),
+                        color: const Color(0xFFF0F0F0),
                         borderRadius: BorderRadius.circular(10.0),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Row(
                         children: [
                           Expanded(
                             child: TextFormField(
                               controller: _schoolEmailController,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: "ex) 123abc",
                                 hintStyle: TextStyle(
                                   fontFamily: 'freesentation',
@@ -213,7 +215,7 @@ class _VerificationPageState extends State<VerificationPage> {
                               ),
                             ),
                           ),
-                          Text(
+                          const Text(
                             "@kumoh.ac.kr",
                             style: TextStyle(
                               fontFamily: 'freesentation',
@@ -230,8 +232,8 @@ class _VerificationPageState extends State<VerificationPage> {
                   SizedBox(height: screenHeight * 0.04),
                   ElevatedButton(
                     onPressed: sendEmail,
-                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF69B870)),
-                    child: Text(
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF69B870)),
+                    child: const Text(
                       '인증번호 보내기',
                       style: TextStyle(
                         fontSize: 16,
@@ -243,7 +245,7 @@ class _VerificationPageState extends State<VerificationPage> {
                   ),
                   Divider(height: screenHeight * 0.1),
 
-                  Text(
+                  const Text(
                     '메일에 전송된 코드를 입력해주세요',
                     style: TextStyle(
                       fontFamily: 'freesentation',
@@ -255,8 +257,8 @@ class _VerificationPageState extends State<VerificationPage> {
                   _buildTextField('', '', _codeController),
 
                   if (isCodeWrong)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 8.0),
                       child: Text(
                         '코드가 올바르지 않습니다.',
                         style: TextStyle(color: Colors.red),
@@ -265,8 +267,8 @@ class _VerificationPageState extends State<VerificationPage> {
                   SizedBox(height: screenHeight * 0.04),
                   ElevatedButton(
                     onPressed: verifyCode,
-                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF69B870)),
-                    child: Text(
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF69B870)),
+                    child: const Text(
                       '인증',
                       style: TextStyle(
                         fontFamily: 'freesentation',

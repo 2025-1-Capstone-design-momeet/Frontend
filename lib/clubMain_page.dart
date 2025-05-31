@@ -1,32 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:momeet/settlement_info_page.dart';
-
-import 'club_member_sidebar.dart';
-import 'package:momeet/calendar_page.dart';
+import 'package:momeet/club_member_sidebar.dart';
 import 'package:momeet/vote_page.dart';
 
-class clubMainPage extends StatelessWidget {
+import 'calendar_page.dart';
+
+class clubMainPage extends StatefulWidget {
+  const clubMainPage({super.key});
+
+  @override
+  State<clubMainPage> createState() => _clubMainPageState();
+}
+
+class _clubMainPageState extends State<clubMainPage> {
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isLandscape = screenWidth > screenHeight;
 
-    final String university = "금오공과대학교";
-    final String clubName = "불모지대";
-    final String category = "예술";
+    bool isApproved = true;
+
+    const String university = "금오공과대학교";
+    const String clubName = "불모지대";
+    const String category = "예술";
 
     return Scaffold(
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
-            icon: Icon(Icons.menu, color: Colors.black),
+            icon: const Icon(Icons.menu, color: Colors.black),
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },
           ),
         ),
-        title: Text(
+        title: const Text(
           'mo.meet',
           style: TextStyle(
             fontFamily: '런드리고딕',
@@ -36,7 +45,7 @@ class clubMainPage extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications),
             onPressed: () {},
           ),
         ],
@@ -53,20 +62,20 @@ class clubMainPage extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       university,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF69B36D)),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            Text(
+                            const Text(
                               clubName,
                               style: TextStyle(
                                 fontSize: 18,
@@ -74,18 +83,20 @@ class clubMainPage extends StatelessWidget {
                                 color: Color(0xFF69B36D),
                               ),
                             ),
-                            SizedBox(width: 8),
-                            Text(category),
-                            Checkbox(value: true, onChanged: (bool? value) {}),
+                            const SizedBox(width: 8),
+                            const Text(category),
+                            if (isApproved) ... [
+                              const Icon(Icons.verified, color: Colors.green, size: 20),
+                            ],
                           ],
                         ),
-                        SizedBox(width: 15),
+                        const SizedBox(width: 15),
                         TextButton.icon(
                           onPressed: () {
                             Navigator.of(context).push(_createSlideTransition());
                           },
-                          icon: Icon(Icons.person, color: Colors.grey),
-                          label: Text(
+                          icon: const Icon(Icons.person, color: Colors.grey),
+                          label: const Text(
                             '24',
                             style: TextStyle(color: Colors.grey),
                           ),
@@ -95,7 +106,7 @@ class clubMainPage extends StatelessWidget {
                   ],
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 메인 이미지
                 Container(
@@ -103,41 +114,41 @@ class clubMainPage extends StatelessWidget {
                   height: isLandscape ? 200 : 180,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    image: DecorationImage(
+                    image: const DecorationImage(
                       image: AssetImage('assets/main_image.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 상태 메시지
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.green.shade100,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text('환영띠 ~~( ˘ ³˘ )',
+                  child: const Text('여긴 불모지대!! 환영합니당 ~~( ˘ ³˘ )',
                       style: TextStyle(fontSize: 16)),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 다가오는 일정
-                Text('다가오는 일정',
+                const Text('다가오는 일정',
                     style:
                     TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Container(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.green),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
                       CircleAvatar(
                         backgroundColor: Colors.green,
@@ -153,20 +164,20 @@ class clubMainPage extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 게시판
-                Text('게시판',
+                const Text('게시판',
                     style:
                     TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Container(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Column(
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('📌 불모지대 필독 공지사항!!',
@@ -178,24 +189,28 @@ class clubMainPage extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 하단 네비게이션 버튼
                 GridView.count(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: isLandscape ? 6 : 4,
                   children: [
                     _buildBottomButton(Icons.calendar_today, '캘린더', () {
-                      // 캘린더 페이지로 이동 등 향후 구현
-                    }),
-                    _buildBottomButton(Icons.calculate, '정산', () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => SettlementInfoPage()),
+                        MaterialPageRoute(builder: (context) => CalendarPage()),
                       );
                     }),
+                    _buildBottomButton(Icons.calculate, '정산', () {
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(builder: (context) => SettlementInfoPage()),
+                      // );
+                    }),
                     _buildBottomButton(Icons.check, '투표', () {
-                      // 투표 페이지로 이동 등 향후 구현
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => VotePage()),
+                      );
                     }),
                     _buildBottomButton(Icons.assignment, '회의', () {
                       // 회의 페이지로 이동 등 향후 구현
@@ -254,8 +269,8 @@ class clubMainPage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 40, color: Colors.green),
-          SizedBox(height: 4),
-          Text(label, style: TextStyle(fontSize: 14)),
+          const SizedBox(height: 4),
+          Text(label, style: const TextStyle(fontSize: 14)),
         ],
       ),
     );
@@ -269,7 +284,7 @@ class clubMainPage extends StatelessWidget {
           DrawerHeader(
             decoration: BoxDecoration(color: Colors.grey.shade200),
             child: isLandscape
-                ? Row(
+                ? const Row(
               children: [
                 CircleAvatar(
                   radius: 30,
@@ -299,7 +314,7 @@ class clubMainPage extends StatelessWidget {
                 Text('로그아웃', style: TextStyle(color: Colors.grey)),
               ],
             )
-                : Column(
+                : const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Align(
@@ -331,11 +346,11 @@ class clubMainPage extends StatelessWidget {
               ],
             ),
           ),
-          ListTile(title: Text('불모지대 ✅'), onTap: () {}),
-          ListTile(title: Text('달리고'), onTap: () {}),
-          ListTile(title: Text('컴소공 4학년 모임'), onTap: () {}),
-          ListTile(title: Text('더보기 ⌄'), onTap: () {}),
-          Divider(),
+          ListTile(title: const Text('불모지대 ✅'), onTap: () {}),
+          ListTile(title: const Text('달리고'), onTap: () {}),
+          ListTile(title: const Text('컴소공 4학년 모임'), onTap: () {}),
+          ListTile(title: const Text('더보기 ⌄'), onTap: () {}),
+          const Divider(),
           _buildDrawerSection('동아리', ['모집 공고', '동아리 활동', '창설하기']),
           _buildDrawerSection('소모임', ['모집 공고', '소모임 활동', '창설하기']),
           _buildDrawerSection('기타', ['문의하기']),
@@ -352,9 +367,9 @@ class clubMainPage extends StatelessWidget {
           padding: const EdgeInsets.only(left: 16, top: 8),
           child: Text(title,
               style:
-              TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF69B36D))),
+              const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF69B36D))),
         ),
-        ...items.map((item) => ListTile(title: Text(item), onTap: () {})).toList(),
+        ...items.map((item) => ListTile(title: Text(item), onTap: () {})),
       ],
     );
   }

@@ -1,10 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:momeet/write_post_page.dart';
-import 'meeting_page.dart';
-
-void main() {
-  runApp(const MaterialApp(home: BoardPage()));
-}
 
 class BoardPage extends StatefulWidget {
   const BoardPage({super.key});
@@ -40,10 +34,10 @@ class _BoardPageState extends State<BoardPage> {
                         IconButton(
                           icon: const Icon(Icons.arrow_back),
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => WritePostPage()),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(builder: (context) => WritePostPage()),
+                            // );
                           },
                         ),
                         const SizedBox(width: 0),
@@ -56,8 +50,8 @@ class _BoardPageState extends State<BoardPage> {
                         ),
                       ],
                     ),
-                    Row(
-                      children: const [
+                    const Row(
+                      children: [
                         Text(
                           'C.O.K',
                           style: TextStyle(fontSize: 18, color: Color(0xFF68B26C)),
@@ -71,8 +65,8 @@ class _BoardPageState extends State<BoardPage> {
                 const SizedBox(height: 0),
                 Row(
                   children: [
-                    SizedBox(width: 150),  // 왼쪽 공백 고정 (원하는 값으로 조절)
-                    Center(
+                    const SizedBox(width: 150),  // 왼쪽 공백 고정 (원하는 값으로 조절)
+                    const Center(
                       child: Text(
                         '게시판',
                         style: TextStyle(
@@ -82,7 +76,7 @@ class _BoardPageState extends State<BoardPage> {
                         ),
                       ),
                     ),
-                    Expanded(child: SizedBox()), // 오른쪽 공백은 유동적
+                    const Expanded(child: SizedBox()), // 오른쪽 공백은 유동적
                     OutlinedButton.icon(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
@@ -131,8 +125,8 @@ class _BoardPageState extends State<BoardPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: const [
+                              const Row(
+                                children: [
                                   Icon(Icons.push_pin, color: Colors.red),
                                   SizedBox(width: 4),
                                   Text('불모지대 필독 공지사항',
@@ -162,9 +156,9 @@ class _BoardPageState extends State<BoardPage> {
                             const SizedBox(height: 12),
 
                             // 작성자 및 좋아요 우측 하단 정렬
-                            Row(
+                            const Row(
                               mainAxisAlignment: MainAxisAlignment.end,
-                              children: const [
+                              children: [
                                 Text(
                                   '작성자: 홍길동 | 좋아요: 23',
                                   style: TextStyle(fontSize: 12, color: Colors.grey),

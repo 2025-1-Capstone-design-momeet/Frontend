@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class calculateMembersPage extends StatefulWidget {
+  const calculateMembersPage({super.key});
+
   @override
   _CalculateMembersPageState createState() => _CalculateMembersPageState();
 }
@@ -53,10 +55,10 @@ class _CalculateMembersPageState extends State<calculateMembersPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('인원 선택'),
+        title: const Text('인원 선택'),
         bottom: TabBar(
           controller: _tabController,
-          tabs: [
+          tabs: const [
             Tab(text: '선택'),
             Tab(text: '미선택'),
           ],
