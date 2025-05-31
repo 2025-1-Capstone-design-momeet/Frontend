@@ -7,7 +7,9 @@ import 'package:momeet/vote_page.dart';
 import 'package:provider/provider.dart';
 
 class CreateVotePage extends StatefulWidget {
-  const CreateVotePage({super.key});
+  final dynamic clubId;
+
+  const CreateVotePage({super.key, required this.clubId});
 
   @override
   State<CreateVotePage> createState() => _CreateVotePageState();
@@ -15,6 +17,7 @@ class CreateVotePage extends StatefulWidget {
 
 class _CreateVotePageState extends State<CreateVotePage> {
   String? userId;
+
 
   @override
   void initState() {
@@ -64,7 +67,7 @@ class _CreateVotePageState extends State<CreateVotePage> {
 
     final Map<String, dynamic> voteData = {
       "userId": "lnknk1119",
-      "clubId": "b3ce6bf7bc9449fa80ec7e0cd696c3e0",
+      "clubId": widget.clubId,
       "endDate": "${selectedDate!.toIso8601String().split('T')[0]}T23:59:00",
       "title": _titleController.text.trim(),
       "content": _contentController.text.trim(),
@@ -89,7 +92,7 @@ class _CreateVotePageState extends State<CreateVotePage> {
         _showLimitDialog("서버 오류: ${response.statusCode}");
       }
     } catch (e) {
-      _showLimitDialog("통신 오류: $e");
+      _showLimitDialog(e.toString());
     }
   }
 

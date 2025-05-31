@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const CreateVotePage(), // 메인 페이지 설정
+      home: const SettlementPresidentPage(), // 메인 페이지 설정
     );
   }
 }

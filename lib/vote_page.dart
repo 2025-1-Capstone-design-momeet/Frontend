@@ -17,6 +17,8 @@ class _VotePageState extends State<VotePage> {
   bool isApproved = true;
   List<Vote> votes = [];
   Map<int, int?> selectedOptionIndexes = {};
+  String? clubId = "7163f660e44a4a398b28e4653fe35507"; // 나중에 지우삼 ㅇㅇ
+  //String? clubId
 
   @override
   void initState() {
@@ -129,7 +131,7 @@ class _VotePageState extends State<VotePage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const CreateVotePage()),
+                        MaterialPageRoute(builder: (context) => CreateVotePage(clubId: clubId!)),
                       );
                     },
                   ),

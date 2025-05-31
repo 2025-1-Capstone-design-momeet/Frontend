@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:momeet/club_member_sidebar.dart';
+import 'package:momeet/vote_page.dart';
+
+import 'calendar_page.dart';
 
 class clubMainPage extends StatefulWidget {
   const clubMainPage({super.key});
@@ -195,7 +198,9 @@ class _clubMainPageState extends State<clubMainPage> {
                   crossAxisCount: isLandscape ? 6 : 4,
                   children: [
                     _buildBottomButton(Icons.calendar_today, '캘린더', () {
-                      // 캘린더 페이지로 이동 등 향후 구현
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => CalendarPage()),
+                      );
                     }),
                     _buildBottomButton(Icons.calculate, '정산', () {
                       // Navigator.of(context).push(
@@ -203,7 +208,9 @@ class _clubMainPageState extends State<clubMainPage> {
                       // );
                     }),
                     _buildBottomButton(Icons.check, '투표', () {
-                      // 투표 페이지로 이동 등 향후 구현
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => VotePage()),
+                      );
                     }),
                     _buildBottomButton(Icons.assignment, '회의', () {
                       // 회의 페이지로 이동 등 향후 구현
