@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:momeet/calculate_member_page.dart';
 import 'package:momeet/clubMain_page.dart';
 import 'package:momeet/http_service.dart';
 import 'package:momeet/vote_create_page.dart';
 import 'package:momeet/vote_provider.dart';
 
 class VotePage extends StatefulWidget {
-  const VotePage({super.key});
+  final String clubId;
+  const VotePage({Key? key, required this.clubId}) : super(key: key);
 
   @override
   State<VotePage> createState() => _VotePageState();
@@ -17,8 +19,6 @@ class _VotePageState extends State<VotePage> {
   bool isApproved = true;
   List<Vote> votes = [];
   Map<int, int?> selectedOptionIndexes = {};
-  String? clubId = "7163f660e44a4a398b28e4653fe35507"; // 나중에 지우삼 ㅇㅇ
-  //String? clubId
 
   @override
   void initState() {
@@ -38,7 +38,7 @@ class _VotePageState extends State<VotePage> {
 
   Future<void> fetchVotes() async {
     final clubData = {
-      "clubId": "7163f660e44a4a398b28e4653fe35507"
+      "clubId": widget.clubId
     };
 
     try {
@@ -131,7 +131,7 @@ class _VotePageState extends State<VotePage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => CreateVotePage(clubId: clubId!)),
+                        MaterialPageRoute(builder: (context) => CreateVotePage(clubId: widget.clubId)),
                       );
                     },
                   ),
@@ -266,12 +266,16 @@ class _VotePageState extends State<VotePage> {
                                     ),
                                     onPressed: () {
                                       final selectedIndex = selectedOptionIndexes[index];
-                                      if (selectedIndex != null &&
-                                          selectedIndex < vote.voteContents.length) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text("선택된 항목: ${vote.voteContents[selectedIndex].field}"),
-                                          ),
+                                      if (selectedIndex != null && selectedIndex < vote.voteContents.length) {
+                                        final selectedContent = vote.voteContents[selectedIndex];
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                            builder: (context) => CalculateMembersPage(
+                                              voteID: vote.voteID, // 투표 ID
+                                              voteContentId: selectedContent.voteContentID, // 선택된 항목의 ID
+                                            ),
+                                            ),
                                         );
                                       }
                                     },
