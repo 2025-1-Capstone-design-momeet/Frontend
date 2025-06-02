@@ -36,7 +36,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home:  loginPage(), // 메인 페이지 설정
+      // home:  MeetingDetailPage(clubId: 'c020fd825e4d4f67a87e8a233487e5e4'), // 메인 페이지 설정
+      home: loginPage(),
     );
   }
 }

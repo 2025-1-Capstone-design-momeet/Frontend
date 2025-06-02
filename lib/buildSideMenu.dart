@@ -2,9 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:momeet/recruiting_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'clubMain_page.dart';
+import 'main_page.dart';
 
 class BuildSideMenu extends StatefulWidget {
   late final List<dynamic> myClubs;
@@ -32,6 +35,7 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
   String firstPosterImg = '';
   List<dynamic> clubPromotions = [];
   List<String> promotionClubNames = [];
+  List<String> promotionClubId = [];
 
   @override
   void initState() {
@@ -72,8 +76,6 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
           gender = data['gender'] ?? false;
           department = data['department'] ?? '';
 
-          firstClubName = myClubs.isNotEmpty ? myClubs[0]['clubName'] ?? '' : '';
-
           myClubs = data['myClubs'] ?? [];
           firstClubName =
           myClubs.isNotEmpty ? myClubs[0]['clubName'] ?? '' : '';
@@ -85,8 +87,12 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
               .toList();
 
           clubPromotions = data['clubPromotions'] ?? [];
-          promotionClubNames =
-              clubPromotions.map<String>((club) => club['clubName'] ?? '').toList();
+          promotionClubNames = clubPromotions
+              .map<String>((club) => club['clubName'] ?? '')
+              .toList();
+          promotionClubId = clubPromotions
+              .map<String>((club) => club['clubId'] ?? '')
+              .toList();
         });
       } else {
         print('❌ 서버 오류: ${response.statusCode}');
@@ -99,21 +105,16 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final displayClubs = _showAllClubs
-        ? myClubs
-        : myClubs.take(2).toList();
-
+    final displayClubs = _showAllClubs ? myClubs : myClubs.take(2).toList();
 
     return Drawer(
       backgroundColor: const Color(0xFFFFFFFF),
       width: 300,
       child: ListView(
-
         padding: EdgeInsets.zero,
         children: [
           // 상단 사용자 정보
           Container(
-
             height: 250, // 원하는 높이로 조절
             color: Colors.white,
             padding: EdgeInsets.all(16),
@@ -121,8 +122,8 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: 30),
-
-                Text("${grade}학년", style: TextStyle(fontSize: 14, color: Colors.grey)),
+                Text("${grade}학년",
+                    style: TextStyle(fontSize: 14, color: Colors.grey)),
                 CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.grey[400],
@@ -134,29 +135,30 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(width: 8),
-                    Text(userId, style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600, color: Color(0xFF585858))),
+                    Text(userId,
+                        style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF585858))),
                     Icon(Icons.female, color: Colors.pink, size: 18),
                   ],
                 ),
                 Text(
                   univName,
-                  style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: Colors.green, fontWeight: FontWeight.bold),
                 ),
-                Text(department,
-                    style: TextStyle(color: Color(0xFF7C7C7C))),
-                Text(department,
-                style: TextStyle(color: Color(0xFF7C7C7C))),
+                Text(department, style: TextStyle(color: Color(0xFF7C7C7C))),
+                Text(department, style: TextStyle(color: Color(0xFF7C7C7C))),
               ],
             ),
           ),
 
-
-
-
           // 내 동아리 / 소모임
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text("내 동아리 : 소모임", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+            child: Text("내 동아리 : 소모임",
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -164,60 +166,72 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
               SizedBox(height: 20),
               Column(
                 children: displayClubs.map<Widget>((club) {
-                  return Container(
-                    width: 270,
-                    height: 50,
-                    margin: EdgeInsets.only(bottom: 10),
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFFBFBFB),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          spreadRadius: 2,
-                          blurRadius: 6,
-                          offset: Offset(0, 2),
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => clubMainPage(clubId: club['clubId']),
                         ),
-                      ],
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                club['official'] == true
-                                    ? 'https://example.com/default_logo.png'
-                                    : 'https://example.com/another_default.png',
-                              ),
-                            ),
-                            SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  club['clubName'] ?? '',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(30),
+                    child: Container(
+                      width: 270,
+                      height: 50,
+                      margin: EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFFBFBFB),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            spreadRadius: 2,
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                  club['official'] == true
+                                      ? 'https://example.com/default_logo.png'
+                                      : 'https://example.com/another_default.png',
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Icon(Icons.chevron_right),
-                      ],
+                              ),
+                              SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    club['clubName'] ?? '',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Icon(Icons.chevron_right),
+                        ],
+                      ),
                     ),
                   );
                 }).toList(),
               ),
+
               SizedBox(height: 5),
 
               if (!_showAllClubs && myClubs.length > 2)
-
                 Center(
                   child: TextButton(
                     onPressed: () {
@@ -246,20 +260,39 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
 
           // 메뉴 목록
           buildSectionTitle("동아리"),
-          buildMenuItem("모집 공고"),
-          buildMenuItem("동아리 활동"),
-          buildMenuItem("창설하기"),
+          buildMenuItem("모집 공고", () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => RecruitingPage(promotionClubs: clubPromotions)));
+          }),
+          buildMenuItem("동아리 활동", () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => MainPage()));
+          }),
+          buildMenuItem("창설하기", () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => MainPage()));
+          }),
 
           buildSectionTitle("소모임"),
-          buildMenuItem("모집 공고"),
-          buildMenuItem("소모임 활동"),
-          buildMenuItem("창설하기"),
+          buildMenuItem("모집 공고", () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => MainPage()));
+          }),
+          buildMenuItem("소모임 활동", () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => MainPage()));
+          }),
+          buildMenuItem("창설하기", () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => MainPage()));
+          }),
 
           buildSectionTitle("기타"),
-          buildMenuItem("문의하기"),
-          SizedBox(height: 50)
+          buildMenuItem("문의하기", () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => MainPage()));
+          }),
         ],
-
       ),
     );
   }
@@ -281,26 +314,20 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
     );
   }
 
-
-
-  Widget buildMenuItem(String title) {
+  Widget buildMenuItem(String title, VoidCallback onTap) {
     return ListTile(
       contentPadding: EdgeInsets.only(left: 30, right: 16),
-      visualDensity: VisualDensity(vertical: -2, horizontal: 0),// 왼쪽 padding 줄임
+      visualDensity: VisualDensity(vertical: -2, horizontal: 0),
       title: Text(
         title,
         style: TextStyle(
           color: Color(0xFF636363),
-          fontWeight:  FontWeight.w500,
-          wordSpacing: -1, // 기본값인 0으로 글자 간격 조절 (기본보다 넓으면 0보다 큰 값)
+          fontWeight: FontWeight.w500,
+          wordSpacing: 4,
+          fontSize: 15,
         ),
       ),
-      onTap: () {
-        // TODO: Handle navigation
-      },
+      onTap: onTap,
     );
   }
-
-
-
 }

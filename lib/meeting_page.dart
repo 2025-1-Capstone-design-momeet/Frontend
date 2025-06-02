@@ -418,30 +418,42 @@ class _MeetingPageState extends State<MeetingPage> {
   }
 
   Widget _buildMemoCard(String date, String content, bool isLargeScreen) {
-    return Card(
-      color: Colors.white, // ← 배경색을 흰색으로 명시
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(date, style: const TextStyle(fontSize: 16, color: Colors.grey)),
-            const SizedBox(height: 8),
-            Text(
-              content,
-              style: TextStyle(
-                fontSize: isLargeScreen ? 20 : 16,
-                fontWeight: FontWeight.w300,
-                color: Colors.black87,
+    return GestureDetector(
+      onTap: () {
+        // MemoDetailPage로 이동
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MeetingDetailPage(clubId: 'dd',),
+          ),
+        );
+      },
+      child: Card(
+        color: Colors.white,
+        elevation: 2,
+        margin: const EdgeInsets.only(bottom: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(date, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+              const SizedBox(height: 8),
+              Text(
+                content,
+                style: TextStyle(
+                  fontSize: isLargeScreen ? 20 : 16,
+                  fontWeight: FontWeight.w300,
+                  color: Colors.black87,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
+
 
 }

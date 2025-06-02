@@ -146,15 +146,15 @@ class _ViewPostPageState extends State<ViewPostPage> {
                   children: [
                     Row(
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => BoardPage()),
-                            );
-                          },
-                        ),
+                        // IconButton(
+                        //   icon: const Icon(Icons.arrow_back),
+                        //   onPressed: () {
+                        //     Navigator.push(
+                        //       context,
+                        //       MaterialPageRoute(builder: (context) => BoardPage()),
+                        //     );
+                        //   },
+                        // ),
                         const SizedBox(width: 0),
                         Text(
                           'mo.meet',

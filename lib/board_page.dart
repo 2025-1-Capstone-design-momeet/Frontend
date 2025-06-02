@@ -6,18 +6,16 @@ import 'package:http/http.dart' as http;
 
 import 'meeting_page.dart';
 
-void main() {
-  runApp(const MaterialApp(home: BoardPage()));
-}
 
 class BoardPage extends StatefulWidget {
-  const BoardPage({super.key});
+  final String clubId;
+  const BoardPage({Key? key, required this.clubId}) : super(key: key);
 
   @override
-  State<BoardPage> createState() => _BoardPageState();
+  BoardPageState createState() => BoardPageState();
 }
 
-class _BoardPageState extends State<BoardPage> {
+class BoardPageState extends State<BoardPage> {
   bool showScript = false; // 스크립트 박스 표시 여부
   bool isLoading = true;
 
@@ -53,7 +51,7 @@ class _BoardPageState extends State<BoardPage> {
     };
 
     final body = jsonEncode({
-      "clubId": clubId ?? "7163f660e44a4a398b28e4653fe35507",
+      "clubId": widget.clubId ?? "7163f660e44a4a398b28e4653fe35507",
     });
 
     try {

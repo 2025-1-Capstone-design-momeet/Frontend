@@ -1,25 +1,150 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:momeet/settlement_info_page.dart';
+import 'package:http/http.dart' as http;
+import 'package:momeet/user_provider.dart';
+import 'package:provider/provider.dart';
 
+import 'board_page.dart';
 import 'buildSideMenu.dart';
 import 'club_member_sidebar.dart';
 import 'package:momeet/calendar_page.dart';
 import 'package:momeet/vote_page.dart';
-
 import 'meeting_page.dart';
 
-class clubMainPage extends StatelessWidget {
+class clubMainPage extends StatefulWidget {
+  final String clubId;
 
+  const clubMainPage({Key? key, required this.clubId}) : super(key: key);
+
+  @override
+  clubMainPageState createState() => clubMainPageState();
+}
+
+class clubMainPageState extends State<clubMainPage> {
+  String _userId = '';  // 응답에 없으니 초기화만 해둠
+  String _clubName = '';
+  String _univName = '';
+  String _category = '';
+  String _memberCount = '';
+  String _bannerImage = '';
+  String _welcomeMessage = '';
+  bool _official = false;
+
+  bool isLoading = true;
+  List<Map<String, dynamic>> postList = [];
+
+
+
+  Future<void> fetchMainPageData() async {
+    final url = Uri.parse('http://momeet.meowning.kr/api/club/main');
+    final body = jsonEncode({"clubId": widget.clubId});
+    print("🧾❗❗${widget.clubId}");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+        print("✅ 요청 성공: $decoded");
+
+        final data = decoded['data'];
+
+        setState(() {
+          _userId = '';  // 응답에 없으므로 빈값 유지
+          _clubName = data['clubName'] ?? '';
+          _univName = data['univName'] ?? '';
+          _category = data['category'] ?? '';
+          _memberCount = data['memberCount']?.toString() ?? '';
+          _bannerImage = data['bannerImage'] ?? '';
+          if (_bannerImage == 'null' || _bannerImage == null) {
+            _bannerImage = ''; // null일 경우 빈 문자열 처리
+          }
+          _welcomeMessage = data['welcomeMessage'] ?? '';
+          _official = data['official'] ?? false;
+        });
+      } else {
+        print('❌ 서버 오류: ${response.statusCode}');
+        print('응답 내용: ${response.body}');
+      }
+    } catch (e) {
+      print('❗ 예외 발생: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchPosts() async {
+    final url = Uri.parse("http://momeet.meowning.kr/api/post/getClubPostList");
+    final headers = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Flutter App)',  // User-Agent 추가
+      // 필요한 경우 Authorization 헤더도 추가
+      // 'Authorization': 'Bearer your_access_token',
+    };
+
+    final body = jsonEncode({
+      "clubId": widget.clubId ?? "7163f660e44a4a398b28e4653fe35507",
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final jsonResponse = jsonDecode(decodedBody);
+
+        if (jsonResponse['success'] == "true") {
+          final List<dynamic> data = jsonResponse['data'];
+          return data.cast<Map<String, dynamic>>();
+        } else {
+          print("❌ 서버 실패 fetchPosts: ${jsonResponse['message']}");
+        }
+      } else {
+        print("❌ HTTP 오류 fetchPosts: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("🚨 에러 발생 fetchPosts: $e");
+    }
+
+    return [];
+  }
+
+  Future<void> _loadPosts() async {
+    setState(() {
+      isLoading = true;
+    });
+    final posts = await fetchPosts();
+    setState(() {
+      postList = posts;
+      isLoading = false;
+    });
+  }
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    final user = Provider.of<UserProvider>(context, listen: false);
+    _userId = user.userId ?? "";
+
+    _loadPosts();
+
+    if (_userId.isNotEmpty) {
+      fetchMainPageData();
+    } else {
+      print("⚠️ 사용자 ID가 없습니다.");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isLandscape = screenWidth > screenHeight;
-
-    final String university = "금오공과대학교";
-    final String clubName = "불모지대";
-    final String category = "예술";
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
@@ -51,7 +176,6 @@ class clubMainPage extends StatelessWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
-
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +185,7 @@ class clubMainPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      university,
+                      _univName,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -74,7 +198,7 @@ class clubMainPage extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              clubName,
+                              _clubName,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -82,8 +206,16 @@ class clubMainPage extends StatelessWidget {
                               ),
                             ),
                             SizedBox(width: 8),
-                            Text(category),
-                            Checkbox(value: true, onChanged: (bool? value) {}),
+                            Text(_category),
+                            Checkbox(
+                              value: _official,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  _official = value ?? false;
+                                });
+                              },
+                              activeColor: Color(0xFF69B36D), // 초록색으로 변경
+                            ),
                           ],
                         ),
                         SizedBox(width: 15),
@@ -93,7 +225,7 @@ class clubMainPage extends StatelessWidget {
                           },
                           icon: Icon(Icons.person, color: Colors.grey),
                           label: Text(
-                            '24',
+                            _memberCount,
                             style: TextStyle(color: Colors.grey),
                           ),
                         ),
@@ -110,10 +242,13 @@ class clubMainPage extends StatelessWidget {
                   height: isLandscape ? 200 : 180,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    image: DecorationImage(
-                      image: AssetImage('assets/main_image.png'),
+                    image: _bannerImage.isNotEmpty
+                        ? DecorationImage(
+                      image: NetworkImage(_bannerImage),
                       fit: BoxFit.cover,
-                    ),
+                    )
+                        : null,
+                    color: _bannerImage.isEmpty ? Colors.grey.shade300 : null,
                   ),
                 ),
 
@@ -127,8 +262,7 @@ class clubMainPage extends StatelessWidget {
                     color: Colors.green.shade100,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text('환영띠 ~~( ˘ ³˘ )',
-                      style: TextStyle(fontSize: 16)),
+                  child: Text(_welcomeMessage, style: TextStyle(fontSize: 16)),
                 ),
 
                 SizedBox(height: 16),
@@ -148,8 +282,7 @@ class clubMainPage extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         backgroundColor: Colors.green,
-                        child:
-                        Text('15', style: TextStyle(color: Colors.white)),
+                        child: Text('15', style: TextStyle(color: Colors.white)),
                       ),
                       SizedBox(width: 12),
                       Expanded(
@@ -167,7 +300,17 @@ class clubMainPage extends StatelessWidget {
                     style:
                     TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
-                Container(
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BoardPage(clubId: widget.clubId),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 350,
                   padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
@@ -176,14 +319,13 @@ class clubMainPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('📌 불모지대 필독 공지사항!!',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Divider(),
-                      Text('- 2024.11.17 연극 후기'),
-                      Text('- 동방 개편~!!! 미쳤따리'),
+                      postList.isNotEmpty
+                          ? Text(postList[0]['title'] ?? '제목 없음')
+                          : Text('게시글이 없습니다'),
                     ],
                   ),
                 ),
+              ),
 
                 SizedBox(height: 16),
 
@@ -209,7 +351,6 @@ class clubMainPage extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => MeetingPage()),
                       );
                     }),
-
                   ],
                 ),
               ],
@@ -222,9 +363,10 @@ class clubMainPage extends StatelessWidget {
 
   Route _createSlideTransition() {
     return PageRouteBuilder(
-      opaque: false,  // 배경이 보이도록 false로 설정
-      barrierColor: Colors.black.withOpacity(0.3),  // 전체 배경 어둡게 (optional)
-      pageBuilder: (context, animation, secondaryAnimation) => ClubMemberSidebar(),
+      opaque: false,
+      barrierColor: Colors.black.withOpacity(0.3),
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          ClubMemberSidebar(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
         const end = Offset.zero;
@@ -235,16 +377,14 @@ class clubMainPage extends StatelessWidget {
 
         return Stack(
           children: [
-            // 배경 반투명 오버레이
             GestureDetector(
               onTap: () {
-                Navigator.of(context).pop(); // 배경 탭 시 닫히도록 처리 가능
+                Navigator.of(context).pop();
               },
               child: Container(
                 color: Colors.black.withOpacity(0.3),
               ),
             ),
-            // 슬라이드되는 사이드바
             SlideTransition(
               position: offsetAnimation,
               child: child,
@@ -255,20 +395,21 @@ class clubMainPage extends StatelessWidget {
     );
   }
 
-
-
   Widget _buildBottomButton(IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 40, color: Colors.green),
+          Icon(icon, size: 28, color: Colors.green),
           SizedBox(height: 4),
-          Text(label, style: TextStyle(fontSize: 14)),
+          Text(label,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.green,
+              )),
         ],
       ),
     );
   }
-
 }

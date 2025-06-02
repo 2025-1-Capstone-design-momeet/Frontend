@@ -23,7 +23,7 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
   bool _showAllClubs = false;
 
   // 서버 데이터 저장 변수들
-  String minuteId = 'cd9413a685d54469ad6142ffadd06e01';
+  String minuteId = 'c2938668e97c425ba9794f8a7733ae28';
   String date = '';
   String title = '';
   String summary = '';
@@ -93,15 +93,15 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                   children: [
                     Row(
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => BoardPage()),
-                            );
-                          },
-                        ),
+                        // IconButton(
+                        //   icon: const Icon(Icons.arrow_back),
+                          // onPressed: () {
+                          //   Navigator.push(
+                          //     context,
+                          //     // MaterialPageRoute(builder: (context) => BoardPage()),
+                          //   );
+                          // },
+                        // ),
                         const SizedBox(width: 0),
                         Text(
                           'mo.meet',

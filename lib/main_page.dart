@@ -73,7 +73,7 @@ class _MainPageState extends State<MainPage> {
           //     .toList();
           imageUrls = posters
               .map<String>((poster) =>
-          'http://momeet.meowning.kr/api/file/image?type=posts&filename=${poster['img']}')
+          'http://momeet.meowning.kr/api/file/image?type=poster&filename=${poster['img']}')
               .toList();
 
 
@@ -228,21 +228,21 @@ class _MainPageState extends State<MainPage> {
                     }).toList(),
                   ),
                   const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(imageUrls.length, (index) {
-                      return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color:
-                          _currentIndex == index ? Colors.green : Colors.grey,
-                        ),
-                      );
-                    }),
-                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: List.generate(imageUrls.length, (index) {
+                  //     return Container(
+                  //       margin: const EdgeInsets.symmetric(horizontal: 5),
+                  //       width: 10,
+                  //       height: 10,
+                  //       decoration: BoxDecoration(
+                  //         shape: BoxShape.circle,
+                  //         color:
+                  //         _currentIndex == index ? Colors.green : Colors.grey,
+                  //       ),
+                  //     );
+                  //   }),
+                  // ),
                 ],
               ),
 
@@ -268,7 +268,7 @@ class _MainPageState extends State<MainPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => clubMainPage(), // club 데이터를 넘겨줘야 할 수도 있어요
+                              builder: (context) => clubMainPage(clubId: club['clubId']), // club 데이터를 넘겨줘야 할 수도 있어요
                             ),
                           );
                         },
