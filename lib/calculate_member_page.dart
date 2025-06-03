@@ -13,7 +13,7 @@ class _CalculateMembersPageState extends State<calculateMembersPage>
 
   // 임시 예제 데이터
   List<String> selectedMembers = ['김철수', '박영희'];
-  List<String> unselectedMembers = ['이민수', '최지우', '장도연'];
+  List<String> unselectedMembers = ['이민수', '최지우', '장도ㅇ연'];
 
   @override
   void initState() {
