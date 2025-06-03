@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:momeet/calculate_member_page.dart';
 import 'package:momeet/clubMain_page.dart';
 import 'package:momeet/http_service.dart';
+import 'package:momeet/user_provider.dart';
 import 'package:momeet/vote_create_page.dart';
 import 'package:momeet/vote_provider.dart';
+import 'package:provider/provider.dart';
 
 class VotePage extends StatefulWidget {
-  const VotePage({super.key});
+  final String clubId;
+  const VotePage({Key? key, required this.clubId}) : super(key: key);
 
   @override
   State<VotePage> createState() => _VotePageState();
@@ -17,12 +21,15 @@ class _VotePageState extends State<VotePage> {
   bool isApproved = true;
   List<Vote> votes = [];
   Map<int, int?> selectedOptionIndexes = {};
-  String? clubId = "7163f660e44a4a398b28e4653fe35507"; // 나중에 지우삼 ㅇㅇ
-  //String? clubId
+  String? userId;
 
   @override
   void initState() {
     super.initState();
+    final user = Provider.of<UserProvider>(
+        context, listen: false); // listen: false로 값을 가져옴
+    userId = user.userId ?? "";
+
     fetchVotes();
   }
 
@@ -38,7 +45,7 @@ class _VotePageState extends State<VotePage> {
 
   Future<void> fetchVotes() async {
     final clubData = {
-      "clubId": "7163f660e44a4a398b28e4653fe35507"
+      "clubId": widget.clubId
     };
 
     try {
@@ -48,9 +55,18 @@ class _VotePageState extends State<VotePage> {
         final jsonResponse = jsonDecode(decodedBody);
         if (jsonResponse['success'] == "true") {
           final List data = jsonResponse['data'];
+          final fetchedVotes = data.map((item) => Vote.fromJson(item)).toList();
+
           setState(() {
-            votes = data.map((item) => Vote.fromJson(item)).toList();
+            votes = fetchedVotes;
           });
+
+          // 각 투표에 대해 state() 호출
+          for (int i = 0; i < fetchedVotes.length; i++) {
+            print("state() 호출: voteID=${fetchedVotes[i].voteID}");
+            state(fetchedVotes[i].voteID, i);
+          }
+
         } else {
           print("서버 오류: ${jsonResponse['message']}");
         }
@@ -58,7 +74,59 @@ class _VotePageState extends State<VotePage> {
         print("HTTP 오류: ${response.statusCode}");
       }
     } catch (e) {
-      print("예외 발생: $e");
+      print("fetch 예외 발생: $e");
+    }
+  }
+
+  Future<void> submit(String voteID, String voteContentId,int voteNum) async {
+    final data = {
+      "userId": "gam1017",
+      "voteID": voteID,
+      "voteContentId": voteContentId,
+      "voteNum": voteNum
+    };
+
+    print(data);
+
+    try {
+      final response = await HttpService().postRequest("vote/vote", data);
+
+      if(response.statusCode == 200) {
+        print("투표 완~");
+        await fetchVotes();
+      }
+
+    } catch (e) {
+      print("submit 예외 발생: $e");
+    }
+  }
+
+  Future<void> state(String voteID, int index) async {
+    final data = {
+      "userId": "gam1017",
+      "voteID": voteID,
+      "voteNum": null
+    };
+
+    try {
+      final response = await HttpService().postRequest("vote/voteState", data);
+
+      if (response.statusCode == 200) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final jsonResponse = jsonDecode(decodedBody);
+
+        if (jsonResponse["success"] == "true" && jsonResponse["data"] != null) {
+          final int voteNum = jsonResponse["data"]["voteNum"];
+          setState(() {
+            selectedOptionIndexes[index] = voteNum;
+          });
+        } else {
+          // 아직 투표 안 했을 수도 있음, 이 경우 아무것도 안 함
+          print("투표 안함 또는 데이터 없음: ${jsonResponse["data"]}");
+        }
+      }
+    } catch (e) {
+      print("state 예외 발생: $e");
     }
   }
 
@@ -131,7 +199,7 @@ class _VotePageState extends State<VotePage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => CreateVotePage(clubId: clubId!)),
+                        MaterialPageRoute(builder: (context) => CreateVotePage(clubId: widget.clubId)),
                       );
                     },
                   ),
@@ -213,16 +281,14 @@ class _VotePageState extends State<VotePage> {
                                   ),
                                 ),
 
+                              // 투표 항목 리스트
                               Column(
                                 children: List.generate(vote.voteContents.length, (i) {
                                   final selected = selectedOptionIndexes[index];
                                   final isSelected = selected != null && selected == i;
 
                                   return GestureDetector(
-                                    // payed나 anonymous면 선택 불가
-                                    onTap: (vote.anonymous || vote.payed)
-                                        ? null
-                                        : () {
+                                    onTap: vote.payed ? null : () {
                                       setState(() {
                                         selectedOptionIndexes[index] = i;
                                       });
@@ -255,6 +321,29 @@ class _VotePageState extends State<VotePage> {
                                   );
                                 }),
                               ),
+                              if (!vote.end && !vote.payed) ...[
+                                const SizedBox(height: 10),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blueAccent,
+                                    ),
+                                    onPressed: () {
+                                      final selectedIndex = selectedOptionIndexes[index];
+                                      if (selectedIndex == null) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text("항목을 선택해주세요.")),
+                                        );
+                                        return;
+                                      }
+                                      final selectedContent = vote.voteContents[selectedIndex];
+                                      submit(vote.voteID, selectedContent.voteContentID,selectedIndex);
+                                    },
+                                    child: const Text("투표하기", style: TextStyle(color: Colors.white)),
+                                  ),
+                                ),
+                              ],
 
                               if (!vote.anonymous && !vote.payed) ...[
                                 const SizedBox(height: 10),
@@ -266,12 +355,16 @@ class _VotePageState extends State<VotePage> {
                                     ),
                                     onPressed: () {
                                       final selectedIndex = selectedOptionIndexes[index];
-                                      if (selectedIndex != null &&
-                                          selectedIndex < vote.voteContents.length) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text("선택된 항목: ${vote.voteContents[selectedIndex].field}"),
-                                          ),
+                                      if (selectedIndex != null && selectedIndex < vote.voteContents.length) {
+                                        final selectedContent = vote.voteContents[selectedIndex];
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                            builder: (context) => CalculateMembersPage(
+                                              voteID: vote.voteID, // 투표 ID
+                                              voteContentId: selectedContent.voteContentID, // 선택된 항목의 ID
+                                            ),
+                                            ),
                                         );
                                       }
                                     },

@@ -5,26 +5,24 @@ import 'package:momeet/create_settlement_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'club_provider.dart';
+import 'create_membership_page.dart';
 import 'http_service.dart';
 
-class CalculateMembersPage extends StatefulWidget {
-  final String voteID;
-  final String voteContentId;
-
-  const CalculateMembersPage({
+class CalculateMemberFeePage extends StatefulWidget {
+  const CalculateMemberFeePage({
     super.key,
-    required this.voteID,
-    required this.voteContentId,
   });
 
   @override
-  _CalculateMembersPageState createState() => _CalculateMembersPageState();
+  _CalculateMemberFeePageState createState() => _CalculateMemberFeePageState();
 }
 
-class _CalculateMembersPageState extends State<CalculateMembersPage>
+class _CalculateMemberFeePageState extends State<CalculateMemberFeePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String? userId;
+  String? clubId;
 
   List<Map<String, dynamic>> selectedMembers = [];
   List<Map<String, dynamic>> unselectedMembers = [];
@@ -35,6 +33,9 @@ class _CalculateMembersPageState extends State<CalculateMembersPage>
     _tabController = TabController(length: 2, vsync: this);
     final user = Provider.of<UserProvider>(context, listen: false);
     userId = user.userId ?? "";
+
+    final club = Provider.of<ClubProvider>(context, listen: false);
+    clubId = club.clubId ?? "";
 
     members(); // API 호출
   }
@@ -54,18 +55,16 @@ class _CalculateMembersPageState extends State<CalculateMembersPage>
   Future<void> members() async {
     final data = {
       "userId": "gam1017",
-      "voteID": widget.voteID,
-      "voteContentId": widget.voteContentId,
-      "voteNum": null,
+      "clubId": "7163f660e44a4a398b28e4653fe35507"
     };
 
     try {
-      final response = await HttpService().postRequest("pay/payMembers", data);
+      final response = await HttpService().postRequest("membershipFee/payMembers", data);
 
       if (response.statusCode == 200) {
         final res = jsonDecode(utf8.decode(response.bodyBytes));
-        final checkMembers = res['data']['checkMembers'] as List;
-        final unCheckMembers = res['data']['unCheckMembers'] as List;
+        final checkMembers = (res['data']['checkMembers'] as List?) ?? [];
+        final unCheckMembers = (res['data']['unCheckMembers'] as List?) ?? [];
 
         setState(() {
           selectedMembers = checkMembers.cast<Map<String, dynamic>>();
@@ -135,9 +134,8 @@ class _CalculateMembersPageState extends State<CalculateMembersPage>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => CreateSettlementPage(
+                builder: (context) => CreateMembershipPage(
                   selectedMembers: selectedMembers,
-                  voteID: widget.voteID,
                 ),
               ),
             );
@@ -157,7 +155,7 @@ class _CalculateMembersPageState extends State<CalculateMembersPage>
         children: [
           const Center(
             child: Text(
-              '인원 선택',
+              '가입비 인원 선택',
               style: TextStyle(
                 fontFamily: 'jamsil',
                 fontWeight: FontWeight.w200,

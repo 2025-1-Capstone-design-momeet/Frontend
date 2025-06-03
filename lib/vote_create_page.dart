@@ -66,7 +66,7 @@ class _CreateVotePageState extends State<CreateVotePage> {
     }
 
     final Map<String, dynamic> voteData = {
-      "userId": "lnknk1119",
+      "userId": "gam1017",
       "clubId": widget.clubId,
       "endDate": "${selectedDate!.toIso8601String().split('T')[0]}T23:59:00",
       "title": _titleController.text.trim(),
@@ -84,7 +84,11 @@ class _CreateVotePageState extends State<CreateVotePage> {
         final result = jsonDecode(response.body);
         if (result['success'] == "true") {
           _showLimitDialog("투표가 성공적으로 생성되었습니다.");
-          // Navigator.pop(context); // 필요 시 이전 화면으로
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => VotePage(clubId: widget.clubId)),
+          );
         } else {
           _showLimitDialog("투표 생성 실패: ${result['message']}");
         }
@@ -143,7 +147,7 @@ class _CreateVotePageState extends State<CreateVotePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const VotePage()),
+                MaterialPageRoute(builder: (context) => VotePage(clubId: widget.clubId)),
               );
             },
           ),
