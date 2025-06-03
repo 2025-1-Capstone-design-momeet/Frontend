@@ -1,5 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:momeet/request_club_page.dart';
+import 'package:http/http.dart' as http;
+import 'package:momeet/user_provider.dart';
+import 'package:provider/provider.dart';
+
 
 class RecruitingDetailPage extends StatefulWidget {
   final String clubId;
@@ -11,6 +17,76 @@ class RecruitingDetailPage extends StatefulWidget {
 }
 
 class RecruitingDetailPageState extends State<RecruitingDetailPage> {
+  String clubName = '';
+  String target = '';
+  int dues = 0;
+  bool interview = false;
+  late DateTime endDate;
+  bool recruiting = false;
+
+  String _userId = '';
+  String _univName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMainPageData();
+
+    final user = Provider.of<UserProvider>(context, listen: false);
+    _userId = user.userId ?? "";
+    _univName = user.univName ?? "";
+
+    if (_userId != null && _userId!.isNotEmpty) {
+    } else {
+      print("⚠️ 사용자 ID가 없습니다.");
+    }
+  }
+
+
+
+  Future<void> fetchMainPageData() async {
+    final url = Uri.parse('http://momeet.meowning.kr/api/club/promotion/detail');
+    final body = jsonEncode({"clubId": widget.clubId});
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+        print("✅ 요청 성공: $decoded");
+
+        final data = decoded['data'];
+
+        setState(() {
+          clubName = data['clubName'] ?? '';
+          target = data['target'] ?? '';
+          dues = data['dues'] is int
+              ? data['dues']
+              : int.tryParse(data['dues'].toString()) ?? 0;
+          interview = data['interview'] ?? false;
+
+          if (data['endDate'] != null) {
+            endDate = DateTime.tryParse(data['endDate']) ?? DateTime.now();
+          } else {
+            endDate = DateTime.now();
+          }
+
+          recruiting = data['recruiting'] ?? false;
+        });
+
+      } else {
+        print('❌ 서버 오류: ${response.statusCode}');
+        print('응답 내용: ${response.body}');
+      }
+    } catch (e) {
+      print('❗ 예외 발생: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -50,7 +126,7 @@ class RecruitingDetailPageState extends State<RecruitingDetailPage> {
                 ),
                 Row(
                   children: [
-                    const SizedBox(width: 150),
+                    const SizedBox(width: 120),
                     const Center(
                       child: Text(
                         '모집 상세 정보',
@@ -76,8 +152,8 @@ class RecruitingDetailPageState extends State<RecruitingDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // 🔷 학교명 + 동아리명
-                  const Text(
-                    '금오공과대학교',
+                  Text(
+                    _univName,
                     style: TextStyle(
                       color: Colors.green,
                       fontWeight: FontWeight.bold,
@@ -85,10 +161,11 @@ class RecruitingDetailPageState extends State<RecruitingDetailPage> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    '불모지대',
+                  Text(
+                    clubName,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
+                      color: Color(0xFF393939),
                       fontSize: 22,
                     ),
                   ),
@@ -105,9 +182,9 @@ class RecruitingDetailPageState extends State<RecruitingDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _infoRow('분류', '예술'),
-                        _infoRow('대상', '전체 학과\n신입생, 재학생, 복학생, 휴학생, 졸업생'),
-                        _infoRow('회비', '있음'),
-                        _infoRow('면접', '없음'),
+                        _infoRow('대상', target),
+                        _infoRow('회비', dues.toString()),
+                        _infoRow('면접', interview ? 'O' : 'X'),
                       ],
                     ),
                   ),
@@ -118,60 +195,62 @@ class RecruitingDetailPageState extends State<RecruitingDetailPage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RequestClubPage(clubId: widget.clubId),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: Color(0xFF81CA85),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => RequestClubPage(clubId: widget.clubId)),
-                          );
-                        },
-                        child: const Text(
-                          '지원하기',
-                          style: TextStyle(fontSize: 16),
+                      child: const Text(
+                        '지원하기',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-
                     ),
                   ),
 
                   const SizedBox(height: 20),
 
                   // 🔷 모집 안내 텍스트
-                  const Text(
-                    '금오공대 유일무이 연극동아리!\n🔥불모지대🔥에서 39기 신입부원을 모집합니다!!',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // 🔷 모집 포스터 이미지
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      'https://i.imgur.com/LZ6vRAA.png',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // 🔷 설명 문단
-                  const Text(
-                    '안녕하세요! 금오공대 연극동아리 \'불모지대\'에서 39기 신입 부원을 모집합니다!\n'
-                        '신입생, 재학생, 휴학생 누구나 연극에 관심이 있다면 들어올 수 있습니다 :)',
-                    style: TextStyle(fontSize: 14),
-                  ),
+                  // const Text(
+                  //   '금오공대 유일무이 연극동아리!\n🔥불모지대🔥에서 39기 신입부원을 모집합니다!!',
+                  //   style: TextStyle(
+                  //     fontSize: 16,
+                  //     fontWeight: FontWeight.w600,
+                  //   ),
+                  // ),
+                  //
+                  // const SizedBox(height: 20),
+                  //
+                  // // 🔷 모집 포스터 이미지
+                  // ClipRRect(
+                  //   borderRadius: BorderRadius.circular(8),
+                  //   child: Image.network(
+                  //     'https://i.imgur.com/LZ6vRAA.png',
+                  //     fit: BoxFit.cover,
+                  //   ),
+                  // ),
+                  //
+                  // const SizedBox(height: 20),
+                  //
+                  // // 🔷 설명 문단
+                  // const Text(
+                  //   '안녕하세요! 금오공대 연극동아리 \'불모지대\'에서 39기 신입 부원을 모집합니다!\n'
+                  //       '신입생, 재학생, 휴학생 누구나 연극에 관심이 있다면 들어올 수 있습니다 :)',
+                  //   style: TextStyle(fontSize: 14),
+                  // ),
                 ],
               ),
             ),

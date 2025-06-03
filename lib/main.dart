@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:momeet/login_page.dart';
 import 'package:momeet/request_club_page.dart';
 
+import 'club_provider.dart';
 import 'main_page.dart';
 import 'meeting_detail_page.dart';
 import 'user_provider.dart';

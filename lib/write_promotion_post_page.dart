@@ -12,6 +12,8 @@ import 'package:path/path.dart' as path;
 import 'meeting_page.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart'; // inputFormatters를 위해 필요
+
 
 
 class WritePromotionPostPage extends StatefulWidget {
@@ -26,9 +28,20 @@ class WritePromotionPostPage extends StatefulWidget {
 }
 
 class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
+  final TextEditingController _targetController = TextEditingController();
+  final TextEditingController _duesController = TextEditingController();
+
+
   bool showScript = false; // 스크립트 박스 표시 여부
   bool _isLargeSize = true; // 기본값 210x297
   File? _selectedImage; // 선택한 이미지 파일
+
+  String target = '';
+  bool interview = false;
+  DateTime? endDate;
+  bool isRecruiting = false;
+  int? dues;
+
 
   int? selectedYear;
   int? selectedMonth;
@@ -44,6 +57,14 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
 
   final DateTime now = DateTime.now();
 
+  void _updateEndDate() {
+    if (selectedYear != null && selectedMonth != null && selectedDay != null) {
+      endDate = DateTime(selectedYear!, selectedMonth!, selectedDay!);
+    } else {
+      endDate = null;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -58,9 +79,6 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
 
   }
 
-  String? _title;
-  String? _content;
-  File? postFile;
   bool isChecked = false;
 
   String? selectedFileName;
@@ -94,69 +112,36 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
 
 
 
-  Future<void> uploadPost(File postFile) async {
-    final uri = Uri.parse("http://momeet.meowning.kr/api/post/write");
+  Future<void> uploadPost() async {
+    final uri = Uri.parse("http://momeet.meowning.kr/api/club/promotion/write");
 
-    final Map<String, dynamic> postWriteDTO = {
+    // 보낼 데이터 JSON으로 만듦
+    final body = jsonEncode({
       "clubId": widget.clubId,
-      "userId": _userId,
-      "title": _title ?? "",
-      "content": _content ?? "",
-      "type": 0,
-      "like": 0,
-      "fixation": isChecked ? 1 : 0,
-      "date": DateTime.now().toIso8601String().split('.').first
-    };
-
-    final request = http.MultipartRequest('POST', uri);
-
-    // 이미지 파일 추가
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        'file',
-        postFile.path,
-        filename: path.basename(postFile.path),
-      ),
-    );
-
-    // JSON 데이터 MultipartFile로 추가하면서 content-type 지정
-    request.files.add(
-      http.MultipartFile.fromString(
-        'postWriteDTO',
-        jsonEncode(postWriteDTO),
-        contentType: MediaType('application', 'json'),
-      ),
-    );
+      "target": target,
+      "dues": dues ?? 0,
+      "interview": interview,
+      "endDate": endDate?.toIso8601String(),
+      "isRecruiting": isRecruiting,
+    });
 
     try {
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
+      final response = await http.post(
+        uri,
+        headers: {"Content-Type": "application/json"},
+        body: body, // JSON 인코딩해서 문자열로 보냄
+      );
 
-      // 한글 깨짐 방지: bodyBytes를 utf8.decode로 변환
-      final decodedBody = utf8.decode(response.bodyBytes);
-
-      if (response.statusCode == 200) {
-        print("✅ 업로드 성공: $decodedBody");
+      if (response.statusCode >= 200 || response.statusCode < 200 ) {
+        final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+        print("✅ 업로드 성공: $decoded");
       } else {
-        print("❌ 업로드 실패: ${response.statusCode} $decodedBody");
-        print(postWriteDTO);
+        final decoded = utf8.decode(response.bodyBytes);
+        print("❌ 업로드 실패: ${response.statusCode} $decoded");
+        print(body);
       }
     } catch (e) {
       print("🚨 에러 발생: $e");
-    }
-  }
-
-
-
-  final ImagePicker _picker = ImagePicker();
-
-  Future<void> _pickImage() async {
-    // 이미지 선택 (갤러리)
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _selectedImage = File(image.path);
-      });
     }
   }
 
@@ -225,7 +210,15 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                     ),
                     const SizedBox(width: 40),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        if (target.isEmpty || dues == null || endDate == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('모든 필드를 정확히 입력해주세요')),
+                          );
+                          return;
+                        }
+                        await uploadPost();
+                      },
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
                       ),
@@ -234,8 +227,7 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                         style: TextStyle(
                             color: Color(0xFF858585),
                             fontSize: 20,
-                            fontWeight: FontWeight.w400
-                        ),
+                            fontWeight: FontWeight.w400),
                       ),
                     ),
                   ],
@@ -255,33 +247,33 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: Container(
-                      width: 240, // 720:1080 비율을 유지 (비율만 같으면 됨)
-                      height: 360,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xFFA9A9A9)),
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.white,
-                      ),
-                      child: _selectedImage != null
-                          ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.file(
-                          _selectedImage!,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                          : const Center(
-                        child: Icon(
-                          Icons.photo,
-                          size: 50,
-                          color: Color(0xFFA9A9A9),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // GestureDetector(
+                  //   onTap: _pickImage,
+                  //   child: Container(
+                  //     width: 240, // 720:1080 비율을 유지 (비율만 같으면 됨)
+                  //     height: 360,
+                  //     decoration: BoxDecoration(
+                  //       border: Border.all(color: const Color(0xFFA9A9A9)),
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       color: Colors.white,
+                  //     ),
+                  //     child: _selectedImage != null
+                  //         ? ClipRRect(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       child: Image.file(
+                  //         _selectedImage!,
+                  //         fit: BoxFit.cover,
+                  //       ),
+                  //     )
+                  //         : const Center(
+                  //       child: Icon(
+                  //         Icons.photo,
+                  //         size: 50,
+                  //         color: Color(0xFFA9A9A9),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
 
 
 
@@ -299,44 +291,47 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                         ),
                         const SizedBox(width: 8),
                         const Text(
-                          '제목',
+                          '대상자',
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 20),
 
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.8,
                     child: TextField(
-                      maxLines: null, // 여러 줄 입력 가능하게
+                      controller: _targetController,  // 컨트롤러 연결
+                      maxLines: null,
                       keyboardType: TextInputType.multiline,
-                      textAlignVertical: TextAlignVertical.top, // 텍스트 시작 위치를 위쪽으로
+                      textAlignVertical: TextAlignVertical.top,
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: const Color(0xFFD9D9D9), // 기본 테두리 색상 (회색)
+                            color: const Color(0xFFD9D9D9),
                             width: 2.0,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: const Color(0xFF69B36D), // 포커스 시 테두리 색상 (초록)
+                            color: const Color(0xFF69B36D),
                             width: 2.0,
                           ),
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                        hintText: '제목을 입력하세요',
+                        hintText: '대상자를 입력하세요',
                         hintStyle: const TextStyle(color: Color(0xFFA9A9A9)),
                       ),
+                      onChanged: (value) {
+                        setState(() {
+                          target = value;  // 입력값을 target에 저장
+                        });
+                      },
                     ),
                   ),
-
-
-
-                  const SizedBox(height: 20), // 스크롤 하단 여백
+                  SizedBox(height: 20),
 
                   Container(
                     width: double.infinity,  // 화면 가로 전체 영역 차지
@@ -350,40 +345,81 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                         ),
                         const SizedBox(width: 8),
                         const Text(
-                          '내용',
+                          '가입비',
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 20),
 
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.8,
                     child: TextField(
-                      maxLines: null, // 여러 줄 입력 가능하게
-                      keyboardType: TextInputType.multiline,
-                      textAlignVertical: TextAlignVertical.top, // 텍스트 시작 위치를 위쪽으로
+                      maxLines: 1,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: const Color(0xFFD9D9D9), // 기본 테두리 색상 (회색)
+                            color: const Color(0xFFD9D9D9),
                             width: 2.0,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: const Color(0xFF69B36D), // 포커스 시 테두리 색상 (초록)
+                            color: const Color(0xFF69B36D),
                             width: 2.0,
                           ),
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                        hintText: '내용을 입력하세요',
+                        hintText: '가입비를 입력하세요',
                         hintStyle: const TextStyle(color: Color(0xFFA9A9A9)),
                       ),
+                      onChanged: (value) {
+                        setState(() {
+                          dues = int.tryParse(value);
+                        });
+                      },
                     ),
                   ),
+
+
+                  const SizedBox(height: 20), // 스크롤 하단 여백
+
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 3,
+                          height: 20,
+                          color: const Color(0xFF68B26C),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          '면접 여부',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                        ),
+                        SizedBox(width: 4), // 글자와 체크박스 사이 약간의 간격
+                        Checkbox(
+                          value: interview,
+                          onChanged: (bool? newValue) {
+                            setState(() {
+                              interview = newValue ?? false;
+                            });
+                          },
+                          activeColor: const Color(0xFF68B26C),
+                        ),
+                      ],
+                    ),
+                  ),
+
 
                   const SizedBox(height: 20),
 
@@ -413,6 +449,7 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                           setState(() {
                             selectedYear = value;
                             updateDays();
+                            _updateEndDate();
                           });
                         },
                         items: years.map((year) {
@@ -420,7 +457,7 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                         }).toList(),
                       ),
 
-                      // 월
+// 월
                       DropdownButton<int>(
                         hint: const Text('월'),
                         value: selectedMonth,
@@ -428,6 +465,7 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                           setState(() {
                             selectedMonth = value;
                             updateDays();
+                            _updateEndDate();
                           });
                         },
                         items: months.map((month) {
@@ -435,13 +473,14 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                         }).toList(),
                       ),
 
-                      // 일
+// 일
                       DropdownButton<int>(
                         hint: const Text('일'),
                         value: selectedDay,
                         onChanged: (value) {
                           setState(() {
                             selectedDay = value;
+                            _updateEndDate();
                           });
                         },
                         items: days.map((day) {
@@ -456,9 +495,6 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
               ),
             ),
           ),
-
-
-
         ],
       ),
     );

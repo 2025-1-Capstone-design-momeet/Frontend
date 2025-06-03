@@ -25,11 +25,12 @@ class UserProvider extends ChangeNotifier {
   String? get department => _department;
   int? get grade => _grade;
 
-  void login(String userId, String pw, {String? name, String? univName, bool? schoolCertification, String? department, int? grade}) {
+  void setUser (String userId, String pw, {String? name, String? univName, bool? schoolCertification, String? department, int? grade}) {
     _userId = userId;
     _pw = pw;
     _name = name;
     _univName = univName;
+    _schoolCertification = schoolCertification;
     _department = department;
     _grade = grade;
 
@@ -42,10 +43,7 @@ class UserProvider extends ChangeNotifier {
     _name = null;
     _phoneNum = null;
     _gender = null;
+
     notifyListeners();
-  }
-
-  void updateUser() {
-
   }
 }

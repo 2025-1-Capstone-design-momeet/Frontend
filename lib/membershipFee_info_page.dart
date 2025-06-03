@@ -31,8 +31,9 @@ class _MembershipfeeInfoPageState extends State<MembershipfeeInfoPage> {
   String? userId;
   late String clubId;
   late String clubName;
+  late bool official;
+
   List<Map<String, dynamic>> users = [];
-  bool isApproved = true;
 
   @override
   void initState() {
@@ -43,6 +44,7 @@ class _MembershipfeeInfoPageState extends State<MembershipfeeInfoPage> {
     final club = Provider.of<ClubProvider>(context, listen: false);
     clubId = club.clubId ?? "";
     clubName = club.clubName ?? "";
+    official = club.official ?? false;
 
     getInfo();
   }
@@ -70,7 +72,7 @@ class _MembershipfeeInfoPageState extends State<MembershipfeeInfoPage> {
   Future<void> getInfo() async {
     final infoData = {
       "payId": widget.payId,
-      "userId": "gam1017",
+      "userId": userId,
       "name": null,
       "hasPaid": null,
     };
@@ -140,7 +142,7 @@ class _MembershipfeeInfoPageState extends State<MembershipfeeInfoPage> {
               }
               _showDialog("완료", "정산 상태가 성공적으로 전송되었습니다.");
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => SettlementPresidentPage(clubId: "7163f660e44a4a398b28e4653fe35507")),
+                  MaterialPageRoute(builder: (context) => const SettlementPresidentPage())
               );
             },
             child: const Text('확인'),
@@ -169,15 +171,15 @@ class _MembershipfeeInfoPageState extends State<MembershipfeeInfoPage> {
                 ),
                 Row(
                   children: [
-                    const Text(
-                      'C.O.K',
-                      style: TextStyle(
+                    Text(
+                      clubName,
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    if (isApproved) ...[
+                    if (official) ...[
                       const SizedBox(width: 4),
                       const Icon(Icons.verified, color: Colors.green, size: 20),
                     ],

@@ -13,8 +13,7 @@ import 'http_service.dart';
 import 'membershipFee_info_page.dart';
 
 class SettlementPresidentPage extends StatefulWidget {
-  final String clubId;
-  const SettlementPresidentPage({Key? key, required this.clubId}) : super(key: key);
+  const SettlementPresidentPage({Key? key}) : super(key: key);
 
   @override
   State<SettlementPresidentPage> createState() => _SettlementPresidentPageState();
@@ -24,10 +23,9 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
   final currencyFormat = NumberFormat.currency(locale: 'ko_KR', symbol: '₩', decimalDigits: 0);
 
   String? userId;
-  String? clubId;
-  String? clubName;
-
-  bool isApproved = true;
+  late String clubId;
+  late String clubName;
+  late bool official;
 
   // 서버에서 받아온 데이터를 저장할 리스트
   List<Map<String, dynamic>> unpaidItems = [];
@@ -48,14 +46,19 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
     final club = Provider.of<ClubProvider>(context, listen: false);
     clubId = club.clubId ?? "";
     clubName = club.clubName ?? "";
+    official = club.official ?? false;
+
+    print(user.userId);
+    print(userId);
+
     getMembership();
     getSettle();
   }
 
   Future<void> getMembership() async {
     final data = {
-      "userId": "gam1017",
-      "clubId": widget.clubId
+      "userId": userId,
+      "clubId": clubId
     };
 
     try {
@@ -92,8 +95,8 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
 
   Future<void> getSettle() async {
     final data = {
-      "userId": "gam1017",
-      "clubId": widget.clubId,
+      "userId": userId,
+      "clubId": clubId,
     };
 
     try {
@@ -282,7 +285,7 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const clubMainPage()),
+                MaterialPageRoute(builder: (context) => clubMainPage(clubId: clubId)),
               );
             },
           ),
@@ -290,15 +293,15 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
         actions: [
           Row(
             children: [
-              const Text(
-                '불모지대',
-                style: TextStyle(
+              Text(
+                clubName,
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.green,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              if (isApproved) ...[
+              if (official) ...[
                 const SizedBox(width: 4),
                 const Icon(Icons.verified, color: Colors.green, size: 20),
               ],
@@ -315,10 +318,10 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
             color: Colors.black,
           ),
         ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(30), // 높이 조절 가능
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(30), // 높이 조절 가능
           child: Column(
-            children: const [
+            children: [
               SizedBox(height: 4),
               Text(
                 '정산',
@@ -340,28 +343,28 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("가입비", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 8),
-                if (membershipFee != null)
-                  _buildItemCard(
-                    membershipFee!['title'],
-                    membershipFee!['date'],
-                    membershipFee!['amount'],
-                    membershipFee!['current'],
-                    membershipFee!['total'],
-                    membershipFee!['payId'],
-                    isPaid: true,
-                  )
-                else
-                  const Text("가입비 정보를 불러오는 중..."),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("가입비", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  if (membershipFee != null)
+                    _buildItemCard(
+                      membershipFee!['title'],
+                      membershipFee!['date'],
+                      membershipFee!['amount'],
+                      membershipFee!['current'],
+                      membershipFee!['total'],
+                      membershipFee!['payId'],
+                      isPaid: true,
+                    )
+                  else
+                    const Text("가입비 정보를 불러오는 중..."),
                   _buildSection(
-                  "정산 - 미완료",
+                    "정산 - 미완료",
                     unpaidItems,
                     false,
                     showMoreUnpaid,
@@ -374,12 +377,12 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
                     showMorePaid,
                         () => setState(() => showMorePaid = !showMorePaid),
                   ),
-                const SizedBox(height: 24), // 하단 공간 추가
-              ],
+                  const SizedBox(height: 24), // 하단 공간 추가
+                ],
+              ),
             ),
-          ),
           )
-        ),
-      );
+      ),
+    );
   }
 }

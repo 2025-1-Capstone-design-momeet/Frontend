@@ -7,10 +7,10 @@ import 'package:momeet/user_provider.dart';
 import 'package:momeet/vote_create_page.dart';
 import 'package:momeet/vote_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:momeet/club_provider.dart';
 
 class VotePage extends StatefulWidget {
-  final String clubId;
-  const VotePage({Key? key, required this.clubId}) : super(key: key);
+  const VotePage({Key? key}) : super(key: key);
 
   @override
   State<VotePage> createState() => _VotePageState();
@@ -22,6 +22,9 @@ class _VotePageState extends State<VotePage> {
   List<Vote> votes = [];
   Map<int, int?> selectedOptionIndexes = {};
   String? userId;
+  late String clubId;
+  late String clubName;
+  late bool official;
 
   @override
   void initState() {
@@ -29,6 +32,11 @@ class _VotePageState extends State<VotePage> {
     final user = Provider.of<UserProvider>(
         context, listen: false); // listen: false로 값을 가져옴
     userId = user.userId ?? "";
+
+    final club = Provider.of<ClubProvider>(context, listen: false);
+    clubId = club.clubId ?? "";
+    clubName = club.clubName ?? "";
+    official = club.official ?? false;
 
     fetchVotes();
   }
@@ -45,7 +53,7 @@ class _VotePageState extends State<VotePage> {
 
   Future<void> fetchVotes() async {
     final clubData = {
-      "clubId": widget.clubId
+      "clubId": clubId
     };
 
     try {
@@ -80,7 +88,7 @@ class _VotePageState extends State<VotePage> {
 
   Future<void> submit(String voteID, String voteContentId,int voteNum) async {
     final data = {
-      "userId": "gam1017",
+      "userId": userId,
       "voteID": voteID,
       "voteContentId": voteContentId,
       "voteNum": voteNum
@@ -103,7 +111,7 @@ class _VotePageState extends State<VotePage> {
 
   Future<void> state(String voteID, int index) async {
     final data = {
-      "userId": "gam1017",
+      "userId": userId,
       "voteID": voteID,
       "voteNum": null
     };
@@ -140,7 +148,7 @@ class _VotePageState extends State<VotePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const clubMainPage()),
+                MaterialPageRoute(builder: (context) => clubMainPage(clubId: clubId,)),
               );
             },
           ),
@@ -148,15 +156,15 @@ class _VotePageState extends State<VotePage> {
         actions: [
           Row(
             children: [
-              const Text(
-                '불모지대',
-                style: TextStyle(
+              Text(
+                clubName,
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.green,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              if (isApproved) ...[
+              if (official) ...[
                 const SizedBox(width: 4),
                 const Icon(Icons.verified, color: Colors.green, size: 20),
               ],
@@ -199,7 +207,7 @@ class _VotePageState extends State<VotePage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => CreateVotePage(clubId: widget.clubId)),
+                        MaterialPageRoute(builder: (context) => CreateVotePage(clubId: clubId)),
                       );
                     },
                   ),
@@ -214,6 +222,9 @@ class _VotePageState extends State<VotePage> {
               itemBuilder: (context, index) {
                 final vote = votes[index];
                 final isExpanded = expandedIndexes.contains(index);
+                final sortedContents = [...vote.voteContents]
+                  ..sort((a, b) => (a.voteNum ?? 0).compareTo(b.voteNum ?? 0)); // 내림차순 정렬
+
 
                 return GestureDetector(
                   onTap: () => toggleExpanded(index),
@@ -281,9 +292,10 @@ class _VotePageState extends State<VotePage> {
                                   ),
                                 ),
 
+
                               // 투표 항목 리스트
                               Column(
-                                children: List.generate(vote.voteContents.length, (i) {
+                                children: List.generate(sortedContents.length, (i) {
                                   final selected = selectedOptionIndexes[index];
                                   final isSelected = selected != null && selected == i;
 
@@ -307,12 +319,12 @@ class _VotePageState extends State<VotePage> {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(vote.voteContents[i].field),
+                                          Text(sortedContents[i].field),
                                           Row(
                                             children: [
                                               const Icon(Icons.person),
                                               const SizedBox(width: 4),
-                                              Text("${vote.voteContents[i].voteNum ?? 0}"),
+                                              Text("${sortedContents[i].voteContentNum ?? 0}"),
                                             ],
                                           )
                                         ],
@@ -358,13 +370,13 @@ class _VotePageState extends State<VotePage> {
                                       if (selectedIndex != null && selectedIndex < vote.voteContents.length) {
                                         final selectedContent = vote.voteContents[selectedIndex];
                                         Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
+                                          context,
+                                          MaterialPageRoute(
                                             builder: (context) => CalculateMembersPage(
                                               voteID: vote.voteID, // 투표 ID
                                               voteContentId: selectedContent.voteContentID, // 선택된 항목의 ID
                                             ),
-                                            ),
+                                          ),
                                         );
                                       }
                                     },

@@ -23,8 +23,25 @@ class clubMainPage extends StatefulWidget {
   clubMainPageState createState() => clubMainPageState();
 }
 
+class Member {
+  final String name;
+  final String department;
+  final String? role;
+  final String userId; // 👈 추가
+  final String clubId; // 👈 추가
+
+  Member({
+    required this.name,
+    required this.department,
+    required this.userId, // 👈 추가
+    required this.clubId, // 👈 추가
+    this.role,
+  });
+}
+
 class clubMainPageState extends State<clubMainPage> {
   String _userId = '';  // 응답에 없으니 초기화만 해둠
+  String _userName = '';  // 응답에 없으니 초기화만 해둠
   String _clubName = '';
   String _univName = '';
   String _category = '';
@@ -35,6 +52,51 @@ class clubMainPageState extends State<clubMainPage> {
 
   bool isLoading = true;
   List<Map<String, dynamic>> postList = [];
+
+  String _myDuty = ''; // ✅ 나의 직무 저장
+
+
+
+  Future<bool> postToServer() async {
+    final url = Uri.parse("http://momeet.meowning.kr/api/club/create");
+
+    final headers = {
+      'Content-Type': 'application/json; charset=utf-8',
+      'User-Agent': 'Mozilla/5.0 (Flutter App)',
+    };
+
+    final body = jsonEncode({
+      "clubId": widget.clubId,
+    });
+
+    print('🌟 요청 바디: $body');
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        print("✅ 동아리 생성 성공: $decodedBody");
+
+        final Map<String, dynamic> jsonResponse = jsonDecode(decodedBody);
+
+        if (jsonResponse['success'] == "true") {  // ← 여기!
+          final data = jsonResponse['data'];
+          print("🎉 서버에서 받은 데이터: $data");
+          return true;
+        } else {
+          print("❌ 서버 응답 실패: ${jsonResponse['message']}");
+          return false;
+        }
+      } else {
+        print("❌ HTTP 오류: ${response.statusCode}");
+        return false;
+      }
+    } catch (e) {
+      print("🚨 요청 중 에러 발생: $e");
+      return false;
+    }
+  }
 
 
 
@@ -131,15 +193,84 @@ class clubMainPageState extends State<clubMainPage> {
     super.initState();
     final user = Provider.of<UserProvider>(context, listen: false);
     _userId = user.userId ?? "";
+    _userName = user.name ?? "";
 
     _loadPosts();
 
     if (_userId.isNotEmpty) {
       fetchMainPageData();
+      fetchUsers().then((users) {
+        findMyDutyFromUsers(users);
+      });
     } else {
       print("⚠️ 사용자 ID가 없습니다.");
     }
   }
+
+
+  Future<List<Member>> fetchUsers() async {
+    final url = Uri.parse("http://momeet.meowning.kr/api/club/members");
+    final headers = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Flutter App)',
+    };
+
+    final body = jsonEncode({
+      "clubId": widget.clubId ,
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final jsonResponse = jsonDecode(decodedBody);
+
+        if (jsonResponse['success'] == "true") {
+          final List<dynamic> data = jsonResponse['data'];
+          // Map 데이터를 Member 객체 리스트로 변환
+          return data.map<Member>((item) {
+            return Member(
+              name: item['userName'] ?? '이름 없음',
+              department: item['department'] ?? '학과 없음',
+              role: item['duty'],  // role은 nullable,
+              userId: item['userId'], // 👈 추가
+              clubId: widget.clubId,
+            );
+          }).toList();
+        } else {
+          print("❌ 서버 실패 fetchPosts: ${jsonResponse['message']}");
+        }
+      } else {
+        print("❌ HTTP 오류 fetchPosts: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("🚨 에러 발생 fetchPosts: $e");
+    }
+
+    return [];
+  }
+
+  void findMyDutyFromUsers(List<Member> users) {
+    try {
+      final currentUser = users.firstWhere(
+            (user) => user.userId.trim() == _userId.trim(),
+      );
+
+      setState(() {
+        _myDuty = currentUser.role?.trim() ?? '';
+      });
+
+      print('🎯 내 역할: $_myDuty');
+    } catch (e) {
+      print('⚠️ 현재 사용자 ($_userId)의 역할을 찾을 수 없습니다.');
+      setState(() {
+        _myDuty = '';
+      });
+    }
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -198,12 +329,21 @@ class clubMainPageState extends State<clubMainPage> {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => WritePromotionPostPage(clubId: widget.clubId),
-                              ),
-                            );
+                            if (_myDuty == '회장') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => WritePromotionPostPage(clubId: widget.clubId),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('⚠️ 모집 게시글 작성은 회장만 가능합니다.'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFF8BCF8E), // 버튼 배경색
@@ -324,32 +464,32 @@ class clubMainPageState extends State<clubMainPage> {
                     style:
                     TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BoardPage(clubId: widget.clubId),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BoardPage(clubId: widget.clubId),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 350,
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  );
-                },
-                child: Container(
-                  width: 350,
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      postList.isNotEmpty
-                          ? Text(postList[0]['title'] ?? '제목 없음')
-                          : Text('게시글이 없습니다'),
-                    ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        postList.isNotEmpty
+                            ? Text(postList[0]['title'] ?? '제목 없음')
+                            : Text('게시글이 없습니다'),
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
                 SizedBox(height: 16),
 
@@ -366,14 +506,25 @@ class clubMainPageState extends State<clubMainPage> {
                       // 정산 페이지 이동 코드 넣기
                     }),
                     _buildBottomButton(Icons.check, '투표', () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => VotePage()),
-                      );
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(builder: (context) => VotePage(clubId: widget.clubId)),
+                      // );
                     }),
                     _buildBottomButton(Icons.assignment, '회의', () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => MeetingPage(clubId: widget.clubId)),
-                      );
+                      if (_myDuty == '회장') {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => MeetingPage(clubId: widget.clubId),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('⚠️ 회의 기능은 회장만 사용할 수 있습니다.'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
                     }),
                   ],
                 ),
@@ -390,7 +541,7 @@ class clubMainPageState extends State<clubMainPage> {
       opaque: false,
       barrierColor: Colors.black.withOpacity(0.3),
       pageBuilder: (context, animation, secondaryAnimation) =>
-          ClubMemberSidebar(),
+          ClubMemberSidebar(clubId: widget.clubId, myName: _userName),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0);
         const end = Offset.zero;

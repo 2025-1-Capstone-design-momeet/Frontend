@@ -186,7 +186,7 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                     ),
                     // elevation: 0,
                     color: Colors.white,
-                    child: const Padding(
+                    child:  Padding(
                       padding: EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,7 +251,7 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                           ),
                         ],
                       ),
-                      child: const Column(
+                      child:  Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children:  [
                           Text(
