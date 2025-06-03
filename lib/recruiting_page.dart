@@ -44,15 +44,15 @@ class RecruitingPageState extends State<RecruitingPage> {
                   children: [
                     Row(
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => WritePostPage()),
-                            );
-                          },
-                        ),
+                        // IconButton(
+                        //   icon: const Icon(Icons.arrow_back),
+                        //   // onPressed: () {
+                        //   //   Navigator.push(
+                        //   //     context,
+                        //   //     MaterialPageRoute(builder: (context) => WritePostPage(clubId: clubId)),
+                        //   //   );
+                        //   // },
+                        // ),
                         const SizedBox(width: 0),
                         Text(
                           'mo.meet',

@@ -4,10 +4,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:momeet/user_provider.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as path ;
 import 'package:provider/provider.dart';
 
 class RequestClubPage extends StatefulWidget {
+  final String clubId;
+
+  const RequestClubPage({Key? key, required this.clubId}) : super(key: key);
+
   @override
   _RequestClubPageState createState() => _RequestClubPageState();
 }
@@ -23,21 +27,35 @@ class _RequestClubPageState extends State<RequestClubPage> {
   String? _why;
   String? _what;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   // post-frame callback에서 context 접근 가능
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     final user = Provider.of<UserProvider>(context, listen: false);
+  //     setState(() {
+  //       _userId = user.userId ?? "";
+  //       name = user.name ?? "";
+  //       major = user.department ?? "";
+  //       studentId = user.userId ?? "";
+  //       grade = user.grade;
+  //     });
+  //   });
+  // }
+
   @override
   void initState() {
     super.initState();
+    final user = Provider.of<UserProvider>(context, listen: false);
+    _userId = user.userId ?? "";
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final user = Provider.of<UserProvider>(context as BuildContext, listen: false);
-      setState(() {
-        _userId = user.userId ?? "";
-        name = user.name ?? "";
-        major = user.department ?? "";
-        studentId = user.userId ?? "";
-        grade = user.grade;
-      });
-    });
+    if (_userId != null && _userId!.isNotEmpty) {
+    } else {
+      print("⚠️ 사용자 ID가 없습니다.");
+    }
   }
+
 
 
   final TextEditingController _whyController = TextEditingController();
@@ -53,8 +71,8 @@ class _RequestClubPageState extends State<RequestClubPage> {
     };
 
     final body = jsonEncode({
-      "userId": "meowning",
-      "clubId": "7163f660e44a4a398b28e4653fe35507",
+      "userId": _userId,
+      "clubId": widget.clubId,
       "why": _why ?? "",
       "what": _what ?? "",
     });
@@ -88,8 +106,9 @@ class _RequestClubPageState extends State<RequestClubPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("가입 신청", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text("신규 동아리 신청", style: TextStyle(fontWeight: FontWeight.bold)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -104,12 +123,12 @@ class _RequestClubPageState extends State<RequestClubPage> {
               SizedBox(height: 16),
               CircleAvatar(radius: 50, backgroundColor: Colors.grey),
               SizedBox(height: 8),
-              Text(grade as String, style: TextStyle(fontSize: 16)),
+              Text(grade?.toString() ?? '', style: TextStyle(fontSize: 16)),
               SizedBox(height: 8),
-              Text(name!, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              Text(name ?? '', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               SizedBox(height: 4),
-              Text(major!, style: TextStyle(fontSize: 16, color: Colors.grey)),
-              Text(studentId!, style: TextStyle(fontSize: 16, color: Colors.grey)),
+              Text(major ?? '', style: TextStyle(fontSize: 16, color: Colors.grey)),
+              Text(studentId ?? '', style: TextStyle(fontSize: 16, color: Colors.grey)),
               SizedBox(height: 24),
 
               _buildTextInputSection("신청 사유", _whyController, "예: 활동에 참여하고 싶어요!"),

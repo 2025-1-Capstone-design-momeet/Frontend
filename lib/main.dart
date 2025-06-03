@@ -7,8 +7,11 @@ import 'package:momeet/settlement_personal_page.dart';
 import 'package:momeet/settlement_president_page.dart';
 import 'package:momeet/verification_page.dart';
 import 'package:momeet/vote_page.dart';
+import 'package:momeet/write_promotion_post_page.dart';
 import 'package:provider/provider.dart';
 import 'package:momeet/login_page.dart';
+import 'package:momeet/request_club_page.dart';
+
 import 'main_page.dart';
 import 'meeting_detail_page.dart';
 import 'user_provider.dart';

@@ -3,27 +3,30 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:momeet/user_provider.dart';
 import 'package:momeet/write_promotion_post_page.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
+import 'package:path/path.dart' as path;
 import 'package:http_parser/http_parser.dart';
+import 'package:provider/provider.dart';
 
 
+import 'main_page.dart';
 import 'meeting_page.dart';
 
-void main() {
-  runApp(MaterialApp(home: WritePostPage()));
-}
 
 class WritePostPage extends StatefulWidget {
-  WritePostPage({super.key});
+  final String clubId;
+
+  WritePostPage({Key? key, required this.clubId}) : super(key: key);
+
   late String date;
+  String? selectedFileName;
 
   @override
   State<WritePostPage> createState() => _WritePostPageState();
-  String? selectedFileName; // 이걸 State 클래스 안에 추가해야 함 (예: _WritePostPageState 안)
-
 }
+
 
 class _WritePostPageState extends State<WritePostPage> {
   final TextEditingController _controller = TextEditingController();
@@ -31,6 +34,7 @@ class _WritePostPageState extends State<WritePostPage> {
   final TextEditingController fileNameController = TextEditingController();
 
   late String date;
+  String? _userId;
 
   final DateTime now = DateTime.now();
 
@@ -38,6 +42,14 @@ class _WritePostPageState extends State<WritePostPage> {
   void initState() {
     super.initState();
     date = DateTime.now().toIso8601String().split('.').first; // initState에서 초기화
+    final user = Provider.of<UserProvider>(context, listen: false);
+    _userId = user.userId ?? "";
+
+    if (_userId != null && _userId!.isNotEmpty) {
+    } else {
+      print("⚠️ 사용자 ID가 없습니다.");
+    }
+
   }
 
 
@@ -61,12 +73,13 @@ class _WritePostPageState extends State<WritePostPage> {
 
 
 
+
   Future<void> uploadPost(File postFile) async {
     final uri = Uri.parse("http://momeet.meowning.kr/api/post/write");
 
     final Map<String, dynamic> postWriteDTO = {
-      "clubId": "7163f660e44a4a398b28e4653fe35507",
-      "userId": "gam1017",
+      "clubId": widget.clubId,
+      "userId": _userId,
       "title": _title ?? "",
       "content": _content ?? "",
       "type": 0,
@@ -82,7 +95,7 @@ class _WritePostPageState extends State<WritePostPage> {
       await http.MultipartFile.fromPath(
         'file',
         postFile.path,
-        filename: basename(postFile.path),
+        filename: path.basename(postFile.path),
       ),
     );
 
@@ -99,16 +112,20 @@ class _WritePostPageState extends State<WritePostPage> {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
+      // 한글 깨짐 방지: bodyBytes를 utf8.decode로 변환
+      final decodedBody = utf8.decode(response.bodyBytes);
+
       if (response.statusCode == 200) {
-        print("✅ 업로드 성공: ${response.body}");
+        print("✅ 업로드 성공: $decodedBody");
       } else {
-        print("❌ 업로드 실패: ${response.statusCode} ${response.body}");
+        print("❌ 업로드 실패: ${response.statusCode} $decodedBody");
         print(postWriteDTO);
       }
     } catch (e) {
       print("🚨 에러 발생: $e");
     }
   }
+
 
 
 
@@ -145,7 +162,7 @@ class _WritePostPageState extends State<WritePostPage> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => WritePromotionPostPage()),
+                              MaterialPageRoute(builder: (context) => MainPage()),
                             );
                           },
                         ),

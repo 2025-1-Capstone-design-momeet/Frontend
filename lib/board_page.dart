@@ -183,7 +183,7 @@ class BoardPageState extends State<BoardPage> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => WritePostPage()),
+                              MaterialPageRoute(builder: (context) => WritePostPage(clubId: widget.clubId)),
                             );
                           },
                         ),
@@ -225,7 +225,12 @@ class BoardPageState extends State<BoardPage> {
                     ),
                     Expanded(child: SizedBox()), // 오른쪽 공백은 유동적
                     OutlinedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => WritePostPage(clubId: widget.clubId,)),
+                        );
+                      },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                         backgroundColor: const Color(0xFF8BCF8E),

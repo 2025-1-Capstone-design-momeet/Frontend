@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:momeet/recruiting_page.dart';
+import 'package:momeet/create_club_page.dart';
+import 'package:momeet/request_club_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -270,7 +272,7 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
           }),
           buildMenuItem("창설하기", () {
             Navigator.push(
-                context, MaterialPageRoute(builder: (_) => MainPage()));
+                context, MaterialPageRoute(builder: (_) => CreateClubPage(univName: univName)));
           }),
 
           buildSectionTitle("소모임"),
@@ -292,6 +294,8 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
             Navigator.push(
                 context, MaterialPageRoute(builder: (_) => MainPage()));
           }),
+
+          SizedBox(height: 60),
         ],
       ),
     );

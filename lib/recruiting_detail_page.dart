@@ -130,7 +130,7 @@ class RecruitingDetailPageState extends State<RecruitingDetailPage> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => RequestClubPage()),
+                            MaterialPageRoute(builder: (context) => RequestClubPage(clubId: widget.clubId)),
                           );
                         },
                         child: const Text(

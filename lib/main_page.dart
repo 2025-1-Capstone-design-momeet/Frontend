@@ -228,21 +228,21 @@ class _MainPageState extends State<MainPage> {
                     }).toList(),
                   ),
                   const SizedBox(height: 8),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: List.generate(imageUrls.length, (index) {
-                  //     return Container(
-                  //       margin: const EdgeInsets.symmetric(horizontal: 5),
-                  //       width: 10,
-                  //       height: 10,
-                  //       decoration: BoxDecoration(
-                  //         shape: BoxShape.circle,
-                  //         color:
-                  //         _currentIndex == index ? Colors.green : Colors.grey,
-                  //       ),
-                  //     );
-                  //   }),
-                  // ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(imageUrls.length, (index) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color:
+                          _currentIndex == index ? Colors.green : Colors.grey,
+                        ),
+                      );
+                    }),
+                  ),
                 ],
               ),
 
