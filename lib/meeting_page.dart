@@ -7,12 +7,10 @@ import 'package:momeet/clubMain_page.dart';
 import 'package:momeet/meeting_detail_page.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:momeet/summaryDialog.dart';
-import 'package:momeet/user_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:http/http.dart' as http;
-
 
 
 
@@ -40,7 +38,6 @@ class _MeetingPageState extends State<MeetingPage> {
 
   bool isLoading = true;
   List<Map<String, dynamic>> meetingList = [];
-
 
 
 
@@ -97,12 +94,6 @@ class _MeetingPageState extends State<MeetingPage> {
     return [];
   }
 
-
-    final club = Provider.of<ClubProvider>(context, listen: false);
-    clubId = club.clubId ?? "";
-    clubName = club.clubName ?? "";
-    official = club.official ?? false;
-  }
 
   Future<String> getPublicMusicDir() async {
     if (Platform.isAndroid) {
@@ -191,7 +182,6 @@ class _MeetingPageState extends State<MeetingPage> {
 
 
 
-
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -240,9 +230,8 @@ class _MeetingPageState extends State<MeetingPage> {
                       ),
                       Row(
                         children: const [
-
                           Text(
-                            clubName,
+                            'C.O.K',
                             style: TextStyle(fontSize: 18, color: Color(0xFF68B26C)),
                           ),
                           SizedBox(width: 8),
@@ -346,7 +335,7 @@ class _MeetingPageState extends State<MeetingPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                if (uploadedFileName == null) ...const [
+                                if (uploadedFileName == null) ...[
                                   const Icon(Icons.file_upload, color: Color(0xFF9F9F9F)),
                                   const SizedBox(width: 8),
                                 ],
@@ -380,7 +369,6 @@ class _MeetingPageState extends State<MeetingPage> {
                                 context,
                                 recordFile: recordFile,
                                 clubId: widget.clubId
-
                             );
                           },
                           label: const Text('요약', style: TextStyle(color: Color(0xFF68B26C))),
@@ -476,7 +464,6 @@ class _MeetingPageState extends State<MeetingPage> {
           context,
           MaterialPageRoute(
             builder: (context) => MeetingDetailPage(meetingId: meetingId,),
-
           ),
         );
       },
@@ -506,6 +493,4 @@ class _MeetingPageState extends State<MeetingPage> {
       ),
     );
   }
-
-
 }

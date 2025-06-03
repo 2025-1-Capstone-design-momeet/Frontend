@@ -21,9 +21,6 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
   List<String> imageUrls = [];
   bool showScript = false;
   bool _showAllClubs = false;
-
-
-
   // 서버 데이터 저장 변수들
   String minuteId = '';
   String date = '';
@@ -31,6 +28,10 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
   String summary = '';
   List<Map<String, dynamic>> scriptList = [];
 
+  String? userId;
+  String? clubId;
+  String? clubName;
+  bool? official;
 
   @override
   void initState() {

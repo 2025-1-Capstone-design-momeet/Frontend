@@ -64,8 +64,8 @@ class _MainPageState extends State<MainPage> {
 
           posters = data['posters'] ?? [];
           imageUrls = posters
-              .map<String>((poster) =>
-          'http://momeet.meowning.kr/api/file/image?type=poster&filename=${poster['img']}')
+              .map<String>((posters) =>
+          'http://momeet.meowning.kr/api/file/image?type=poster&filename=${posters['img']}')
               .toList();
 
           print("📷 이미지 URL 목록: $imageUrls");
@@ -123,7 +123,7 @@ class _MainPageState extends State<MainPage> {
           elevation: 0,
           leading: Builder(
             builder: (context) => IconButton(
-              icon: Icon(Icons.menu, color: Colors.black),
+              icon: const Icon(Icons.menu, color: Colors.black),
               onPressed: () {
                 Scaffold.of(context).openDrawer();
               },
