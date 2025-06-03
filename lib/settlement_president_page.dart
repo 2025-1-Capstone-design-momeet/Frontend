@@ -7,6 +7,8 @@ import 'package:momeet/settlement_info_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'calculate_memberFee_page.dart';
+import 'clubMain_page.dart';
 import 'http_service.dart';
 import 'membershipFee_info_page.dart';
 
@@ -24,6 +26,8 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
   String? userId;
   String? clubId;
   String? clubName;
+
+  bool isApproved = true;
 
   // 서버에서 받아온 데이터를 저장할 리스트
   List<Map<String, dynamic>> unpaidItems = [];
@@ -63,6 +67,7 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
 
         if (body['success'] == "true") {
           final feeData = body['data'];
+          print(feeData);
           setState(() {
             membershipFee = {
               'title': '가입비',
@@ -161,17 +166,27 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
     return GestureDetector(
       onTap: () {
         if (title == '가입비') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => MembershipfeeInfoPage (
-                title: title,
-                date: date,
-                amount: amount,
-                payId: payId,
-              ), // 가입비 관련 페이지로 이동
-            ),
-          );
+          print(amount);
+          if (amount == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const CalculateMemberFeePage(), // 생성 페이지로 이동
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MembershipfeeInfoPage(
+                  title: title,
+                  date: date,
+                  amount: amount,
+                  payId: payId,
+                ),
+              ),
+            );
+          }
         } else {
           Navigator.push(
             context,
@@ -199,20 +214,7 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Column(
-              children: [
-                const Icon(Icons.person, color: Colors.green),
-                const SizedBox(height: 2),
-                Text(
-                  '$current/$total',
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+            const Icon(Icons.person, color: Colors.green),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -240,7 +242,6 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
       ),
     );
   }
-
 
   Widget _buildSection(String title, List<Map<String, dynamic>> items, bool isPaid, bool showMore, VoidCallback onToggle) {
     final displayItems = showMore ? items : items.take(3).toList();
@@ -275,47 +276,110 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('정산', style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Colors.black,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("가입비", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            if (membershipFee != null)
-              _buildItemCard(
-                membershipFee!['title'],
-                membershipFee!['date'],
-                membershipFee!['amount'],
-                membershipFee!['current'],
-                membershipFee!['total'],
-                membershipFee!['payId'],
-                isPaid: true,
-              )
-            else
-              const Text("가입비 정보를 불러오는 중..."),
-            _buildSection(
-              "정산 - 미완료",
-              unpaidItems,
-              false,
-              showMoreUnpaid,
-                  () => setState(() => showMoreUnpaid = !showMoreUnpaid),
-            ),
-            _buildSection(
-              "정산 - 완료",
-              paidItems,
-              true,
-              showMorePaid,
-                  () => setState(() => showMorePaid = !showMorePaid),
-            ),
-          ],
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const clubMainPage()),
+              );
+            },
+          ),
+        ),
+        actions: [
+          Row(
+            children: [
+              const Text(
+                '불모지대',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (isApproved) ...[
+                const SizedBox(width: 4),
+                const Icon(Icons.verified, color: Colors.green, size: 20),
+              ],
+              const SizedBox(width: 12),
+            ],
+          )
+        ],
+        title: const Text(
+          "mo.meet",
+          style: TextStyle(
+            fontFamily: '런드리고딕',
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(30), // 높이 조절 가능
+          child: Column(
+            children: const [
+              SizedBox(height: 4),
+              Text(
+                '정산',
+                style: TextStyle(
+                  fontFamily: 'jamsil',
+                  fontWeight: FontWeight.w200,
+                  fontSize: 20,
+                  color: Colors.black54,
+                ),
+              ),
+              SizedBox(height: 8),
+              Divider(
+                color: Colors.black26,
+                thickness: 0.7,
+                height: 1,
+              ),
+            ],
+          ),
         ),
       ),
-    );
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("가입비", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                if (membershipFee != null)
+                  _buildItemCard(
+                    membershipFee!['title'],
+                    membershipFee!['date'],
+                    membershipFee!['amount'],
+                    membershipFee!['current'],
+                    membershipFee!['total'],
+                    membershipFee!['payId'],
+                    isPaid: true,
+                  )
+                else
+                  const Text("가입비 정보를 불러오는 중..."),
+                  _buildSection(
+                  "정산 - 미완료",
+                    unpaidItems,
+                    false,
+                    showMoreUnpaid,
+                        () => setState(() => showMoreUnpaid = !showMoreUnpaid),
+                  ),
+                  _buildSection(
+                    "정산 - 완료",
+                    paidItems,
+                    true,
+                    showMorePaid,
+                        () => setState(() => showMorePaid = !showMorePaid),
+                  ),
+                const SizedBox(height: 24), // 하단 공간 추가
+              ],
+            ),
+          ),
+          )
+        ),
+      );
   }
 }

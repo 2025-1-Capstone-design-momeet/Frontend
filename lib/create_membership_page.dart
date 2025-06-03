@@ -7,26 +7,23 @@ import 'package:provider/provider.dart';
 import 'package:momeet/club_provider.dart';
 import 'package:momeet/http_service.dart'; // 금액 포맷용
 
-class CreateSettlementPage extends StatefulWidget {
+class CreateMembershipPage extends StatefulWidget {
   final List<Map<String, dynamic>> selectedMembers;
-  final String voteID;
 
-  const CreateSettlementPage({
+  const CreateMembershipPage({
     super.key,
     required this.selectedMembers,
-    required this.voteID,
   });
 
   @override
-  State<CreateSettlementPage> createState() => _CreateSettlementPageState();
+  State<CreateMembershipPage> createState() => _CreateMembershipPageState();
 }
 
-class _CreateSettlementPageState extends State<CreateSettlementPage> {
+class _CreateMembershipPageState extends State<CreateMembershipPage> {
   final TextEditingController _memberCountController = TextEditingController();
   int _remainingAmount = 0; // 나머지 금액 변수 추가
   final TextEditingController _totalAmountController = TextEditingController();
   int _calculatedAmount = 0;
-  bool _isChecked = false;
   final TextEditingController _controller = TextEditingController();
   final TextEditingController _accountController = TextEditingController();
   bool _isValid = false;
@@ -68,23 +65,22 @@ class _CreateSettlementPageState extends State<CreateSettlementPage> {
   }
 
   Future<void> create() async {
-    final title = _controller.text.trim();
     final amount = _parseFormattedNumber(_totalAmountController.text);
     final account = _accountController.text.trim();
     final paymentMembers = widget.selectedMembers.map((member) => member['userId']).toList();
 
     final data = {
       "userId": "gam1017",
-      "voteID": widget.voteID,
+      "voteID": null,
       "clubId": "7163f660e44a4a398b28e4653fe35507",
-      "title": title,
+      "title": "가입비",
       "amount": amount,
       "account": account,
       "paymentMembers": paymentMembers
     };
     print(data);
     try {
-      final response = await HttpService().postRequest("pay/write", data);
+      final response = await HttpService().postRequest("membershipFee/write", data);
 
       final responseData = jsonDecode(response.body);
       if (responseData['success'] == "true") {
@@ -130,12 +126,11 @@ class _CreateSettlementPageState extends State<CreateSettlementPage> {
 
   void _calculateSettlement() {
     final total = _parseFormattedNumber(_totalAmountController.text);
-    final count = widget.selectedMembers.length;
 
-    if (total > 0 && count > 0) {
+    if (total > 0) {
       setState(() {
-        _calculatedAmount = total ~/ count;
-        _remainingAmount = total % count;
+        _calculatedAmount = total;
+        _remainingAmount = total;
         _isButtonEnabled = _remainingAmount == 0; // 나머지 금액이 0이면 버튼 활성화
       });
     } else {
@@ -174,11 +169,7 @@ class _CreateSettlementPageState extends State<CreateSettlementPage> {
     final screenSize = MediaQuery.of(context).size;
     final formatter = NumberFormat('#,###');
 
-    final showRemainingSection = _remainingAmount > 0;
-    final isFormValid = (showRemainingSection ? _isChecked : true) &&
-        _isValid &&
-        _isAccountValid &&
-        _isAmountValid;
+    final isFormValid = _isAccountValid && _isAmountValid;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -226,7 +217,7 @@ class _CreateSettlementPageState extends State<CreateSettlementPage> {
                 ),
                 const SizedBox(height: 0),
                 Text(
-                  '정산 정보 입력',
+                  '가입비 정보 입력',
                   style: TextStyle(
                     fontSize: screenSize.width > 600 ? 30 : 20,
                     fontWeight: FontWeight.bold,
@@ -246,29 +237,10 @@ class _CreateSettlementPageState extends State<CreateSettlementPage> {
                 children: [
                   const SizedBox(height: 20),
 
-                  const Text('이번 정산의 제목을 붙여주세요!', style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: _controller,
-                    onChanged: (value) {
-                      _validateInput(value);
-                      setState(() {});
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'ex> 개강 파티, MT 회비',
-                      hintStyle: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
-                      suffixIcon: _isValid ? const Icon(Icons.check, color: Colors.green) : null,
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: _isValid ? Colors.green : Colors.grey),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: _isValid ? Colors.green : Colors.grey),
-                      ),
-                    ),
-                  ),
+                  const Text('가입비', style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 20),
 
-                  const Text('어느 계좌로 정산받으시나요?', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('어느 계좌로 가입비를 받으시나요?', style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
                   TextFormField(
                     controller: _accountController,
@@ -307,7 +279,7 @@ class _CreateSettlementPageState extends State<CreateSettlementPage> {
                       });
                     },
                     decoration: InputDecoration(
-                      hintText: '입력 금액은 인원만큼 분배됩니다.',
+                      hintText: '가입비를 입력하세요.',
                       hintStyle: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
                       suffixIcon: _isAmountValid ? const Icon(Icons.check, color: Colors.green) : null,
                       enabledBorder: OutlineInputBorder(
@@ -364,48 +336,6 @@ class _CreateSettlementPageState extends State<CreateSettlementPage> {
                     ),
                   ),
 
-                  if (showRemainingSection)
-                    SizedBox(
-                      width: double.infinity,
-                      height: 150,
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${_remainingAmount}원이 남게 돼요!',
-                              style: const TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              '남은 $_remainingAmount원은 정산 처리되지 않습니다.',
-                              style: const TextStyle(color: Colors.red, fontSize: 14),
-                            ),
-                            const Text(
-                              '(정산자 부담)',
-                              style: TextStyle(color: Colors.red, fontSize: 12),
-                            ),
-                            const SizedBox(height: 5),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Checkbox(
-                                  value: _isChecked,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      _isChecked = value ?? false;
-                                    });
-                                  },
-                                  activeColor: Colors.green,
-                                ),
-                                const SizedBox(width: 3),
-                                const Text('괜찮습니다.'),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -415,7 +345,7 @@ class _CreateSettlementPageState extends State<CreateSettlementPage> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       child: const Text(
-                        '정산 요청하기',
+                        '가입비 요청하기',
                         style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
                       ),
                     ),
