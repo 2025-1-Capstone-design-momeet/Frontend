@@ -197,8 +197,8 @@ class BoardPageState extends State<BoardPage> {
                         ),
                       ],
                     ),
-                    Row(
-                      children: const [
+                    const Row(
+                      children: [
                         Text(
                           'C.O.K',
                           style: TextStyle(fontSize: 18, color: Color(0xFF68B26C)),
@@ -212,8 +212,8 @@ class BoardPageState extends State<BoardPage> {
                 const SizedBox(height: 0),
                 Row(
                   children: [
-                    SizedBox(width: 150),  // 왼쪽 공백 고정 (원하는 값으로 조절)
-                    Center(
+                    const SizedBox(width: 150),  // 왼쪽 공백 고정 (원하는 값으로 조절)
+                    const Center(
                       child: Text(
                         '게시판',
                         style: TextStyle(
@@ -223,7 +223,7 @@ class BoardPageState extends State<BoardPage> {
                         ),
                       ),
                     ),
-                    Expanded(child: SizedBox()), // 오른쪽 공백은 유동적
+                    const Expanded(child: SizedBox()), // 오른쪽 공백은 유동적
                     OutlinedButton.icon(
                       onPressed: () {
                         Navigator.push(
@@ -266,6 +266,7 @@ class BoardPageState extends State<BoardPage> {
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
+
                   );
                 } else {
                   return _buildPostCard(sortedPosts[index - 1]);

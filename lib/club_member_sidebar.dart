@@ -25,12 +25,11 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class ClubMemberSidebar extends StatelessWidget {
   final List<Member> members = List.generate(
     15,
         (index) => Member(
-      name: ['전장혁', '강채희', '송채빈', '임나경', '허결'][index % 5],
+      name: ['전장혁', '강채희', '송채빈', '임나경', '허겸'][index % 5],
       department: [
         '기계시스템공학과',
         '컴퓨터소프트웨어공학과',
@@ -78,16 +77,16 @@ class ClubMemberSidebar extends StatelessWidget {
                             ),
                           ),
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(width: 4),
-                              Text(
-                                '예술',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                          ),]
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(width: 4),
+                                Text(
+                                  '예술',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                ),]
                           ),
                           SizedBox(height: 4),
                           Container(

@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
 
+
 import 'board_page.dart';
 
 class MeetingDetailPage extends StatefulWidget {
@@ -116,8 +117,8 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                         ),
                       ],
                     ),
-                    Row(
-                      children: const [
+                    const Row(
+                      children: [
                         Text(
                           'C.O.K',
                           style: TextStyle(fontSize: 18, color: Color(0xFF68B26C)),
@@ -178,15 +179,15 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
+                      side: const BorderSide(
                         color: Color(0xFF69B36D), // 테두리 색상 #69B36D
                         width: 1.5, // 테두리 두께 (원하는 대로 조절 가능)
                       ),
                     ),
                     // elevation: 0,
                     color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
+                    child: const Padding(
+                      padding: EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children:  [
@@ -220,11 +221,11 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                         children: [
                           Text(
                             showScript ? '스크립트 접기' : '스크립트 보기',
-                            style: TextStyle(color: Color(0xFF929292)),
+                            style: const TextStyle(color: Color(0xFF929292)),
                           ),
                           Icon(
                             showScript ? Icons.chevron_left : Icons.chevron_right,
-                            color: Color(0xFF929292),
+                            color: const Color(0xFF929292),
                           ),
                         ],
                       ),
@@ -250,7 +251,7 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                           ),
                         ],
                       ),
-                      child: Column(
+                      child: const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children:  [
                           Text(

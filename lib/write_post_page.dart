@@ -174,8 +174,8 @@ class _WritePostPageState extends State<WritePostPage> {
                         ),
                       ],
                     ),
-                    Row(
-                      children: const [
+                    const Row(
+                      children: [
                         Text(
                           'C.O.K',
                           style: TextStyle(fontSize: 18, color: Color(0xFF68B26C)),
@@ -250,7 +250,7 @@ class _WritePostPageState extends State<WritePostPage> {
                               isChecked = newValue ?? false;
                             });
                           },
-                          activeColor: Color(0xFF69B36D),
+                          activeColor: const Color(0xFF69B36D),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -323,13 +323,13 @@ class _WritePostPageState extends State<WritePostPage> {
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: const Color(0xFFA9A9A9), // 테두리 색상
+                            color: Color(0xFFA9A9A9), // 테두리 색상
                             width: 5.0, // 테두리 두께
                           ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         hintText: '제목을 입력하세요',
-                        hintStyle: const TextStyle(color: Color(0xFFA9A9A9)),
+                        hintStyle: TextStyle(color: Color(0xFFA9A9A9)),
                       ),
                     ),
                   ),
@@ -376,12 +376,12 @@ class _WritePostPageState extends State<WritePostPage> {
                         child: TextField(
                           readOnly: true,
                           controller: fileNameController,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             border: OutlineInputBorder(),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                             hintText: '첨부파일 없음',
-                            hintStyle: const TextStyle(color: Color(0xFFA9A9A9)),
-                            suffixIcon: const Icon(Icons.attach_file),
+                            hintStyle: TextStyle(color: Color(0xFFA9A9A9)),
+                            suffixIcon: Icon(Icons.attach_file),
                           ),
                           style: const TextStyle(
                             overflow: TextOverflow.ellipsis,

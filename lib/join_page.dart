@@ -87,8 +87,8 @@ class _joinPageState extends State<joinPage> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('회원가입 성공!'),
-                content: Text('회원가입에 성공하셨습니다.'),
+                title: const Text('회원가입 성공!'),
+                content: const Text('회원가입에 성공하셨습니다.'),
                 actions: <Widget>[
                   TextButton(
                     onPressed: () {
@@ -103,7 +103,7 @@ class _joinPageState extends State<joinPage> {
 
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => loginPage()),
+            MaterialPageRoute(builder: (context) => const loginPage()),
           );
         } else {
           _showDialog("회원가입 실패", "회원가입에 실패하였습니다. 잠시후 다시 시도해 주십시오.");

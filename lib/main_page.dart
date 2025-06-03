@@ -167,7 +167,7 @@ class _MainPageState extends State<MainPage> {
                 },
               ),
         ),
-        title: Text(
+        title: const Text(
           'mo.meet',
           style: TextStyle(
             color: Colors.black,
@@ -177,7 +177,7 @@ class _MainPageState extends State<MainPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications, color: Colors.black),
+            icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {},
           ),
         ],
@@ -185,7 +185,7 @@ class _MainPageState extends State<MainPage> {
       drawer: BuildSideMenu(),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -199,7 +199,6 @@ class _MainPageState extends State<MainPage> {
               ),
               SizedBox(height: 16),
 
-              // Carousel
               Column(
                 children: [
                   CarouselSlider(
@@ -357,14 +356,14 @@ class _MainPageState extends State<MainPage> {
                 '동아리 활동',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Scrollbar(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: List.generate(clubActivityImages.length, (index) {
                       return Container(
-                        margin: EdgeInsets.only(right: 10),
+                        margin: const EdgeInsets.only(right: 10),
                         width: 120,
                         height: 200,
                         decoration: BoxDecoration(

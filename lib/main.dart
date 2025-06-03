@@ -21,7 +21,8 @@ void main() {
   runApp(
     MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => UserProvider())
+          ChangeNotifierProvider(create: (_) => UserProvider()),
+          ChangeNotifierProvider(create: (_) => ClubProvider()),
         ],
         child: const MyApp()
     ),
