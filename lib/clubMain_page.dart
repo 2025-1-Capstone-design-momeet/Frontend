@@ -123,11 +123,10 @@ class clubMainPageState extends State<clubMainPage> {
     });
   }
 
-
-
   @override
   void initState() {
     super.initState();
+    
     final user = Provider.of<UserProvider>(context, listen: false);
     _userId = user.userId ?? "";
 
@@ -146,18 +145,76 @@ class clubMainPageState extends State<clubMainPage> {
     final screenHeight = MediaQuery.of(context).size.height;
     final isLandscape = screenWidth > screenHeight;
 
+    bool isApproved = true;
+
+    const String university = "금오공과대학교";
+    const String clubName = "불모지대";
+    const String category = "예술";
+
+    String clubId = "7163f660e44a4a398b28e4653fe35507";
+
+    void _showDialog(String title, String message) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // 다이얼로그 닫기
+                },
+                child: const Text("확인"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    Future<void> getPage(BuildContext context) async {
+      final pageData = {
+        "userId": "gam1017",
+        "clubId": clubId
+      };
+
+      try {
+        final response = await HttpService().postRequest("pay/getManagementPaymentList", pageData);
+
+        if (response.statusCode == 200) {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => SettlementPresidentPage(clubId: clubId)),
+          );
+        }
+      } catch (e) {
+        try {
+          final response2 = await HttpService().postRequest("pay/getPaymentList", pageData);
+
+          if (response2.statusCode == 200) {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => SettlementPersonalPage(clubId: clubId)),
+            );
+          }
+        } catch (e) {
+          _showDialog("네트워크 오류.", "네트워크 오류가 발생했습니다.");
+          print("Error: $e");
+        }
+      }
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
-            icon: Icon(Icons.menu, color: Colors.black),
+            icon: const Icon(Icons.menu, color: Colors.black),
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },
           ),
         ),
-        title: Text(
+        title: const Text(
           'mo.meet',
           style: TextStyle(
             fontFamily: '런드리고딕',
@@ -167,7 +224,7 @@ class clubMainPageState extends State<clubMainPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications),
             onPressed: () {},
           ),
         ],
@@ -186,12 +243,13 @@ class clubMainPageState extends State<clubMainPage> {
                   children: [
                     Text(
                       _univName,
+                      
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF69B36D)),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -218,7 +276,7 @@ class clubMainPageState extends State<clubMainPage> {
                             ),
                           ],
                         ),
-                        SizedBox(width: 15),
+                        const SizedBox(width: 15),
                         TextButton.icon(
                           onPressed: () {
                             Navigator.of(context).push(_createSlideTransition());
@@ -234,7 +292,7 @@ class clubMainPageState extends State<clubMainPage> {
                   ],
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 메인 이미지
                 Container(
@@ -252,12 +310,12 @@ class clubMainPageState extends State<clubMainPage> {
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 상태 메시지
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.green.shade100,
                     borderRadius: BorderRadius.circular(8),
@@ -265,20 +323,20 @@ class clubMainPageState extends State<clubMainPage> {
                   child: Text(_welcomeMessage, style: TextStyle(fontSize: 16)),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 다가오는 일정
-                Text('다가오는 일정',
+                const Text('다가오는 일정',
                     style:
                     TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Container(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.green),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
                       CircleAvatar(
                         backgroundColor: Colors.green,
@@ -293,10 +351,10 @@ class clubMainPageState extends State<clubMainPage> {
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 게시판
-                Text('게시판',
+                const Text('게시판',
                     style:
                     TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
@@ -316,7 +374,7 @@ class clubMainPageState extends State<clubMainPage> {
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Column(
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       postList.isNotEmpty
@@ -327,23 +385,27 @@ class clubMainPageState extends State<clubMainPage> {
                 ),
               ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 하단 네비게이션 버튼
                 GridView.count(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: isLandscape ? 6 : 4,
                   children: [
                     _buildBottomButton(Icons.calendar_today, '캘린더', () {
-                      // 캘린더 페이지로 이동 등 향후 구현
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => CalendarPage(clubId: clubId),
+                        ),
+                      );
                     }),
-                    _buildBottomButton(Icons.calculate, '정산', () {
-                      // 정산 페이지 이동 코드 넣기
+                    _buildBottomButton(Icons.calculate, '정산', () async {
+                      await getPage(context);
                     }),
                     _buildBottomButton(Icons.check, '투표', () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => VotePage()),
+                        MaterialPageRoute(builder: (context) => VotePage(clubId: clubId)),
                       );
                     }),
                     _buildBottomButton(Icons.assignment, '회의', () {

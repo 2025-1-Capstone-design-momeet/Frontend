@@ -182,8 +182,8 @@ class _MeetingPageState extends State<MeetingPage> {
                           ),
                         ],
                       ),
-                      Row(
-                        children: const [
+                      const Row(
+                        children: [
                           Text(
                             'C.O.K',
                             style: TextStyle(fontSize: 18, color: Color(0xFF68B26C)),
@@ -208,7 +208,7 @@ class _MeetingPageState extends State<MeetingPage> {
             ),
             Container(
               height: 1,
-              color: Color(0xFFE0E0E0), // 조금 더 연한 회색
+              color: const Color(0xFFE0E0E0), // 조금 더 연한 회색
             ),
 
             // 스크롤 가능한 콘텐츠
@@ -286,7 +286,7 @@ class _MeetingPageState extends State<MeetingPage> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 if (uploadedFileName == null) ...[
@@ -397,9 +397,9 @@ class _MeetingPageState extends State<MeetingPage> {
                         style: TextButton.styleFrom(
                           foregroundColor: const Color(0xFF929292), // 텍스트 및 아이콘 색상
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Text('더보기'),
                             SizedBox(width: 4),
                             Icon(Icons.chevron_right, color: Color(0xFF929292)),

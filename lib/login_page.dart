@@ -28,6 +28,7 @@ class _loginPageState extends State<loginPage> {
       if (userProvider.userId != null && userProvider.pw != null) {
         Navigator.pushReplacement(
           context,
+
           MaterialPageRoute(builder: (context) =>  MainPage()),
         );
       }

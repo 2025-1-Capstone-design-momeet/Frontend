@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';  // 추가
+//import 'package:image_picker/image_picker.dart';  // 추가
 import 'dart:io';  // 파일 처리를 위해 추가
 
 import 'package:momeet/board_page.dart';
@@ -29,7 +29,6 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
   bool showScript = false; // 스크립트 박스 표시 여부
   bool _isLargeSize = true; // 기본값 210x297
   File? _selectedImage; // 선택한 이미지 파일
-
 
   final TextEditingController _controller = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
@@ -130,12 +129,12 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
 
   Future<void> _pickImage() async {
     // 이미지 선택 (갤러리)
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _selectedImage = File(image.path);
-      });
-    }
+    // final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    // if (image != null) {
+    //   setState(() {
+    //     _selectedImage = File(image.path);
+    //   });
+    // }
   }
 
   @override

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(JoinRequestApp());
-
 class JoinRequestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
