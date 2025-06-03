@@ -6,11 +6,14 @@ import 'package:momeet/settlement_info_page.dart';
 import 'package:momeet/settlement_personal_page.dart';
 import 'package:momeet/settlement_president_page.dart';
 import 'package:momeet/verification_page.dart';
-import 'package:momeet/vote_create_page.dart';
 import 'package:momeet/vote_page.dart';
+import 'package:momeet/write_promotion_post_page.dart';
 import 'package:provider/provider.dart';
 import 'package:momeet/login_page.dart';
-import 'club_provider.dart';
+import 'package:momeet/request_club_page.dart';
+
+import 'main_page.dart';
+import 'meeting_detail_page.dart';
 import 'user_provider.dart';
 
 
@@ -37,7 +40,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const clubMainPage(), // 메인 페이지 설정
+      // home:  MeetingDetailPage(clubId: 'c020fd825e4d4f67a87e8a233487e5e4'), // 메인 페이지 설정
+      home: loginPage(),
     );
   }
 }

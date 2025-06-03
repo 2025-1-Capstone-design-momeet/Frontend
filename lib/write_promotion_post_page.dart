@@ -1,16 +1,25 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 //import 'package:image_picker/image_picker.dart';  // 추가
 import 'dart:io';  // 파일 처리를 위해 추가
 
 import 'package:momeet/board_page.dart';
+import 'package:momeet/user_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
 import 'meeting_page.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MaterialApp(home: WritePromotionPostPage()));
-}
 
 class WritePromotionPostPage extends StatefulWidget {
-  const WritePromotionPostPage({super.key});
+
+  final String clubId;
+
+  WritePromotionPostPage({Key? key, required this.clubId}) : super(key: key);
+  // const WritePromotionPostPage({super.key});
 
   @override
   State<WritePromotionPostPage> createState() => _WritePromotionPostPageState();
@@ -21,7 +30,102 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
   bool _isLargeSize = true; // 기본값 210x297
   File? _selectedImage; // 선택한 이미지 파일
 
-//  final ImagePicker _picker = ImagePicker();
+  final TextEditingController _controller = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
+  final TextEditingController fileNameController = TextEditingController();
+
+  late String date;
+  String? _userId;
+
+  final DateTime now = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    date = DateTime.now().toIso8601String().split('.').first; // initState에서 초기화
+    final user = Provider.of<UserProvider>(context, listen: false);
+    _userId = user.userId ?? "";
+
+    if (_userId != null && _userId!.isNotEmpty) {
+    } else {
+      print("⚠️ 사용자 ID가 없습니다.");
+    }
+
+  }
+
+  String? _title;
+  String? _content;
+  File? postFile;
+  bool isChecked = false;
+
+  String? selectedFileName;
+
+  @override
+  void dispose() {
+    _controller.dispose(); // 메모리 누수 방지
+    _contentController.dispose();
+    fileNameController.dispose();
+    super.dispose();
+  }
+
+
+
+
+  Future<void> uploadPost(File postFile) async {
+    final uri = Uri.parse("http://momeet.meowning.kr/api/post/write");
+
+    final Map<String, dynamic> postWriteDTO = {
+      "clubId": widget.clubId,
+      "userId": _userId,
+      "title": _title ?? "",
+      "content": _content ?? "",
+      "type": 0,
+      "like": 0,
+      "fixation": isChecked ? 1 : 0,
+      "date": DateTime.now().toIso8601String().split('.').first
+    };
+
+    final request = http.MultipartRequest('POST', uri);
+
+    // 이미지 파일 추가
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'file',
+        postFile.path,
+        filename: path.basename(postFile.path),
+      ),
+    );
+
+    // JSON 데이터 MultipartFile로 추가하면서 content-type 지정
+    request.files.add(
+      http.MultipartFile.fromString(
+        'postWriteDTO',
+        jsonEncode(postWriteDTO),
+        contentType: MediaType('application', 'json'),
+      ),
+    );
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      // 한글 깨짐 방지: bodyBytes를 utf8.decode로 변환
+      final decodedBody = utf8.decode(response.bodyBytes);
+
+      if (response.statusCode == 200) {
+        print("✅ 업로드 성공: $decodedBody");
+      } else {
+        print("❌ 업로드 실패: ${response.statusCode} $decodedBody");
+        print(postWriteDTO);
+      }
+    } catch (e) {
+      print("🚨 에러 발생: $e");
+    }
+  }
+
+
+
+  final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
     // 이미지 선택 (갤러리)

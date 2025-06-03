@@ -7,11 +7,13 @@ import 'package:momeet/settlement_president_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
 
+
 class SettlementInfoPage extends StatefulWidget {
   final String title;
   final String date;
   final int amount;
   final String payId;
+
 
   const SettlementInfoPage({
     super.key,

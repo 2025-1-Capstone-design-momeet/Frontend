@@ -1,6 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:momeet/meeting_page.dart';
-import 'package:momeet/waiting_list_page.dart';
+import 'package:momeet/wating_list_page.dart';
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Stack(
+          children: [
+            Center(child: Text("메인 화면")),
+
+            Container(
+              color: Colors.black.withOpacity(0.2),
+            ),
+
+            // ✅ 사이드바
+            ClubMemberSidebar(),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class ClubMemberSidebar extends StatelessWidget {
   final List<Member> members = List.generate(

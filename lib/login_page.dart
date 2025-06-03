@@ -28,7 +28,8 @@ class _loginPageState extends State<loginPage> {
       if (userProvider.userId != null && userProvider.pw != null) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainPage()),
+
+          MaterialPageRoute(builder: (context) =>  MainPage()),
         );
       }
     });
@@ -77,7 +78,7 @@ class _loginPageState extends State<loginPage> {
 
           Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const clubMainPage())
+              MaterialPageRoute(builder: (context) =>  MainPage())
           );
         } else {
           _showDialog('오류', '회원 정보 조회 서버 오류가 발생했습니다.');
