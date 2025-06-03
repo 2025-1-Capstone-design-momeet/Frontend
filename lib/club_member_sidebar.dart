@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:momeet/meeting_page.dart';
-import 'package:momeet/wating_list_page.dart';
+import 'package:momeet/waiting_list_page.dart';
 
 class MyApp extends StatelessWidget {
   @override

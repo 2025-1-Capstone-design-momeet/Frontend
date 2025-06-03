@@ -2,13 +2,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:momeet/http_service.dart';
 import 'package:momeet/schedule_provider.dart';
+import 'package:momeet/user_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'club_provider.dart';
 import 'create_schedule_page.dart';
 
 class CalendarPage extends StatefulWidget {
-  final String clubId;
 
-  const CalendarPage({Key? key, required this.clubId}) : super(key: key);
+  const CalendarPage({Key? key}) : super(key: key);
 
   @override
   _CalendarPageState createState() => _CalendarPageState();
@@ -18,17 +20,29 @@ class _CalendarPageState extends State<CalendarPage> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  bool isApproved = true;
+  late String clubId;
+  late String clubName;
+  late bool official;
+  String? userId;
 
   Map<DateTime, List<Schedule>> scheduleEvents = {};
   @override
   void initState() {
     super.initState();
+
+    final user = Provider.of<UserProvider>(context, listen: false);
+    userId = user.userId ?? "";
+
+    final club = Provider.of<ClubProvider>(context, listen: false);
+    clubId = club.clubId ?? "";
+    clubName = club.clubName ?? "";
+    official = club.official ?? false;
+
     _loadSchedules();
   }
 
   Future<void> _loadSchedules() async {
-    final fetched = await _fetchSchedules(widget.clubId);
+    final fetched = await _fetchSchedules(clubId);
     setState(() {
       scheduleEvents = fetched;
     });
@@ -94,11 +108,11 @@ class _CalendarPageState extends State<CalendarPage> {
         actions: [
           Row(
             children: [
-              const Text(
-                '불모지대',
+              Text(
+                clubName,
                 style: TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.bold),
               ),
-              if (isApproved) ...[
+              if (official) ...[
                 const SizedBox(width: 4),
                 const Icon(Icons.verified, color: Colors.green, size: 20),
               ],
@@ -135,7 +149,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => CreateSchedulePage(selectedDate: _selectedDay!, clubId: widget.clubId),
+                            builder: (_) => CreateSchedulePage(selectedDate: _selectedDay!, clubId: clubId),
                           ),
                         );
                       } else {

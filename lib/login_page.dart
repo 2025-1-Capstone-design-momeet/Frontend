@@ -71,7 +71,7 @@ class _loginPageState extends State<loginPage> {
               univName: userData['univName'],
               schoolCertification: userData['schoolCertification'],
               department: userData['department'],
-              grade: userData['grade']
+            grade: int.tryParse(userData['grade'].toString())
           );
 
           _showDialog('로그인 성공!', '즐거운 동아리 생활되세요!');

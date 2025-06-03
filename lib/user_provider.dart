@@ -25,7 +25,7 @@ class UserProvider extends ChangeNotifier {
   String? get department => _department;
   int? get grade => _grade;
 
-  void login(String userId, String pw, {String? name, String? univName, bool? schoolCertification, String? department, int? grade}) {
+  void login(String? userId, String? pw, {String? name, String? univName, bool? schoolCertification, String? department, int? grade}) {
     _userId = userId;
     _pw = pw;
     _name = name;

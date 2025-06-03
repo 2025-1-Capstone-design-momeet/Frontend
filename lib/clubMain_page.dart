@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:momeet/settlement_info_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:momeet/settlement_personal_page.dart';
+import 'package:momeet/settlement_president_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +13,8 @@ import 'buildSideMenu.dart';
 import 'club_member_sidebar.dart';
 import 'package:momeet/calendar_page.dart';
 import 'package:momeet/vote_page.dart';
+import 'club_provider.dart';
+import 'http_service.dart';
 import 'meeting_page.dart';
 
 class clubMainPage extends StatefulWidget {
@@ -23,7 +27,7 @@ class clubMainPage extends StatefulWidget {
 }
 
 class clubMainPageState extends State<clubMainPage> {
-  String _userId = '';  // 응답에 없으니 초기화만 해둠
+  String? _userId;  // 응답에 없으니 초기화만 해둠
   String _clubName = '';
   String _univName = '';
   String _category = '';
@@ -68,6 +72,9 @@ class clubMainPageState extends State<clubMainPage> {
           _welcomeMessage = data['welcomeMessage'] ?? '';
           _official = data['official'] ?? false;
         });
+
+        context.read<ClubProvider>().setClub(widget.clubId, _clubName, _official);
+
       } else {
         print('❌ 서버 오류: ${response.statusCode}');
         print('응답 내용: ${response.body}');
@@ -126,17 +133,12 @@ class clubMainPageState extends State<clubMainPage> {
   @override
   void initState() {
     super.initState();
-    
     final user = Provider.of<UserProvider>(context, listen: false);
     _userId = user.userId ?? "";
 
-    _loadPosts();
+    print(user.userId);
 
-    if (_userId.isNotEmpty) {
-      fetchMainPageData();
-    } else {
-      print("⚠️ 사용자 ID가 없습니다.");
-    }
+    _loadPosts();
   }
 
   @override
@@ -144,14 +146,6 @@ class clubMainPageState extends State<clubMainPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isLandscape = screenWidth > screenHeight;
-
-    bool isApproved = true;
-
-    const String university = "금오공과대학교";
-    const String clubName = "불모지대";
-    const String category = "예술";
-
-    String clubId = "7163f660e44a4a398b28e4653fe35507";
 
     void _showDialog(String title, String message) {
       showDialog(
@@ -175,16 +169,18 @@ class clubMainPageState extends State<clubMainPage> {
 
     Future<void> getPage(BuildContext context) async {
       final pageData = {
-        "userId": "gam1017",
-        "clubId": clubId
+        "userId": _userId,
+        "clubId": widget.clubId
       };
+
+      print(pageData);
 
       try {
         final response = await HttpService().postRequest("pay/getManagementPaymentList", pageData);
 
         if (response.statusCode == 200) {
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => SettlementPresidentPage(clubId: clubId)),
+            MaterialPageRoute(builder: (context) => const SettlementPresidentPage()),
           );
         }
       } catch (e) {
@@ -193,7 +189,7 @@ class clubMainPageState extends State<clubMainPage> {
 
           if (response2.statusCode == 200) {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => SettlementPersonalPage(clubId: clubId)),
+              MaterialPageRoute(builder: (context) => SettlementPersonalPage(clubId: widget.clubId)),
             );
           }
         } catch (e) {
@@ -374,7 +370,7 @@ class clubMainPageState extends State<clubMainPage> {
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       postList.isNotEmpty
@@ -396,7 +392,7 @@ class clubMainPageState extends State<clubMainPage> {
                     _buildBottomButton(Icons.calendar_today, '캘린더', () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => CalendarPage(clubId: clubId),
+                          builder: (context) => const CalendarPage(),
                         ),
                       );
                     }),
@@ -405,12 +401,12 @@ class clubMainPageState extends State<clubMainPage> {
                     }),
                     _buildBottomButton(Icons.check, '투표', () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => VotePage(clubId: clubId)),
+                        MaterialPageRoute(builder: (context) => const VotePage()),
                       );
                     }),
                     _buildBottomButton(Icons.assignment, '회의', () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => MeetingPage()),
+                        MaterialPageRoute(builder: (context) => const MeetingPage()),
                       );
                     }),
                   ],

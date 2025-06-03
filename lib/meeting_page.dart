@@ -5,9 +5,13 @@ import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:momeet/meeting_detail_page.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:momeet/summaryDialog.dart';
+import 'package:momeet/user_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:provider/provider.dart';
+
+import 'club_provider.dart';
 
 
 
@@ -28,17 +32,22 @@ class _MeetingPageState extends State<MeetingPage> {
   String? uploadedFileName;
   late File recordFile;
 
-  String _clubId = '7163f660e44a4a398b28e4653fe35507';
-
-
+  String? userId;
+  late String clubId;
+  late String clubName;
+  late bool official;
 
   @override
   void initState() {
     super.initState();
-    _initRecorder();
+    final user = Provider.of<UserProvider>(context, listen: false);
+    userId = user.userId ?? "";
+
+    final club = Provider.of<ClubProvider>(context, listen: false);
+    clubId = club.clubId ?? "";
+    clubName = club.clubName ?? "";
+    official = club.official ?? false;
   }
-
-
 
   Future<String> getPublicMusicDir() async {
     if (Platform.isAndroid) {
@@ -125,11 +134,6 @@ class _MeetingPageState extends State<MeetingPage> {
     }
   }
 
-
-
-
-
-
   final List<Map<String, String>> _memos = [
     {'date': '2025.03.15', 'content': '개강파티 일정과 장소 잡기 및 다음 회의 안건'},
     {'date': '2025.03.19', 'content': '연습 일정과 재정 관리'},
@@ -182,10 +186,10 @@ class _MeetingPageState extends State<MeetingPage> {
                           ),
                         ],
                       ),
-                      const Row(
+                      Row(
                         children: [
                           Text(
-                            'C.O.K',
+                            clubName,
                             style: TextStyle(fontSize: 18, color: Color(0xFF68B26C)),
                           ),
                           SizedBox(width: 8),
@@ -286,10 +290,10 @@ class _MeetingPageState extends State<MeetingPage> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                if (uploadedFileName == null) ...[
+                                if (uploadedFileName == null) ...const [
                                   const Icon(Icons.file_upload, color: Color(0xFF9F9F9F)),
                                   const SizedBox(width: 8),
                                 ],
@@ -322,7 +326,7 @@ class _MeetingPageState extends State<MeetingPage> {
                             SummaryDialog.show(
                                 context,
                                 recordFile: recordFile,
-                                clubId: _clubId
+                                clubId: clubId
                             );
                           },
                           label: const Text('요약', style: TextStyle(color: Color(0xFF68B26C))),
@@ -424,7 +428,7 @@ class _MeetingPageState extends State<MeetingPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MeetingDetailPage(clubId: 'dd',),
+            builder: (context) => const MeetingDetailPage(),
           ),
         );
       },

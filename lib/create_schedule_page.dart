@@ -57,7 +57,7 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
           Navigator.pop(context);
           Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => CalendarPage(clubId: widget.clubId))
+              MaterialPageRoute(builder: (context) => const CalendarPage())
           );
         }
       } else {

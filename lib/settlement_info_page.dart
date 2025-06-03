@@ -7,6 +7,8 @@ import 'package:momeet/settlement_president_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'club_provider.dart';
+
 
 class SettlementInfoPage extends StatefulWidget {
   final String title;
@@ -29,14 +31,23 @@ class SettlementInfoPage extends StatefulWidget {
 
 class _SettlementInfoPageState extends State<SettlementInfoPage> {
   String? userId;
+  late String clubId;
+  late String clubName;
+  late bool official;
+
   List<Map<String, dynamic>> users = [];
-  bool isApproved = true;
 
   @override
   void initState() {
     super.initState();
     final user = Provider.of<UserProvider>(context, listen: false);
     userId = user.userId ?? "";
+
+    final club = Provider.of<ClubProvider>(context, listen: false);
+    clubId = club.clubId ?? "";
+    clubName = club.clubName ?? "";
+    official = club.official ?? false;
+
     getInfo();
   }
 
@@ -62,7 +73,7 @@ class _SettlementInfoPageState extends State<SettlementInfoPage> {
   Future<void> getInfo() async {
     final infoData = {
       "payId": widget.payId,
-      "userId": "gam1017",
+      "userId": userId,
       "name": null,
       "hasPaid": null,
     };
@@ -132,7 +143,7 @@ class _SettlementInfoPageState extends State<SettlementInfoPage> {
               _showDialog("완료", "정산 상태가 성공적으로 전송되었습니다.");
 
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => SettlementPresidentPage(clubId: "7163f660e44a4a398b28e4653fe35507")),
+                MaterialPageRoute(builder: (context) => const SettlementPresidentPage()),
               );
             },
             child: const Text('확인'),
@@ -161,15 +172,15 @@ class _SettlementInfoPageState extends State<SettlementInfoPage> {
                 ),
                 Row(
                   children: [
-                    const Text(
-                      'C.O.K',
-                      style: TextStyle(
+                    Text(
+                      clubName,
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    if (isApproved) ...[
+                    if (official) ...[
                       const SizedBox(width: 4),
                       const Icon(Icons.verified, color: Colors.green, size: 20),
                     ],

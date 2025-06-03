@@ -33,6 +33,8 @@ class _CreateMembershipPageState extends State<CreateMembershipPage> {
 
   String? userId;
   String? clubId;
+  late String clubName;
+  late bool official;
 
   @override
   void initState() {
@@ -43,6 +45,8 @@ class _CreateMembershipPageState extends State<CreateMembershipPage> {
 
     final club = Provider.of<ClubProvider>(context, listen: false);
     clubId = club.clubId ?? "";
+    clubName = club.clubName ?? "";
+    official = club.official ?? false;
 
     _memberCountController.text = widget.selectedMembers.length.toString();
 
@@ -70,9 +74,9 @@ class _CreateMembershipPageState extends State<CreateMembershipPage> {
     final paymentMembers = widget.selectedMembers.map((member) => member['userId']).toList();
 
     final data = {
-      "userId": "gam1017",
+      "userId": userId,
       "voteID": null,
-      "clubId": "7163f660e44a4a398b28e4653fe35507",
+      "clubId": clubId,
       "title": "가입비",
       "amount": amount,
       "account": account,
@@ -87,7 +91,7 @@ class _CreateMembershipPageState extends State<CreateMembershipPage> {
         // 성공 처리
         _showDialog("성공", responseData['message']);
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => SettlementPresidentPage(clubId: "7163f660e44a4a398b28e4653fe35507")),
+          MaterialPageRoute(builder: (context) => const SettlementPresidentPage()),
         );
       } else {
         // 실패 처리
@@ -204,9 +208,9 @@ class _CreateMembershipPageState extends State<CreateMembershipPage> {
                       ],
                     ),
                     Row(
-                      children: const [
+                      children: [
                         Text(
-                          'C.O.K',
+                          clubName,
                           style: TextStyle(fontSize: 18, color: Color(0xFF68B26C)),
                         ),
                         SizedBox(width: 8),

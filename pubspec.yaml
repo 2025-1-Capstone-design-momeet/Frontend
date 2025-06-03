@@ -16,6 +16,8 @@ dependencies:
   http: ^1.2.2
   path: ^1.8.3
 
+  flutter_plugin_android_lifecycle: ^2.0.8
+
   cupertino_icons: ^1.0.8
   table_calendar: ^3.2.0
   carousel_slider: ^5.0.0
@@ -62,5 +64,3 @@ flutter:
   assets:
     - assets/mainImg_01.jpg
     - assets/clubAct_01.jpg
-          
-  uses-material-design: true

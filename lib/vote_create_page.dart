@@ -87,7 +87,7 @@ class _CreateVotePageState extends State<CreateVotePage> {
           Navigator.pop(context);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => VotePage(clubId: widget.clubId)),
+            MaterialPageRoute(builder: (context) => const VotePage()),
           );
         } else {
           _showLimitDialog("투표 생성 실패: ${result['message']}");
@@ -147,7 +147,7 @@ class _CreateVotePageState extends State<CreateVotePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => VotePage(clubId: widget.clubId)),
+                MaterialPageRoute(builder: (context) => const VotePage()),
               );
             },
           ),

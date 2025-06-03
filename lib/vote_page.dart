@@ -8,9 +8,11 @@ import 'package:momeet/vote_create_page.dart';
 import 'package:momeet/vote_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'club_provider.dart';
+
 class VotePage extends StatefulWidget {
-  final String clubId;
-  const VotePage({Key? key, required this.clubId}) : super(key: key);
+
+  const VotePage({Key? key}) : super(key: key);
 
   @override
   State<VotePage> createState() => _VotePageState();
@@ -22,6 +24,9 @@ class _VotePageState extends State<VotePage> {
   List<Vote> votes = [];
   Map<int, int?> selectedOptionIndexes = {};
   String? userId;
+  late String clubId;
+  late String clubName;
+  late bool official;
 
   @override
   void initState() {
@@ -29,6 +34,11 @@ class _VotePageState extends State<VotePage> {
     final user = Provider.of<UserProvider>(
         context, listen: false); // listen: false로 값을 가져옴
     userId = user.userId ?? "";
+
+    final club = Provider.of<ClubProvider>(context, listen: false);
+    clubId = club.clubId ?? "";
+    clubName = club.clubName ?? "";
+    official = club.official ?? false;
 
     fetchVotes();
   }
@@ -45,7 +55,7 @@ class _VotePageState extends State<VotePage> {
 
   Future<void> fetchVotes() async {
     final clubData = {
-      "clubId": widget.clubId
+      "clubId": clubId
     };
 
     try {
@@ -80,7 +90,7 @@ class _VotePageState extends State<VotePage> {
 
   Future<void> submit(String voteID, String voteContentId,int voteNum) async {
     final data = {
-      "userId": "gam1017",
+      "userId": userId,
       "voteID": voteID,
       "voteContentId": voteContentId,
       "voteNum": voteNum
@@ -103,7 +113,7 @@ class _VotePageState extends State<VotePage> {
 
   Future<void> state(String voteID, int index) async {
     final data = {
-      "userId": "gam1017",
+      "userId": userId,
       "voteID": voteID,
       "voteNum": null
     };
@@ -140,7 +150,7 @@ class _VotePageState extends State<VotePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const clubMainPage()),
+                MaterialPageRoute(builder: (context) => clubMainPage(clubId: clubId,)),
               );
             },
           ),
@@ -148,15 +158,15 @@ class _VotePageState extends State<VotePage> {
         actions: [
           Row(
             children: [
-              const Text(
-                '불모지대',
+              Text(
+                clubName,
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.green,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              if (isApproved) ...[
+              if (official) ...[
                 const SizedBox(width: 4),
                 const Icon(Icons.verified, color: Colors.green, size: 20),
               ],
@@ -199,7 +209,7 @@ class _VotePageState extends State<VotePage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => CreateVotePage(clubId: widget.clubId)),
+                        MaterialPageRoute(builder: (context) => CreateVotePage(clubId: clubId)),
                       );
                     },
                   ),

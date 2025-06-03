@@ -125,7 +125,7 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
 
 
 
-  final ImagePicker _picker = ImagePicker();
+  //final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
     // 이미지 선택 (갤러리)
