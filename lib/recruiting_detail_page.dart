@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:momeet/request_club_page.dart';
 
 class RecruitingDetailPage extends StatefulWidget {
   final String clubId;
@@ -125,10 +126,19 @@ class RecruitingDetailPageState extends State<RecruitingDetailPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        '지원하기',
-                        style: TextStyle(fontSize: 16),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => RequestClubPage()),
+                          );
+                        },
+                        child: const Text(
+                          '지원하기',
+                          style: TextStyle(fontSize: 16),
+                        ),
                       ),
+
                     ),
                   ),
 

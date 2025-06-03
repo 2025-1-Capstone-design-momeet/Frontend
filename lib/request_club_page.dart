@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:momeet/user_provider.dart';
 import 'package:path/path.dart';
+import 'package:provider/provider.dart';
 
 class RequestClubPage extends StatefulWidget {
   @override
@@ -11,13 +13,32 @@ class RequestClubPage extends StatefulWidget {
 }
 
 class _RequestClubPageState extends State<RequestClubPage> {
-  final String name = "강채희";
-  final String major = "소프트웨어전공";
-  final String studentId = "20220031";
-  final String grade = "4학년";
+  String? name;
+  String? major;
+  String? studentId;
+  int? grade;
+
+  String? _userId;
 
   String? _why;
   String? _what;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = Provider.of<UserProvider>(context as BuildContext, listen: false);
+      setState(() {
+        _userId = user.userId ?? "";
+        name = user.name ?? "";
+        major = user.department ?? "";
+        studentId = user.userId ?? "";
+        grade = user.grade;
+      });
+    });
+  }
+
 
   final TextEditingController _whyController = TextEditingController();
   final TextEditingController _whatController = TextEditingController();
@@ -83,12 +104,12 @@ class _RequestClubPageState extends State<RequestClubPage> {
               SizedBox(height: 16),
               CircleAvatar(radius: 50, backgroundColor: Colors.grey),
               SizedBox(height: 8),
-              Text(grade, style: TextStyle(fontSize: 16)),
+              Text(grade as String, style: TextStyle(fontSize: 16)),
               SizedBox(height: 8),
-              Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              Text(name!, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               SizedBox(height: 4),
-              Text(major, style: TextStyle(fontSize: 16, color: Colors.grey)),
-              Text(studentId, style: TextStyle(fontSize: 16, color: Colors.grey)),
+              Text(major!, style: TextStyle(fontSize: 16, color: Colors.grey)),
+              Text(studentId!, style: TextStyle(fontSize: 16, color: Colors.grey)),
               SizedBox(height: 24),
 
               _buildTextInputSection("신청 사유", _whyController, "예: 활동에 참여하고 싶어요!"),
