@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:momeet/clubMain_page.dart';
 import 'package:momeet/http_service.dart';
 import 'package:momeet/schedule_provider.dart';
 import 'package:momeet/user_provider.dart';
@@ -7,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'club_provider.dart';
 import 'create_schedule_page.dart';
+import 'main_page.dart';
 
 class CalendarPage extends StatefulWidget {
 
@@ -101,16 +103,28 @@ class _CalendarPageState extends State<CalendarPage> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => clubMainPage(clubId: clubId)),
+              );
+            },
+          ),
         ),
         actions: [
           Row(
             children: [
               Text(
                 clubName,
-                style: TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               if (official) ...[
                 const SizedBox(width: 4),
@@ -118,52 +132,68 @@ class _CalendarPageState extends State<CalendarPage> {
               ],
               const SizedBox(width: 12),
             ],
-          ),
+          )
         ],
+        title: const Text(
+          "mo.meet",
+          style: TextStyle(
+            fontFamily: '런드리고딕',
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(40), // 높이 조절 가능
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    const Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        '캘린더',
+                        style: TextStyle(
+                          fontFamily: 'jamsil',
+                          fontWeight: FontWeight.w200,
+                          fontSize: 20,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {
+                          if (_selectedDay != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => CreateSchedulePage(selectedDate: _selectedDay!),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('날짜를 먼저 선택해주세요!')),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(color: Colors.black26, thickness: 0.7),
+            ],
+          ),
+        ),
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 0.0),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                const Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    '캘린더',
-                    style: TextStyle(
-                      fontFamily: 'jamsil',
-                      fontWeight: FontWeight.w200,
-                      fontSize: 24,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () {
-                      if (_selectedDay != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CreateSchedulePage(selectedDate: _selectedDay!, clubId: clubId),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('날짜를 먼저 선택해주세요!')),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(color: Colors.black26, thickness: 0.7),
           TableCalendar(
             firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2030, 12, 31),

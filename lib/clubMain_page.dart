@@ -1,13 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:momeet/settlement_info_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:momeet/settlement_personal_page.dart';
 import 'package:momeet/settlement_president_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
-
 import 'board_page.dart';
 import 'buildSideMenu.dart';
 import 'club_member_sidebar.dart';
@@ -16,6 +13,7 @@ import 'package:momeet/vote_page.dart';
 import 'club_provider.dart';
 import 'http_service.dart';
 import 'meeting_page.dart';
+import 'notification_page.dart';
 
 class clubMainPage extends StatefulWidget {
   final String clubId;
@@ -27,7 +25,7 @@ class clubMainPage extends StatefulWidget {
 }
 
 class clubMainPageState extends State<clubMainPage> {
-  String? _userId;  // 응답에 없으니 초기화만 해둠
+  String _userId = '';
   String _clubName = '';
   String _univName = '';
   String _category = '';
@@ -36,10 +34,28 @@ class clubMainPageState extends State<clubMainPage> {
   String _welcomeMessage = '';
   bool _official = false;
 
+  String? _upcomingTitle;
+  DateTime? _upcomingDate;
+
+
   bool isLoading = true;
   List<Map<String, dynamic>> postList = [];
 
+  @override
+  void initState() {
+    super.initState();
 
+    final user = Provider.of<UserProvider>(context, listen: false);
+    _userId = user.userId ?? "";
+
+    if (_userId != null && _userId!.isNotEmpty) {
+      fetchMainPageData();
+      _loadPosts();
+      upcoming();
+    } else {
+      print("⚠ 사용자 ID가 없습니다.");
+    }
+  }
 
   Future<void> fetchMainPageData() async {
     final url = Uri.parse('http://momeet.meowning.kr/api/club/main');
@@ -60,7 +76,6 @@ class clubMainPageState extends State<clubMainPage> {
         final data = decoded['data'];
 
         setState(() {
-          _userId = '';  // 응답에 없으므로 빈값 유지
           _clubName = data['clubName'] ?? '';
           _univName = data['univName'] ?? '';
           _category = data['category'] ?? '';
@@ -130,16 +145,32 @@ class clubMainPageState extends State<clubMainPage> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    final user = Provider.of<UserProvider>(context, listen: false);
-    _userId = user.userId ?? "";
+  Future<void> upcoming() async {
+    final data = {
+      "clubId": widget.clubId
+    };
 
-    print(user.userId);
+    try {
+      final response = await HttpService().postRequest("calendar/upcoming", data);
 
-    _loadPosts();
+      if (response.statusCode == 200) {
+        final responseData = json.decode(utf8.decode(response.bodyBytes));
+
+        if (responseData['success'] == 'true') {
+          final upcomingData = responseData['data'];
+          final dateList = upcomingData['date']; // [2025, 6, 10]
+
+          setState(() {
+            _upcomingTitle = upcomingData['title'];
+            _upcomingDate = DateTime(dateList[0], dateList[1], dateList[2]);
+          });
+        }
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +252,12 @@ class clubMainPageState extends State<clubMainPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const NotificationPage())
+              );
+            },
           ),
         ],
       ),
@@ -239,8 +275,7 @@ class clubMainPageState extends State<clubMainPage> {
                   children: [
                     Text(
                       _univName,
-                      
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF69B36D)),
@@ -253,7 +288,7 @@ class clubMainPageState extends State<clubMainPage> {
                           children: [
                             Text(
                               _clubName,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF69B36D),
@@ -261,15 +296,10 @@ class clubMainPageState extends State<clubMainPage> {
                             ),
                             SizedBox(width: 8),
                             Text(_category),
-                            Checkbox(
-                              value: _official,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  _official = value ?? false;
-                                });
-                              },
-                              activeColor: Color(0xFF69B36D), // 초록색으로 변경
-                            ),
+                            if (_official) ...[
+                              const SizedBox(width: 4),
+                              const Icon(Icons.verified, color: Colors.green, size: 20),
+                            ],
                           ],
                         ),
                         const SizedBox(width: 15),
@@ -332,16 +362,21 @@ class clubMainPageState extends State<clubMainPage> {
                     border: Border.all(color: Colors.green),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
                       CircleAvatar(
                         backgroundColor: Colors.green,
-                        child: Text('15', style: TextStyle(color: Colors.white)),
+                        child: Text(
+                          _upcomingDate != null ? _upcomingDate!.day.toString() : '-',
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Expanded(
-                        child: Text('"김종욱 찾기" 연극 연습',
-                            style: TextStyle(fontSize: 16)),
+                        child: Text(
+                          _upcomingTitle ?? '일정이 없습니다',
+                          style: const TextStyle(fontSize: 16),
+                        ),
                       ),
                     ],
                   ),

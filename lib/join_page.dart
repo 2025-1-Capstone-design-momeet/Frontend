@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:momeet/login_page.dart';
+import 'package:momeet/verification_page.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
 import 'http_service.dart';
@@ -24,8 +25,6 @@ class _joinPageState extends State<joinPage> {
   @override
   void initState() {
     super.initState();
-    final user = Provider.of<UserProvider>(context, listen: false);
-    _userIdController.text = user.userId ?? "";
   }
 
   void _showDialog(String title, String message) {
@@ -103,7 +102,7 @@ class _joinPageState extends State<joinPage> {
 
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const loginPage()),
+            MaterialPageRoute(builder: (context) => VerificationPage(userId: userId,)),
           );
         } else {
           _showDialog("회원가입 실패", "회원가입에 실패하였습니다. 잠시후 다시 시도해 주십시오.");

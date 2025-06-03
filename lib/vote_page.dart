@@ -7,11 +7,9 @@ import 'package:momeet/user_provider.dart';
 import 'package:momeet/vote_create_page.dart';
 import 'package:momeet/vote_provider.dart';
 import 'package:provider/provider.dart';
-
-import 'club_provider.dart';
+import 'package:momeet/club_provider.dart';
 
 class VotePage extends StatefulWidget {
-
   const VotePage({Key? key}) : super(key: key);
 
   @override
@@ -160,7 +158,7 @@ class _VotePageState extends State<VotePage> {
             children: [
               Text(
                 clubName,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.green,
                   fontWeight: FontWeight.bold,
@@ -224,6 +222,9 @@ class _VotePageState extends State<VotePage> {
               itemBuilder: (context, index) {
                 final vote = votes[index];
                 final isExpanded = expandedIndexes.contains(index);
+                final sortedContents = [...vote.voteContents]
+                  ..sort((a, b) => (a.voteNum ?? 0).compareTo(b.voteNum ?? 0)); // 내림차순 정렬
+
 
                 return GestureDetector(
                   onTap: () => toggleExpanded(index),
@@ -291,9 +292,10 @@ class _VotePageState extends State<VotePage> {
                                   ),
                                 ),
 
+
                               // 투표 항목 리스트
                               Column(
-                                children: List.generate(vote.voteContents.length, (i) {
+                                children: List.generate(sortedContents.length, (i) {
                                   final selected = selectedOptionIndexes[index];
                                   final isSelected = selected != null && selected == i;
 
@@ -317,12 +319,12 @@ class _VotePageState extends State<VotePage> {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(vote.voteContents[i].field),
+                                          Text(sortedContents[i].field),
                                           Row(
                                             children: [
                                               const Icon(Icons.person),
                                               const SizedBox(width: 4),
-                                              Text("${vote.voteContents[i].voteNum ?? 0}"),
+                                              Text("${sortedContents[i].voteContentNum ?? 0}"),
                                             ],
                                           )
                                         ],

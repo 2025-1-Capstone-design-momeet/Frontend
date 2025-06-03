@@ -28,7 +28,6 @@ class _loginPageState extends State<loginPage> {
       if (userProvider.userId != null && userProvider.pw != null) {
         Navigator.pushReplacement(
           context,
-
           MaterialPageRoute(builder: (context) =>  MainPage()),
         );
       }
@@ -59,22 +58,21 @@ class _loginPageState extends State<loginPage> {
       print("LoginData: $loginData");
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final data = jsonDecode(decodedBody);
 
         if(data['success'] == 'true') {
           final userData = data['data'];
 
-          context.read<UserProvider>().login(
+          context.read<UserProvider>().setUser(
               userId,
               pw,
               name: userData['name'],
               univName: userData['univName'],
               schoolCertification: userData['schoolCertification'],
               department: userData['department'],
-            grade: int.tryParse(userData['grade'].toString())
+              grade: int.tryParse(userData['grade'].toString())
           );
-
-          _showDialog('로그인 성공!', '즐거운 동아리 생활되세요!');
 
           Navigator.pushReplacement(
               context,
