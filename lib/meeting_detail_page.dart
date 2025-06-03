@@ -4,24 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
-
-
-import 'board_page.dart';
+import 'package:momeet/board_page.dart';
+import 'package:momeet/club_provider.dart';
 
 class MeetingDetailPage extends StatefulWidget {
   final String meetingId; // 전달받은 clubId 저장
 
   const MeetingDetailPage({Key? key, required this.meetingId}) : super(key: key);
 
+
   @override
   MeetingDetailPageState createState() => MeetingDetailPageState();
 }
 
 class MeetingDetailPageState extends State<MeetingDetailPage> {
-  String? _userId;
   List<String> imageUrls = [];
   bool showScript = false;
   bool _showAllClubs = false;
+
 
 
   // 서버 데이터 저장 변수들
@@ -36,6 +36,13 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
   void initState() {
     super.initState();
     final user = Provider.of<UserProvider>(context, listen: false);
+    userId = user.userId ?? "";
+
+    final club = Provider.of<ClubProvider>(context, listen: false);
+    clubId = club.clubId ?? "";
+    clubName = club.clubName ?? "";
+    official = club.official ?? false;
+
     fetchMainPageData();
     minuteId = widget.meetingId;
     print('✅✅✅받은 회의록 ID: ${widget.meetingId}');
@@ -100,12 +107,12 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                       children: [
                         // IconButton(
                         //   icon: const Icon(Icons.arrow_back),
-                          // onPressed: () {
-                          //   Navigator.push(
-                          //     context,
-                          //     // MaterialPageRoute(builder: (context) => BoardPage()),
-                          //   );
-                          // },
+                        // onPressed: () {
+                        //   Navigator.push(
+                        //     context,
+                        //     // MaterialPageRoute(builder: (context) => BoardPage()),
+                        //   );
+                        // },
                         // ),
                         const SizedBox(width: 0),
                         Text(
@@ -117,8 +124,8 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                         ),
                       ],
                     ),
-                    const Row(
-                      children: [
+                    Row(
+                      children: const [
                         Text(
                           'C.O.K',
                           style: TextStyle(fontSize: 18, color: Color(0xFF68B26C)),
@@ -169,17 +176,17 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                   ),
 
                   // 날짜
-              Center(
-                child: Text(date, style: TextStyle(color: Colors.grey)),
-              ),
+                  Center(
+                    child: Text(date, style: TextStyle(color: Colors.grey)),
+                  ),
 
-              const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // AI 요약 결과 카드
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: const BorderSide(
+                      side: BorderSide(
                         color: Color(0xFF69B36D), // 테두리 색상 #69B36D
                         width: 1.5, // 테두리 두께 (원하는 대로 조절 가능)
                       ),
@@ -188,6 +195,7 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                     color: Colors.white,
                     child:  Padding(
                       padding: EdgeInsets.all(16),
+
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children:  [
@@ -221,11 +229,11 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                         children: [
                           Text(
                             showScript ? '스크립트 접기' : '스크립트 보기',
-                            style: const TextStyle(color: Color(0xFF929292)),
+                            style: TextStyle(color: Color(0xFF929292)),
                           ),
                           Icon(
                             showScript ? Icons.chevron_left : Icons.chevron_right,
-                            color: const Color(0xFF929292),
+                            color: Color(0xFF929292),
                           ),
                         ],
                       ),
@@ -252,6 +260,7 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                         ],
                       ),
                       child:  Column(
+
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children:  [
                           Text(

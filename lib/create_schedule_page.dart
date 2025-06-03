@@ -4,12 +4,16 @@ import 'package:momeet/calendar_page.dart';
 import 'dart:convert';
 
 import 'package:momeet/http_service.dart';
+import 'package:momeet/user_provider.dart';
+import 'package:provider/provider.dart';
+
+import 'clubMain_page.dart';
+import 'club_provider.dart';
 
 class CreateSchedulePage extends StatefulWidget {
   final DateTime selectedDate;
-  final String clubId;
 
-  const CreateSchedulePage({super.key, required this.selectedDate, required this.clubId});
+  const CreateSchedulePage({super.key, required this.selectedDate});
 
   @override
   State<CreateSchedulePage> createState() => _CreateSchedulePageState();
@@ -21,9 +25,25 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
   final detailController = TextEditingController();
 
   bool _isLoading = false;
+  late String clubId;
+  late String clubName;
+  late bool official;
+  String? userId;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final user = Provider.of<UserProvider>(context, listen: false);
+    userId = user.userId ?? "";
+
+    final club = Provider.of<ClubProvider>(context, listen: false);
+    clubId = club.clubId ?? "";
+    clubName = club.clubName ?? "";
+    official = club.official ?? false;
+  }
 
   Future<void> _submitSchedule() async {
-    final clubId = widget.clubId;  // 실제 클럽 아이디 넣어줘
     final date = widget.selectedDate;
     final dateString = "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
     final timeString = "23:59:00"; // 고정된 시간, 필요하면 입력 받거나 변경 가능
@@ -57,7 +77,7 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
           Navigator.pop(context);
           Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => CalendarPage(clubId: widget.clubId))
+              MaterialPageRoute(builder: (context) => const CalendarPage())
           );
         }
       } else {
@@ -85,27 +105,74 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: const BackButton(),
-        title: const Text('일정 생성'),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CalendarPage()),
+              );
+            },
+          ),
+        ),
         actions: [
           Row(
             children: [
               Text(
-                '불모지대',
-                style: TextStyle(
-                  color: Colors.green[700],
+                clubName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.green,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Checkbox(
-                value: isPrivate,
-                onChanged: (val) {
-                  setState(() => isPrivate = val!);
-                },
-              ),
+              if (official) ...[
+                const SizedBox(width: 4),
+                const Icon(Icons.verified, color: Colors.green, size: 20),
+              ],
+              const SizedBox(width: 12),
             ],
           )
         ],
+        title: const Text(
+          "mo.meet",
+          style: TextStyle(
+            fontFamily: '런드리고딕',
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
+          ),
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(40), // 높이 조절 가능
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 0.0),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        '일정 생성',
+                        style: TextStyle(
+                          fontFamily: 'jamsil',
+                          fontWeight: FontWeight.w200,
+                          fontSize: 20,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(color: Colors.black26, thickness: 0.7),
+            ],
+          ),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

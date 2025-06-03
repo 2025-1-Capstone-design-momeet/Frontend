@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:momeet/create_settlement_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -54,8 +53,8 @@ class _CalculateMemberFeePageState extends State<CalculateMemberFeePage>
 
   Future<void> members() async {
     final data = {
-      "userId": "gam1017",
-      "clubId": "7163f660e44a4a398b28e4653fe35507"
+      "userId": userId,
+      "clubId": clubId
     };
 
     try {

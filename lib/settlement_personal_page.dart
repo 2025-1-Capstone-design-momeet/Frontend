@@ -44,7 +44,7 @@ class _SettlementPersonalPageState extends State<SettlementPersonalPage> {
 
   Future<void> getMembership() async {
     final data = {
-      "userId": "lnknk1119",
+      "userId": userId,
       "clubId": widget.clubId
     };
 
@@ -62,6 +62,7 @@ class _SettlementPersonalPageState extends State<SettlementPersonalPage> {
               'title': fee['title'] ?? '가입비',
               'date': fee['payDate'] ?? '',  // payDate가 없으면 '' 처리
               'amount': fee['amount'] ?? 0,
+              'complete': fee['complete'] ?? false
             };
           });
         } else {
@@ -75,7 +76,7 @@ class _SettlementPersonalPageState extends State<SettlementPersonalPage> {
 
   Future<void> getSettle() async {
     final data = {
-      "userId": "lnknk1119",
+      "userId": userId,
       "clubId": widget.clubId
     };
 
@@ -209,7 +210,7 @@ class _SettlementPersonalPageState extends State<SettlementPersonalPage> {
               membershipFee!['title'],
               membershipFee!['date'],
               membershipFee!['amount'],
-              true,
+                membershipFee!['complete'] ?? false
             )
                 : const Text("가입비 정보 없음", style: TextStyle(color: Colors.grey)),
 

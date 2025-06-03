@@ -13,6 +13,7 @@ class ClubMemberSidebar extends StatefulWidget {
 
   ClubMemberSidebar({Key? key, required this.clubId, required this.myName}) : super(key: key);
 
+
   @override
   State<ClubMemberSidebar> createState() => ClubMemberSidebarState();  // 수정된 부분
 }

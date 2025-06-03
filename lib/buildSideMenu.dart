@@ -151,7 +151,6 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
                       color: Colors.green, fontWeight: FontWeight.bold),
                 ),
                 Text(department, style: TextStyle(color: Color(0xFF7C7C7C))),
-                Text(department, style: TextStyle(color: Color(0xFF7C7C7C))),
               ],
             ),
           ),

@@ -1,18 +1,20 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:momeet/settlement_info_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:momeet/settlement_personal_page.dart';
+import 'package:momeet/settlement_president_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:momeet/write_promotion_post_page.dart';
 import 'package:provider/provider.dart';
-
 import 'board_page.dart';
 import 'buildSideMenu.dart';
 import 'club_member_sidebar.dart';
 import 'package:momeet/calendar_page.dart';
 import 'package:momeet/vote_page.dart';
+import 'club_provider.dart';
+import 'http_service.dart';
 import 'meeting_page.dart';
+import 'notification_page.dart';
 
 class clubMainPage extends StatefulWidget {
   final String clubId;
@@ -49,6 +51,10 @@ class clubMainPageState extends State<clubMainPage> {
   String _bannerImage = '';
   String _welcomeMessage = '';
   bool _official = false;
+
+  String? _upcomingTitle;
+  DateTime? _upcomingDate;
+
 
   bool isLoading = true;
   List<Map<String, dynamic>> postList = [];
@@ -99,6 +105,17 @@ class clubMainPageState extends State<clubMainPage> {
   }
 
 
+    final user = Provider.of<UserProvider>(context, listen: false);
+    _userId = user.userId ?? "";
+
+    if (_userId != null && _userId!.isNotEmpty) {
+      fetchMainPageData();
+      _loadPosts();
+      upcoming();
+    } else {
+      print("⚠ 사용자 ID가 없습니다.");
+    }
+  }
 
   Future<void> fetchMainPageData() async {
     final url = Uri.parse('http://momeet.meowning.kr/api/club/main');
@@ -119,7 +136,6 @@ class clubMainPageState extends State<clubMainPage> {
         final data = decoded['data'];
 
         setState(() {
-          _userId = '';  // 응답에 없으므로 빈값 유지
           _clubName = data['clubName'] ?? '';
           _univName = data['univName'] ?? '';
           _category = data['category'] ?? '';
@@ -131,6 +147,9 @@ class clubMainPageState extends State<clubMainPage> {
           _welcomeMessage = data['welcomeMessage'] ?? '';
           _official = data['official'] ?? false;
         });
+
+        context.read<ClubProvider>().setClub(widget.clubId, _clubName, _official);
+
       } else {
         print('❌ 서버 오류: ${response.statusCode}');
         print('응답 내용: ${response.body}');
@@ -195,7 +214,9 @@ class clubMainPageState extends State<clubMainPage> {
     _userId = user.userId ?? "";
     _userName = user.name ?? "";
 
-    _loadPosts();
+
+    try {
+      final response = await HttpService().postRequest("calendar/upcoming", data);
 
     if (_userId.isNotEmpty) {
       fetchMainPageData();
@@ -235,6 +256,7 @@ class clubMainPageState extends State<clubMainPage> {
               role: item['duty'],  // role은 nullable,
               userId: item['userId'], // 👈 추가
               clubId: widget.clubId,
+     
             );
           }).toList();
         } else {
@@ -299,8 +321,14 @@ class clubMainPageState extends State<clubMainPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {},
+
+            icon: const Icon(Icons.notifications),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const NotificationPage())
+              );
+            },
           ),
         ],
       ),
@@ -354,6 +382,7 @@ class clubMainPageState extends State<clubMainPage> {
                           child: Text('모집 게시글 작성'),
                         ),
                       ],
+
                     ),
                     SizedBox(height: 4),
                     Row(
@@ -363,7 +392,7 @@ class clubMainPageState extends State<clubMainPage> {
                           children: [
                             Text(
                               _clubName,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF69B36D),
@@ -371,15 +400,10 @@ class clubMainPageState extends State<clubMainPage> {
                             ),
                             SizedBox(width: 8),
                             Text(_category),
-                            Checkbox(
-                              value: _official,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  _official = value ?? false;
-                                });
-                              },
-                              activeColor: Color(0xFF69B36D), // 초록색으로 변경
-                            ),
+                            if (_official) ...[
+                              const SizedBox(width: 4),
+                              const Icon(Icons.verified, color: Colors.green, size: 20),
+                            ],
                           ],
                         ),
                         SizedBox(width: 15),
@@ -446,12 +470,17 @@ class clubMainPageState extends State<clubMainPage> {
                     children: [
                       CircleAvatar(
                         backgroundColor: Colors.green,
-                        child: Text('15', style: TextStyle(color: Colors.white)),
+                        child: Text(
+                          _upcomingDate != null ? _upcomingDate!.day.toString() : '-',
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Expanded(
-                        child: Text('"김종욱 찾기" 연극 연습',
-                            style: TextStyle(fontSize: 16)),
+                        child: Text(
+                          _upcomingTitle ?? '일정이 없습니다',
+                          style: const TextStyle(fontSize: 16),
+                        ),
                       ),
                     ],
                   ),
@@ -488,6 +517,23 @@ class clubMainPageState extends State<clubMainPage> {
                             : Text('게시글이 없습니다'),
                       ],
                     ),
+
+                  );
+                },
+                child: Container(
+                  width: 350,
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      postList.isNotEmpty
+                          ? Text(postList[0]['title'] ?? '제목 없음')
+                          : Text('게시글이 없습니다'),
+                    ],
                   ),
                 ),
 
@@ -500,12 +546,18 @@ class clubMainPageState extends State<clubMainPage> {
                   crossAxisCount: isLandscape ? 6 : 4,
                   children: [
                     _buildBottomButton(Icons.calendar_today, '캘린더', () {
-                      // 캘린더 페이지로 이동 등 향후 구현
+
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const CalendarPage(),
+                        ),
+                      );
                     }),
                     _buildBottomButton(Icons.calculate, '정산', () {
                       // 정산 페이지 이동 코드 넣기
                     }),
                     _buildBottomButton(Icons.check, '투표', () {
+ 
                       // Navigator.of(context).push(
                       //   MaterialPageRoute(builder: (context) => VotePage(clubId: widget.clubId)),
                       // );
@@ -525,6 +577,7 @@ class clubMainPageState extends State<clubMainPage> {
                           ),
                         );
                       }
+
                     }),
                   ],
                 ),

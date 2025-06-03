@@ -145,6 +145,7 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
