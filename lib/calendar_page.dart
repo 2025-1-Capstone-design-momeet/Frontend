@@ -6,7 +6,9 @@ import 'package:table_calendar/table_calendar.dart';
 import 'create_schedule_page.dart';
 
 class CalendarPage extends StatefulWidget {
-  const CalendarPage({super.key});
+  final String clubId;
+
+  const CalendarPage({Key? key, required this.clubId}) : super(key: key);
 
   @override
   _CalendarPageState createState() => _CalendarPageState();
@@ -19,8 +21,6 @@ class _CalendarPageState extends State<CalendarPage> {
   bool isApproved = true;
 
   Map<DateTime, List<Schedule>> scheduleEvents = {};
-  String clubId = "7163f660e44a4a398b28e4653fe35507";
-
   @override
   void initState() {
     super.initState();
@@ -28,7 +28,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Future<void> _loadSchedules() async {
-    final fetched = await _fetchSchedules(clubId);
+    final fetched = await _fetchSchedules(widget.clubId);
     setState(() {
       scheduleEvents = fetched;
     });
@@ -135,7 +135,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => CreateSchedulePage(selectedDate: _selectedDay!),
+                            builder: (_) => CreateSchedulePage(selectedDate: _selectedDay!, clubId: widget.clubId),
                           ),
                         );
                       } else {

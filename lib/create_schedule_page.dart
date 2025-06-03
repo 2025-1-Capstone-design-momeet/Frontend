@@ -7,8 +7,9 @@ import 'package:momeet/http_service.dart';
 
 class CreateSchedulePage extends StatefulWidget {
   final DateTime selectedDate;
+  final String clubId;
 
-  const CreateSchedulePage({super.key, required this.selectedDate});
+  const CreateSchedulePage({super.key, required this.selectedDate, required this.clubId});
 
   @override
   State<CreateSchedulePage> createState() => _CreateSchedulePageState();
@@ -22,7 +23,7 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
   bool _isLoading = false;
 
   Future<void> _submitSchedule() async {
-    final clubId = "7163f660e44a4a398b28e4653fe35507";  // 실제 클럽 아이디 넣어줘
+    final clubId = widget.clubId;  // 실제 클럽 아이디 넣어줘
     final date = widget.selectedDate;
     final dateString = "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
     final timeString = "23:59:00"; // 고정된 시간, 필요하면 입력 받거나 변경 가능
@@ -56,7 +57,7 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
           Navigator.pop(context);
           Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const CalendarPage())
+              MaterialPageRoute(builder: (context) => CalendarPage(clubId: widget.clubId))
           );
         }
       } else {

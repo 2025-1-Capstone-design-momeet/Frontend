@@ -1,9 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:momeet/club_provider.dart';
 import 'package:momeet/settlement_info_page.dart';
+import 'package:momeet/user_provider.dart';
+import 'package:provider/provider.dart';
+
+import 'http_service.dart';
+import 'membershipFee_info_page.dart';
 
 class SettlementPresidentPage extends StatefulWidget {
-  const SettlementPresidentPage({super.key});
+  final String clubId;
+  const SettlementPresidentPage({Key? key, required this.clubId}) : super(key: key);
 
   @override
   State<SettlementPresidentPage> createState() => _SettlementPresidentPageState();
@@ -12,46 +21,170 @@ class SettlementPresidentPage extends StatefulWidget {
 class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
   final currencyFormat = NumberFormat.currency(locale: 'ko_KR', symbol: '₩', decimalDigits: 0);
 
-  final Map<String, dynamic> membershipFee = {
-    'title': '가입비',
-    'date': '2025.03.17',
-    'amount': 5800,
-    'current': 40,
-    'total': 40,
-  };
+  String? userId;
+  String? clubId;
+  String? clubName;
 
-  final List<Map<String, dynamic>> unpaidItems = [
-    {'title': '개강파티 - 2차', 'date': '2025.03.17', 'amount': 5800, 'current': 22, 'total': 40},
-    {'title': '바이올린 회식', 'date': '2025.04.10', 'amount': 25000, 'current': 18, 'total': 40},
-    {'title': '중간 회식', 'date': '2025.05.27', 'amount': 17550, 'current': 31, 'total': 40},
-    {'title': '야유회', 'date': '2025.06.10', 'amount': 12000, 'current': 27, 'total': 40},
-  ];
+  // 서버에서 받아온 데이터를 저장할 리스트
+  List<Map<String, dynamic>> unpaidItems = [];
+  List<Map<String, dynamic>> paidItems = [];
 
-  final List<Map<String, dynamic>> paidItems = [
-    {'title': '개강파티 - 2차', 'date': '2025.03.17', 'amount': 5800, 'current': 26, 'total': 40},
-    {'title': '바이올린 회식', 'date': '2025.04.10', 'amount': 25000, 'current': 35, 'total': 40},
-    {'title': '중간 회식', 'date': '2025.05.27', 'amount': 17550, 'current': 31, 'total': 40},
-    {'title': '봄축제 회식', 'date': '2025.06.03', 'amount': 8800, 'current': 28, 'total': 40},
-  ];
+  // 가입비 항목
+  Map<String, dynamic>? membershipFee;
 
   bool showMoreUnpaid = false;
   bool showMorePaid = false;
 
-  Widget _buildItemCard(String title, String date, int amount, int current, int total, {bool isPaid = false}) {
+  @override
+  void initState() {
+    super.initState();
+    final user = Provider.of<UserProvider>(context, listen: false);
+    userId = user.userId ?? "";
+
+    final club = Provider.of<ClubProvider>(context, listen: false);
+    clubId = club.clubId ?? "";
+    clubName = club.clubName ?? "";
+    getMembership();
+    getSettle();
+  }
+
+  Future<void> getMembership() async {
+    final data = {
+      "userId": "gam1017",
+      "clubId": widget.clubId
+    };
+
+    try {
+      final response = await HttpService().postRequest("membershipFee/getManagementPaymentList", data);
+
+      if (response.statusCode == 200) {
+        final bodyString = utf8.decode(response.bodyBytes);
+        final body = jsonDecode(bodyString);
+
+        if (body['success'] == "true") {
+          final feeData = body['data'];
+          setState(() {
+            membershipFee = {
+              'title': '가입비',
+              'date': feeData['createdAt']?.split('T')[0]?.replaceAll('-', '.') ?? '',
+              'amount': feeData['amount'] ?? 0,
+              'current': feeData['paidMemberCount'] ?? 0,
+              'total': feeData['totalMemberCount'] ?? 0,
+              'payId': feeData['payId'] ?? '',
+            };
+          });
+        } else {
+          _showDialog("오류", body['message'] ?? "가입비 정보를 불러오지 못했습니다.");
+        }
+      } else {
+        _showDialog("오류", "서버 응답 오류: ${response.statusCode}");
+      }
+    } catch (e) {
+      _showDialog("네트워크 오류", "네트워크 오류가 발생했습니다.");
+      print("Error: $e");
+    }
+  }
+
+  Future<void> getSettle() async {
+    final data = {
+      "userId": "gam1017",
+      "clubId": widget.clubId,
+    };
+
+    try {
+      final response = await HttpService().postRequest("pay/getManagementPaymentList", data);
+
+      if (response.statusCode == 200) {
+        final bodyString = utf8.decode(response.bodyBytes);
+        final body = jsonDecode(bodyString);
+
+        if (body['success'] == "true") {
+          final payData = body['data'];
+
+          List<dynamic> completePay = payData['completePay'] ?? [];
+          List<dynamic> uncompletePay = payData['uncompletePay'] ?? [];
+
+          setState(() {
+            paidItems = completePay.map<Map<String, dynamic>>((item) {
+              return {
+                'title': item['title'] ?? '',
+                'date': '',
+                'amount': item['amount'] ?? 0,
+                'current': 0,
+                'total': 0,
+                'payId': item['payId'] ?? '',
+              };
+            }).toList();
+
+            unpaidItems = uncompletePay.map<Map<String, dynamic>>((item) {
+              return {
+                'title': item['title'] ?? '',
+                'date': '',
+                'amount': item['amount'] ?? 0,
+                'current': 0,
+                'total': 0,
+                'payId': item['payId'] ?? '',
+              };
+            }).toList();
+          });
+        } else {
+          _showDialog("오류", body['message'] ?? "정산 정보를 불러오지 못했습니다.");
+        }
+      } else {
+        _showDialog("오류", "서버 응답 오류: ${response.statusCode}");
+      }
+    } catch (e) {
+      _showDialog("네트워크 오류", "네트워크 오류가 발생했습니다.");
+      print("Error: $e");
+    }
+  }
+
+  void _showDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("확인"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildItemCard(String title, String date, int amount, int current, int total, String payId, {bool isPaid = false}) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => SettlementInfoPage(
-              title: title,
-              date: date,
-              amount: amount,
-              current: current,
-              total: total,
+        if (title == '가입비') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => MembershipfeeInfoPage (
+                title: title,
+                date: date,
+                amount: amount,
+                payId: payId,
+              ), // 가입비 관련 페이지로 이동
             ),
-          ),
-        );
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => SettlementInfoPage(
+                title: title,
+                date: date,
+                amount: amount,
+                payId: payId,
+              ),
+            ),
+          );
+        }
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 6),
@@ -108,6 +241,7 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
     );
   }
 
+
   Widget _buildSection(String title, List<Map<String, dynamic>> items, bool isPaid, bool showMore, VoidCallback onToggle) {
     final displayItems = showMore ? items : items.take(3).toList();
 
@@ -123,6 +257,7 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
           item['amount'],
           item['current'],
           item['total'],
+          item['payId'],
           isPaid: isPaid,
         )),
         if (items.length > 3)
@@ -152,14 +287,18 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
           children: [
             const Text("가입비", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
-            _buildItemCard(
-              membershipFee['title'],
-              membershipFee['date'],
-              membershipFee['amount'],
-              membershipFee['current'],
-              membershipFee['total'],
-              isPaid: true,
-            ),
+            if (membershipFee != null)
+              _buildItemCard(
+                membershipFee!['title'],
+                membershipFee!['date'],
+                membershipFee!['amount'],
+                membershipFee!['current'],
+                membershipFee!['total'],
+                membershipFee!['payId'],
+                isPaid: true,
+              )
+            else
+              const Text("가입비 정보를 불러오는 중..."),
             _buildSection(
               "정산 - 미완료",
               unpaidItems,
