@@ -30,6 +30,10 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
   bool _isLargeSize = true; // 기본값 210x297
   File? _selectedImage; // 선택한 이미지 파일
 
+  int? selectedYear;
+  int? selectedMonth;
+  int? selectedDay;
+
 
   final TextEditingController _controller = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
@@ -67,6 +71,24 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
     _contentController.dispose();
     fileNameController.dispose();
     super.dispose();
+  }
+
+
+
+  final List<int> years = List.generate(10, (index) => DateTime.now().year + index); // 현재 년도부터 10년
+  final List<int> months = List.generate(12, (index) => index + 1);
+  List<int> days = [];
+
+  void updateDays() {
+    if (selectedYear != null && selectedMonth != null) {
+      int lastDay = DateTime(selectedYear!, selectedMonth! + 1, 0).day;
+      setState(() {
+        days = List.generate(lastDay, (index) => index + 1);
+        if (selectedDay != null && selectedDay! > lastDay) {
+          selectedDay = null; // 유효하지 않으면 초기화
+        }
+      });
+    }
   }
 
 
@@ -164,7 +186,7 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => MeetingPage()),
+                              MaterialPageRoute(builder: (context) => MeetingPage(clubId: widget.clubId)),
                             );
                           },
                         ),
@@ -236,8 +258,8 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                   GestureDetector(
                     onTap: _pickImage,
                     child: Container(
-                      width: _isLargeSize ? 210 : 240,
-                      height: _isLargeSize ? 297 : 160,
+                      width: 240, // 720:1080 비율을 유지 (비율만 같으면 됨)
+                      height: 360,
                       decoration: BoxDecoration(
                         border: Border.all(color: const Color(0xFFA9A9A9)),
                         borderRadius: BorderRadius.circular(8),
@@ -261,44 +283,7 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 12),
 
-                  Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _isLargeSize,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  _isLargeSize = value ?? true;
-                                });
-                              },
-                              activeColor: Color(0xFF69B36D),
-                            ),
-                            const Text('210 x 297'),
-                          ],
-                        ),
-                        const SizedBox(width: 20),
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: !_isLargeSize,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  _isLargeSize = !(value ?? false);
-                                });
-                              },
-                              activeColor: Color(0xFF69B36D),
-                            ),
-                            const Text('240 x 160'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
 
                   const SizedBox(height: 12), // 체크박스와 제목 사이 간격 조절
 
@@ -400,6 +385,71 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                     ),
                   ),
 
+                  const SizedBox(height: 20),
+
+
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Container(width: 3, height: 20, color: const Color(0xFF68B26C)),
+                        const SizedBox(width: 8),
+                        const Text('마감 날짜', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Dropdown UI
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // 년
+                      DropdownButton<int>(
+                        hint: const Text('년'),
+                        value: selectedYear,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedYear = value;
+                            updateDays();
+                          });
+                        },
+                        items: years.map((year) {
+                          return DropdownMenuItem(value: year, child: Text('$year년'));
+                        }).toList(),
+                      ),
+
+                      // 월
+                      DropdownButton<int>(
+                        hint: const Text('월'),
+                        value: selectedMonth,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedMonth = value;
+                            updateDays();
+                          });
+                        },
+                        items: months.map((month) {
+                          return DropdownMenuItem(value: month, child: Text('$month월'));
+                        }).toList(),
+                      ),
+
+                      // 일
+                      DropdownButton<int>(
+                        hint: const Text('일'),
+                        value: selectedDay,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedDay = value;
+                          });
+                        },
+                        items: days.map((day) {
+                          return DropdownMenuItem(value: day, child: Text('$day일'));
+                        }).toList(),
+                      ),
+                    ],
+                  ),
 
                   const SizedBox(height: 50), // 스크롤 하단 여백
                 ],

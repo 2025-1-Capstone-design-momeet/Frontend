@@ -1,18 +1,26 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:momeet/clubMain_page.dart';
 import 'package:momeet/meeting_detail_page.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:momeet/summaryDialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:http/http.dart' as http;
+
 
 
 
 class MeetingPage extends StatefulWidget {
-  const MeetingPage({super.key});
+  final String clubId;
+
+  MeetingPage({Key? key, required this.clubId}) : super(key: key);
+
+  // const MeetingPage({super.key});
 
   @override
   State<MeetingPage> createState() => _MeetingPageState();
@@ -28,7 +36,9 @@ class _MeetingPageState extends State<MeetingPage> {
   String? uploadedFileName;
   late File recordFile;
 
-  String _clubId = '7163f660e44a4a398b28e4653fe35507';
+  bool isLoading = true;
+  List<Map<String, dynamic>> meetingList = [];
+
 
 
 
@@ -36,8 +46,53 @@ class _MeetingPageState extends State<MeetingPage> {
   void initState() {
     super.initState();
     _initRecorder();
+    _loadMeeting();
   }
 
+  Future<void> _loadMeeting() async {
+    setState(() {
+      isLoading = true;
+    });
+    final meetings = await fetchMeeting();
+    setState(() {
+      meetingList = meetings;
+      isLoading = false;
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> fetchMeeting() async {
+    final url = Uri.parse("http://momeet.meowning.kr/api/minute/clubList");
+    final headers = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Flutter App)',
+    };
+
+    final body = jsonEncode({
+      "clubId": widget.clubId,
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final jsonResponse = jsonDecode(decodedBody);
+
+        if (jsonResponse['success'] == "true") {
+          final List<dynamic> data = jsonResponse['data'];
+          print('🎲🎲🎲data: $data');
+          return data.map<Map<String, dynamic>>((item) => Map<String, dynamic>.from(item)).toList();
+        } else {
+          print("❌ 서버 실패 fetchMeeting: ${jsonResponse['message']}");
+        }
+      } else {
+        print("❌ HTTP 오류 fetchMeeting: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("🚨 에러 발생 fetchMeeting: $e");
+    }
+
+    return [];
+  }
 
 
   Future<String> getPublicMusicDir() async {
@@ -127,24 +182,15 @@ class _MeetingPageState extends State<MeetingPage> {
 
 
 
-
-
-
-  final List<Map<String, String>> _memos = [
-    {'date': '2025.03.15', 'content': '개강파티 일정과 장소 잡기 및 다음 회의 안건'},
-    {'date': '2025.03.19', 'content': '연습 일정과 재정 관리'},
-    {'date': '2025.03.30', 'content': '총동아리에 제출 할 자료 정리'},
-    {'date': '2025.04.01', 'content': '신입 부원 홍보 아이디어 공유'},
-  ];
-
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
-    final filteredMemos = _memos.where((memo) {
-      final content = memo['content']!.toLowerCase();
-      return content.contains(_searchText.toLowerCase());
+    final filteredMeetingList = meetingList.where((meeting) {
+      final title = meeting['title']?.toString().toLowerCase() ?? '';
+      return title.contains(_searchText.toLowerCase());
     }).toList();
+
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -167,7 +213,7 @@ class _MeetingPageState extends State<MeetingPage> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => MeetingPage()),
+                                MaterialPageRoute(builder: (context) => clubMainPage(clubId: widget.clubId)),
                               );
                               // Navigator.pop(context);
                             },
@@ -322,7 +368,7 @@ class _MeetingPageState extends State<MeetingPage> {
                             SummaryDialog.show(
                                 context,
                                 recordFile: recordFile,
-                                clubId: _clubId
+                                clubId: widget.clubId
                             );
                           },
                           label: const Text('요약', style: TextStyle(color: Color(0xFF68B26C))),
@@ -357,7 +403,7 @@ class _MeetingPageState extends State<MeetingPage> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: const BorderSide(
-                            color: Color(0xFF69B36D), // ← 여기가 핵심!
+                            color: Color(0xFF69B36D),
                             width: 2.0,
                           ),
                         ),
@@ -368,45 +414,37 @@ class _MeetingPageState extends State<MeetingPage> {
                         });
                       },
                     ),
-
-                    const SizedBox(height: 32),
-
-                    const Text(
-                      '회의록',
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.w300),
-                    ),
                     const SizedBox(height: 16),
 
-                    // 회의 카드
+                    // 3️⃣ 필터링된 리스트로 카드 출력
                     ListView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
-                      itemCount: filteredMemos.length,
+                      itemCount: filteredMeetingList.length,
                       itemBuilder: (context, index) {
-                        final memo = filteredMemos[index];
+                        final meeting = filteredMeetingList[index];
+
+                        // 날짜 변환
+                        final List<dynamic> dateArray = meeting['date'];
+                        final dateTime = DateTime(
+                          dateArray[0], dateArray[1], dateArray[2],
+                          dateArray[3], dateArray[4], dateArray[5],
+                        );
+                        final formattedDate = "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} "
+                            "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
+
                         return _buildMemoCard(
-                            memo['date']!, memo['content']!, screenSize.width > 600);
+                          formattedDate,
+                          meeting['title'] ?? '',
+                          meeting['minuteId'] ?? '',
+                          MediaQuery.of(context).size.width > 600,
+                        );
                       },
                     ),
+
+
                     const SizedBox(height: 10),
 
-                    // 더보기
-                    Center(
-                      child: TextButton(
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          foregroundColor: const Color(0xFF929292), // 텍스트 및 아이콘 색상
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Text('더보기'),
-                            SizedBox(width: 4),
-                            Icon(Icons.chevron_right, color: Color(0xFF929292)),
-                          ],
-                        ),
-                      ),
-                    )
                   ],
                 ),
               ),
@@ -417,14 +455,15 @@ class _MeetingPageState extends State<MeetingPage> {
     );
   }
 
-  Widget _buildMemoCard(String date, String content, bool isLargeScreen) {
+  Widget _buildMemoCard(String date, String content, String meetingId, bool isLargeScreen) {
+    print('➡️➡️➡️$meetingId');
     return GestureDetector(
       onTap: () {
         // MemoDetailPage로 이동
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MeetingDetailPage(clubId: 'dd',),
+            builder: (context) => MeetingDetailPage(meetingId: meetingId,),
           ),
         );
       },

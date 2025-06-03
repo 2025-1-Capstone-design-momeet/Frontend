@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:momeet/settlement_info_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:momeet/user_provider.dart';
+import 'package:momeet/write_promotion_post_page.dart';
 import 'package:provider/provider.dart';
 
 import 'board_page.dart';
@@ -184,12 +185,35 @@ class clubMainPageState extends State<clubMainPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      _univName,
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF69B36D)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _univName,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF69B36D),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => WritePromotionPostPage(clubId: widget.clubId),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF8BCF8E), // 버튼 배경색
+                            foregroundColor: Colors.white, // 글자색
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                            textStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                          child: Text('모집 게시글 작성'),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 4),
                     Row(
@@ -348,7 +372,7 @@ class clubMainPageState extends State<clubMainPage> {
                     }),
                     _buildBottomButton(Icons.assignment, '회의', () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => MeetingPage()),
+                        MaterialPageRoute(builder: (context) => MeetingPage(clubId: widget.clubId)),
                       );
                     }),
                   ],
