@@ -137,6 +137,7 @@ class _CalculateMembersPageState extends State<CalculateMembersPage>
               MaterialPageRoute(
                 builder: (context) => CreateSettlementPage(
                   selectedMembers: selectedMembers,
+                  voteID: widget.voteID,
                 ),
               ),
             );

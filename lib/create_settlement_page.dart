@@ -1,12 +1,19 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // 금액 포맷용
+import 'package:intl/intl.dart';
+import 'package:momeet/user_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:momeet/club_provider.dart';
+import 'package:momeet/http_service.dart'; // 금액 포맷용
 
 class CreateSettlementPage extends StatefulWidget {
   final List<Map<String, dynamic>> selectedMembers;
+  final String voteID;
 
   const CreateSettlementPage({
     super.key,
     required this.selectedMembers,
+    required this.voteID,
   });
 
   @override
@@ -14,62 +21,32 @@ class CreateSettlementPage extends StatefulWidget {
 }
 
 class _CreateSettlementPageState extends State<CreateSettlementPage> {
+  final TextEditingController _memberCountController = TextEditingController();
   int _remainingAmount = 0; // 나머지 금액 변수 추가
   final TextEditingController _totalAmountController = TextEditingController();
-  final TextEditingController _peopleCountController = TextEditingController();
   int _calculatedAmount = 0;
   bool _isChecked = false;
   final TextEditingController _controller = TextEditingController();
   final TextEditingController _accountController = TextEditingController();
-  // final TextEditingController _amountController = TextEditingController();
   bool _isValid = false;
   bool _isAccountValid = false;
   bool _isAmountValid = false;
-
   bool _isButtonEnabled = false; // 버튼 활성화 여부
 
-
-  // 포맷된 문자열을 숫자로 바꾸는 함수
-  int _parseFormattedNumber(String formattedText) {
-    return int.tryParse(formattedText.replaceAll(',', '')) ?? 0;
-  }
-
-  void _calculateSettlement() {
-    final total = _parseFormattedNumber(_totalAmountController.text);
-    final count = int.tryParse(_peopleCountController.text) ?? 0;
-
-    if (total > 0 && count > 0) {
-      setState(() {
-        _calculatedAmount = total ~/ count;
-        _remainingAmount = total % count;
-        _isButtonEnabled = _remainingAmount == 0; // 나머지 금액이 0이면 버튼 활성화
-      });
-    } else {
-      setState(() {
-        _calculatedAmount = 0;
-        _remainingAmount = 0;
-        _isButtonEnabled = false;
-      });
-    }
-  }
-
-
-  void _validateInput(String value) {
-    setState(() {
-      _isValid = value.trim().isNotEmpty; // 입력이 있으면 true, 없으면 false
-    });
-  }
-
-  void _validateAccountInput(String value) {
-    setState(() {
-      _isAccountValid = value.trim().isNotEmpty;
-    });
-  }
-
+  String? userId;
+  String? clubId;
 
   @override
   void initState() {
     super.initState();
+
+    final user = Provider.of<UserProvider>(context, listen: false);
+    userId = user.userId ?? "";
+
+    final club = Provider.of<ClubProvider>(context, listen: false);
+    clubId = club.clubId ?? "";
+
+    _memberCountController.text = widget.selectedMembers.length.toString();
 
     _totalAmountController.addListener(() {
       final text = _totalAmountController.text.replaceAll(',', '');
@@ -87,16 +64,101 @@ class _CreateSettlementPageState extends State<CreateSettlementPage> {
         _calculateSettlement(); // 금액 입력 시마다 자동 계산
       }
     });
+  }
 
-    _peopleCountController.addListener(() {
-      _calculateSettlement(); // 인원수 입력 시마다 자동 계산
+  Future<void> create() async {
+    final title = _controller.text.trim();
+    final amount = _parseFormattedNumber(_totalAmountController.text);
+    final account = _accountController.text.trim();
+    final paymentMembers = widget.selectedMembers.map((member) => member['userId']).toList();
+
+    final data = {
+      "userId": userId,
+      "voteID": widget.voteID,
+      "clubId": clubId,
+      "title": title,
+      "amount": amount,
+      "account": account,
+      "paymentMembers": paymentMembers
+    };
+
+    try {
+      final response = await HttpService().postRequest("pay/write", data);
+
+      final responseData = jsonDecode(response.body);
+      if (responseData['success'] == "true") {
+        // 성공 처리
+        _showDialog("성공", responseData['message']);
+        // 필요하다면 Navigator.pop(context); 등 화면 전환도 가능
+      } else {
+        // 실패 처리
+        _showDialog("오류", responseData['message'] ?? "알 수 없는 오류가 발생했습니다.");
+      }
+    } catch (e) {
+      _showDialog("네트워크 오류", "네트워크 오류가 발생했습니다.");
+      print("Error: $e");
+    }
+  }
+
+  void _showDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("확인"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // 포맷된 문자열을 숫자로 바꾸는 함수
+  int _parseFormattedNumber(String formattedText) {
+    return int.tryParse(formattedText.replaceAll(',', '')) ?? 0;
+  }
+
+  void _calculateSettlement() {
+    final total = _parseFormattedNumber(_totalAmountController.text);
+    final count = widget.selectedMembers.length;
+
+    if (total > 0 && count > 0) {
+      setState(() {
+        _calculatedAmount = total ~/ count;
+        _remainingAmount = total % count;
+        _isButtonEnabled = _remainingAmount == 0; // 나머지 금액이 0이면 버튼 활성화
+      });
+    } else {
+      setState(() {
+        _calculatedAmount = 0;
+        _remainingAmount = 0;
+        _isButtonEnabled = false;
+      });
+    }
+  }
+
+  void _validateInput(String value) {
+    setState(() {
+      _isValid = value.trim().isNotEmpty; // 입력이 있으면 true, 없으면 false
+    });
+  }
+
+  void _validateAccountInput(String value) {
+    setState(() {
+      _isAccountValid = value.trim().isNotEmpty;
     });
   }
 
   @override
   void dispose() {
     _totalAmountController.dispose();
-    _peopleCountController.dispose();
     _controller.dispose();
     _accountController.dispose();
     // _amountController.dispose();
@@ -271,23 +333,17 @@ class _CreateSettlementPageState extends State<CreateSettlementPage> {
                             const Icon(Icons.person, color: Colors.black54),
                             const SizedBox(width: 6),
                             IntrinsicWidth(
-                              child: TextField(
-                                controller: _peopleCountController,
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                decoration: InputDecoration(
-                                  isDense: true,
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                  hintText: '30',
-                                  hintStyle: TextStyle(color: Colors.grey[500]),
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide.none,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8), // 내부 여백
+                                decoration: BoxDecoration(
+                                  color: Colors.white, // 배경색
+                                  borderRadius: BorderRadius.circular(10), // 둥근 테두리
                                 ),
-                                keyboardType: TextInputType.number,
-                              ),
+                                child: Text(
+                                  _memberCountController.text, // 표시할 텍스트
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                ),
+                              )
                             ),
                             const SizedBox(width: 4),
                             const Text('명', style: TextStyle(fontSize: 16, color: Colors.black)),
@@ -361,7 +417,7 @@ class _CreateSettlementPageState extends State<CreateSettlementPage> {
                     child: ElevatedButton(
                       onPressed: _isChecked
                           ? () {
-                        // 정산 요청 처리 로직
+                        create();
                       }
                           : null,  // 체크 안 되면 버튼 비활성화
                       style: ElevatedButton.styleFrom(
