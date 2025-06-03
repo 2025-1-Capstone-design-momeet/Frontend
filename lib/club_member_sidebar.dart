@@ -5,13 +5,16 @@ import 'package:momeet/main_page.dart';
 import 'package:momeet/meeting_page.dart';
 // import 'package:momeet/wating_list_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:momeet/waiting_list_page.dart';
 
 
 class ClubMemberSidebar extends StatefulWidget {
   final String clubId;
   final String myName;
+  final String clubName;
+  final String clubType;
 
-  ClubMemberSidebar({Key? key, required this.clubId, required this.myName}) : super(key: key);
+  ClubMemberSidebar({Key? key, required this.clubId, required this.myName, required this.clubName, required this.clubType}) : super(key: key);
 
 
   @override
@@ -136,7 +139,7 @@ class ClubMemberSidebarState extends State<ClubMemberSidebar> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '불모지대',
+                            widget.clubName,
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
@@ -147,7 +150,7 @@ class ClubMemberSidebarState extends State<ClubMemberSidebar> {
                             children: [
                               SizedBox(width: 4),
                               Text(
-                                '예술',
+                                widget.clubType,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey,
@@ -169,7 +172,7 @@ class ClubMemberSidebarState extends State<ClubMemberSidebar> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          MainPage()),
+                                          WaitingListPage(clubId: widget.clubId)),
                                 );
                               },
                               style: TextButton.styleFrom(

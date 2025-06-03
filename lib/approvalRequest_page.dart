@@ -1,17 +1,91 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class ApprovalRequestPage extends StatelessWidget {
-  final String name = "강채희";
-  final String major = "소프트웨어전공";
-  final String studentId = "20220031";
-  final String grade = "4학년";
-  final String reason = "너무 재밌을 것 같아서 신청합니다.\n저는 진짜 이런게 너무 맘에 들거든요?\n저 좀 붙여주세요;;";
-  final String activities = "랩, 댄스, 노래, 기선제압하기";
+// 👉 실제 MainPage로 대체할 페이지를 import 해주세요
+import 'main_page.dart'; // 예시
 
-  const ApprovalRequestPage({super.key});
+class ApprovalRequestPage extends StatefulWidget {
+  final String clubId;
+  final String userName;
+  final String department;
+  final String userId;
+  final String grade;
+  final String studentNum;
+  final String why;
+  final String what;
+
+  const ApprovalRequestPage({
+    super.key,
+    required this.userName,
+    required this.department,
+    required this.userId,
+    required this.clubId,
+    required this.grade,
+    required this.studentNum,
+    required this.why,
+    required this.what,
+  });
+
+  @override
+  ApprovalRequestPageState createState() => ApprovalRequestPageState();
+}
+
+class ApprovalRequestPageState extends State<ApprovalRequestPage> {
+  String action = '';
+
+  Future<void> approve() async {
+    final uri = Uri.parse("http://momeet.meowning.kr/api/club/application/decision");
+
+    final body = jsonEncode({
+      "userId": widget.userId,
+      "clubId": widget.clubId,
+      "action": action, // approve 또는 deny
+    });
+
+    try {
+      final response = await http.post(
+        uri,
+        headers: {"Content-Type": "application/json"},
+        body: body,
+      );
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+        print("✅ 업로드 성공: $decoded");
+
+        final message = action == "approve"
+            ? "가입 승인되었습니다"
+            : "가입 거절되었습니다";
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+
+          await Future.delayed(const Duration(seconds: 2));
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => MainPage()),
+            );
+          }
+        }
+      } else {
+        final decoded = utf8.decode(response.bodyBytes);
+        print("❌ 업로드 실패: ${response.statusCode} $decoded");
+        print("보낸 데이터: $body");
+      }
+    } catch (e) {
+      print("🚨 에러 발생: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final String whyText = widget.why.trim().isEmpty ? '입력되지 않음' : widget.why;
+    final String whatText = widget.what.trim().isEmpty ? '입력되지 않음' : widget.what;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("가입 요청", style: TextStyle(fontWeight: FontWeight.bold)),
@@ -28,27 +102,29 @@ class ApprovalRequestPage extends StatelessWidget {
             const SizedBox(height: 16),
             const CircleAvatar(radius: 50, backgroundColor: Colors.grey),
             const SizedBox(height: 8),
-            Text(grade, style: const TextStyle(fontSize: 16)),
+            Text(widget.grade, style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 8),
-            Text(name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text(widget.userName,
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            Text(major, style: const TextStyle(fontSize: 16, color: Colors.grey)),
-            Text(studentId, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+            Text(widget.studentNum,
+                style: const TextStyle(fontSize: 16, color: Colors.grey)),
             const SizedBox(height: 24),
 
-            _buildSection("신청 사유", reason),
+            // 신청 사유 & 원하는 활동
+            _buildSection("신청 사유", whyText),
             const SizedBox(height: 16),
-            _buildSection("원하는 활동", activities),
+            _buildSection("원하는 활동", whatText),
 
             const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildButton("거절", Colors.grey),
-                _buildButton("승인", Colors.green),
+                _buildButton("거절", Color(0xFFAEAEAE), "deny"),
+                _buildButton("승인", Color(0xFF69B36D), "approve"),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 80),
           ],
         ),
       ),
@@ -63,7 +139,8 @@ class ApprovalRequestPage extends StatelessWidget {
           children: [
             Container(width: 4, height: 20, color: Colors.green),
             const SizedBox(width: 8),
-            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(title,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ],
         ),
         const SizedBox(height: 8),
@@ -80,15 +157,22 @@ class ApprovalRequestPage extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(String text, Color color) {
+  Widget _buildButton(String text, Color color, String actionValue) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        setState(() {
+          action = actionValue;
+        });
+        approve();
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
       ),
-      child: Text(text, style: const TextStyle(fontSize: 16, color: Colors.white)),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,fontSize: 16),
+      ),
     );
   }
 }
