@@ -274,19 +274,6 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
                 context, MaterialPageRoute(builder: (_) => CreateClubPage(univName: univName)));
           }),
 
-          buildSectionTitle("소모임"),
-          buildMenuItem("모집 공고", () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => MainPage()));
-          }),
-          buildMenuItem("소모임 활동", () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => MainPage()));
-          }),
-          buildMenuItem("창설하기", () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => MainPage()));
-          }),
 
           buildSectionTitle("기타"),
           buildMenuItem("문의하기", () {

@@ -142,6 +142,7 @@ class _MembershipfeeInfoPageState extends State<MembershipfeeInfoPage> {
               }
               _showDialog("완료", "정산 상태가 성공적으로 전송되었습니다.");
               Navigator.of(context).push(
+
                 MaterialPageRoute(builder: (context) => const SettlementPresidentPage())
               );
             },

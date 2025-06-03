@@ -343,28 +343,28 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("가입비", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 8),
-                if (membershipFee != null)
-                  _buildItemCard(
-                    membershipFee!['title'],
-                    membershipFee!['date'],
-                    membershipFee!['amount'],
-                    membershipFee!['current'],
-                    membershipFee!['total'],
-                    membershipFee!['payId'],
-                    isPaid: true,
-                  )
-                else
-                  const Text("가입비 정보를 불러오는 중..."),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("가입비", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  if (membershipFee != null)
+                    _buildItemCard(
+                      membershipFee!['title'],
+                      membershipFee!['date'],
+                      membershipFee!['amount'],
+                      membershipFee!['current'],
+                      membershipFee!['total'],
+                      membershipFee!['payId'],
+                      isPaid: true,
+                    )
+                  else
+                    const Text("가입비 정보를 불러오는 중..."),
                   _buildSection(
-                  "정산 - 미완료",
+                    "정산 - 미완료",
                     unpaidItems,
                     false,
                     showMoreUnpaid,
@@ -377,12 +377,12 @@ class _SettlementPresidentPageState extends State<SettlementPresidentPage> {
                     showMorePaid,
                         () => setState(() => showMorePaid = !showMorePaid),
                   ),
-                const SizedBox(height: 24), // 하단 공간 추가
-              ],
+                  const SizedBox(height: 24), // 하단 공간 추가
+                ],
+              ),
             ),
-          ),
           )
-        ),
-      );
+      ),
+    );
   }
 }

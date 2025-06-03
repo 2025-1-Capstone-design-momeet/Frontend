@@ -62,6 +62,9 @@ class _WritePostPageState extends State<WritePostPage> {
   bool isChecked = false;
 
   String? selectedFileName;
+  int selectedType = 0; // 이게 맞음!
+
+
 
   @override
   void dispose() {
@@ -82,7 +85,7 @@ class _WritePostPageState extends State<WritePostPage> {
       "userId": _userId,
       "title": _title ?? "",
       "content": _content ?? "",
-      "type": 0,
+      "type": selectedType,
       "like": 0,
       "fixation": isChecked ? 1 : 0,
       "date": DateTime.now().toIso8601String().split('.').first
@@ -125,11 +128,6 @@ class _WritePostPageState extends State<WritePostPage> {
       print("🚨 에러 발생: $e");
     }
   }
-
-
-
-
-
 
 
   @override
@@ -254,9 +252,39 @@ class _WritePostPageState extends State<WritePostPage> {
                           },
                           activeColor: const Color(0xFF69B36D),
                         ),
-                        const Text(
-                          '핀 고정',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF777777)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              '핀 고정',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFA2A2A2),
+                              ),
+                            ),
+                            const SizedBox(width: 110),
+                            DropdownButton<int>(
+                              value: selectedType,
+                              items: const [
+                                DropdownMenuItem(
+                                  value: 0,
+                                  child: Text('일반 게시글'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 4,
+                                  child: Text('활동 게시글'),
+                                ),
+                              ],
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    selectedType = value;
+                                  });
+                                }
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),

@@ -1,14 +1,5 @@
 import 'package:flutter/material.dart';
 
-class JoinRequestApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: WaitingListPage(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
 
 class WaitingListPage extends StatelessWidget {
   final List<Map<String, String>> users = [

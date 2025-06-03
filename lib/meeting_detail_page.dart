@@ -8,8 +8,10 @@ import 'package:momeet/board_page.dart';
 import 'package:momeet/club_provider.dart';
 
 class MeetingDetailPage extends StatefulWidget {
+  final String meetingId; // 전달받은 clubId 저장
 
-  const MeetingDetailPage({Key? key}) : super(key: key);
+  const MeetingDetailPage({Key? key, required this.meetingId}) : super(key: key);
+
 
   @override
   MeetingDetailPageState createState() => MeetingDetailPageState();
@@ -20,17 +22,15 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
   bool showScript = false;
   bool _showAllClubs = false;
 
-  String? userId;
-  late String clubId;
-  late String clubName;
-  late bool official;
+
 
   // 서버 데이터 저장 변수들
-  String minuteId = 'c2938668e97c425ba9794f8a7733ae28';
+  String minuteId = '';
   String date = '';
   String title = '';
   String summary = '';
   List<Map<String, dynamic>> scriptList = [];
+
 
   @override
   void initState() {
@@ -44,11 +44,13 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
     official = club.official ?? false;
 
     fetchMainPageData();
+    minuteId = widget.meetingId;
+    print('✅✅✅받은 회의록 ID: ${widget.meetingId}');
   }
 
   Future<void> fetchMainPageData() async {
     final url = Uri.parse('http://momeet.meowning.kr/api/minute/detail');
-    final body = jsonEncode({"minuteId": minuteId});
+    final body = jsonEncode({"minuteId": widget.meetingId});
 
     try {
       final response = await http.post(
@@ -191,8 +193,9 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                     ),
                     // elevation: 0,
                     color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
+                    child:  Padding(
+                      padding: EdgeInsets.all(16),
+
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children:  [
@@ -256,7 +259,8 @@ class MeetingDetailPageState extends State<MeetingDetailPage> {
                           ),
                         ],
                       ),
-                      child: Column(
+                      child:  Column(
+
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children:  [
                           Text(

@@ -183,156 +183,156 @@ class _CreateVotePageState extends State<CreateVotePage> {
       ),
       body: SingleChildScrollView(
         child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 2),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Center(
-                    child: Text(
-                      '투표 생성',
-                      style: TextStyle(
-                        fontFamily: 'jamsil',
-                        fontWeight: FontWeight.w200,
-                        fontSize: 20,
-                        color: Colors.black54,
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 2),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Center(
+                      child: Text(
+                        '투표 생성',
+                        style: TextStyle(
+                          fontFamily: 'jamsil',
+                          fontWeight: FontWeight.w200,
+                          fontSize: 20,
+                          color: Colors.black54,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const Divider(color: Colors.black26, thickness: 0.7),
-            Padding(
-              padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    hintText: '투표 제목을 입력해주세요',
-                    border: OutlineInputBorder(),
-                    contentPadding:
-                    EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _contentController,
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  textInputAction: TextInputAction.newline,
-                  decoration: const InputDecoration(
-                    hintText: '투표 설명을 입력해주세요',
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.green),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+              const Divider(color: Colors.black26, thickness: 0.7),
+              Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      GestureDetector(
-                        onTap: () async {
-                          DateTime now = DateTime.now();
-                          final DateTime? picked = await showDatePicker(
-                            context: context,
-                            initialDate: selectedDate ?? now,
-                            firstDate: now,
-                            lastDate: DateTime(now.year + 5),
-                          );
-                          if (picked != null) {
-                            setState(() {
-                              selectedDate = picked;
-                            });
-                          }
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 14),
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.green),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            "종료일: " +
-                                (selectedDate != null
-                                    ? "${selectedDate!.year}.${selectedDate!.month.toString().padLeft(2, '0')}.${selectedDate!.day.toString().padLeft(2, '0')}"
-                                    : "투표 종료 날짜 선택"),
-                            style: const TextStyle(color: Colors.black87),
-                          ),
+                      TextFormField(
+                        controller: _titleController,
+                        decoration: const InputDecoration(
+                          hintText: '투표 제목을 입력해주세요',
+                          border: OutlineInputBorder(),
+                          contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      ..._optionControllers.asMap().entries.map((entry) {
-                        int index = entry.key;
-                        TextEditingController controller = entry.value;
-                        return Row(
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _contentController,
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                        textInputAction: TextInputAction.newline,
+                        decoration: const InputDecoration(
+                          hintText: '투표 설명을 입력해주세요',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.green),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
                           children: [
-                            Expanded(
+                            GestureDetector(
+                              onTap: () async {
+                                DateTime now = DateTime.now();
+                                final DateTime? picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: selectedDate ?? now,
+                                  firstDate: now,
+                                  lastDate: DateTime(now.year + 5),
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    selectedDate = picked;
+                                  });
+                                }
+                              },
                               child: Container(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                child: TextFormField(
-                                  controller: controller,
-                                  decoration: InputDecoration(
-                                    hintText: "항목 ${index + 1}",
-                                    filled: true,
-                                    fillColor: const Color(0xFFEFEFEF),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 10),
-                                    border: const OutlineInputBorder(
-                                        borderSide: BorderSide.none),
-                                  ),
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 14),
+                                margin: const EdgeInsets.only(bottom: 12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.green),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  "종료일: " +
+                                      (selectedDate != null
+                                          ? "${selectedDate!.year}.${selectedDate!.month.toString().padLeft(2, '0')}.${selectedDate!.day.toString().padLeft(2, '0')}"
+                                          : "투표 종료 날짜 선택"),
+                                  style: const TextStyle(color: Colors.black87),
                                 ),
                               ),
                             ),
-                            IconButton(
-                              onPressed: () => _removeOption(index),
-                              icon: const Icon(Icons.close),
+                            const SizedBox(height: 8),
+                            ..._optionControllers.asMap().entries.map((entry) {
+                              int index = entry.key;
+                              TextEditingController controller = entry.value;
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(bottom: 8),
+                                      child: TextFormField(
+                                        controller: controller,
+                                        decoration: InputDecoration(
+                                          hintText: "항목 ${index + 1}",
+                                          filled: true,
+                                          fillColor: const Color(0xFFEFEFEF),
+                                          contentPadding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 10),
+                                          border: const OutlineInputBorder(
+                                              borderSide: BorderSide.none),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () => _removeOption(index),
+                                    icon: const Icon(Icons.close),
+                                  )
+                                ],
+                              );
+                            }).toList(),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                  backgroundColor: Colors.grey[400]),
+                              onPressed: _addOption,
+                              child: const Text("+ 항목 추가",
+                                  style: TextStyle(color: Colors.white)),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: anonymousVote,
+                                  onChanged: (val) =>
+                                      setState(() => anonymousVote = val ?? false),
+                                ),
+                                const Text("익명 투표"),
+                              ],
                             )
                           ],
-                        );
-                      }).toList(),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                            backgroundColor: Colors.grey[400]),
-                        onPressed: _addOption,
-                        child: const Text("+ 항목 추가",
-                            style: TextStyle(color: Colors.white)),
+                        ),
                       ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: anonymousVote,
-                            onChanged: (val) =>
-                                setState(() => anonymousVote = val ?? false),
-                          ),
-                          const Text("익명 투표"),
-                        ],
-                      )
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _submitVote,
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                        child: const Text("투표 등록", style: TextStyle(color: Colors.white)),
+                      ),
                     ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _submitVote,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                  child: const Text("투표 등록", style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            )
-            )
+                  )
+              )
 
-        ]
+            ]
         ),
       ),
     );

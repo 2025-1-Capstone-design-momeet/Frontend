@@ -370,13 +370,13 @@ class _VotePageState extends State<VotePage> {
                                       if (selectedIndex != null && selectedIndex < vote.voteContents.length) {
                                         final selectedContent = vote.voteContents[selectedIndex];
                                         Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
+                                          context,
+                                          MaterialPageRoute(
                                             builder: (context) => CalculateMembersPage(
                                               voteID: vote.voteID, // 투표 ID
                                               voteContentId: selectedContent.voteContentID, // 선택된 항목의 ID
                                             ),
-                                            ),
+                                          ),
                                         );
                                       }
                                     },
