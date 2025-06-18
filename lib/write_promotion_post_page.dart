@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';  // 추가
 import 'dart:io';  // 파일 처리를 위해 추가
 
 import 'package:momeet/board_page.dart';
+import 'package:momeet/main_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -151,7 +152,7 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F6F6),
+      backgroundColor: Colors.white,
       appBar: null,
       body: Column(
         children: [
@@ -172,7 +173,7 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => MeetingPage(clubId: widget.clubId)),
+                              MaterialPageRoute(builder: (context) => MainPage()),
                             );
                           },
                         ),
@@ -203,7 +204,7 @@ class _WritePromotionPostPageState extends State<WritePromotionPostPage> {
                   children: [
                     const SizedBox(width: 110),
                     Text(
-                      '홍보 게시글 작성',
+                      '모집 게시글 작성',
                       style: TextStyle(
                         fontSize: screenSize.width > 600 ? 30 : 20,
                         fontWeight: FontWeight.bold,

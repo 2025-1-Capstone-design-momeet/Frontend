@@ -137,7 +137,7 @@ class _BuildSideMenuState extends State<BuildSideMenu> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(width: 8),
-                    Text(userId,
+                    Text(name,
                         style: TextStyle(
                             fontSize: 25,
                             fontWeight: FontWeight.w600,

@@ -102,7 +102,7 @@ class ApprovalRequestPageState extends State<ApprovalRequestPage> {
             const SizedBox(height: 16),
             const CircleAvatar(radius: 50, backgroundColor: Colors.grey),
             const SizedBox(height: 8),
-            Text(widget.grade, style: const TextStyle(fontSize: 16)),
+            Text('${widget.grade}학년', style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 8),
             Text(widget.userName,
                 style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),

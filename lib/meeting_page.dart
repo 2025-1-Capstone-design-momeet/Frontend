@@ -12,11 +12,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:http/http.dart' as http;
 
-
-
-
 class MeetingPage extends StatefulWidget {
   final String clubId;
+
 
   MeetingPage({Key? key, required this.clubId}) : super(key: key);
 
@@ -59,6 +57,14 @@ class _MeetingPageState extends State<MeetingPage> {
       isLoading = false;
     });
   }
+
+  String formatUtcToKst(String utcTimeString) {
+    final utcTime = DateTime.parse(utcTimeString).toUtc();
+    final kstTime = utcTime.add(const Duration(hours: 9));
+    return '${kstTime.year}-${kstTime.month.toString().padLeft(2, '0')}-${kstTime.day.toString().padLeft(2, '0')} '
+        '${kstTime.hour.toString().padLeft(2, '0')}:${kstTime.minute.toString().padLeft(2, '0')}';
+  }
+
 
   Future<List<Map<String, dynamic>>> fetchMeeting() async {
     final url = Uri.parse("http://momeet.meowning.kr/api/minute/clubList");
@@ -144,7 +150,8 @@ class _MeetingPageState extends State<MeetingPage> {
 
   Future<void> _toggleRecording() async {
     if (!_recorder.isRecording) {
-      final now = DateTime.now();
+      final now = DateTime.now().toLocal();
+
       final formattedDate = '${now.year}-${_twoDigits(now.month)}-${_twoDigits(now.day)}'
           '_${_twoDigits(now.hour)}-${_twoDigits(now.minute)}-${_twoDigits(now.second)}';
 
@@ -191,7 +198,6 @@ class _MeetingPageState extends State<MeetingPage> {
       return title.contains(_searchText.toLowerCase());
     }).toList();
 
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -215,7 +221,6 @@ class _MeetingPageState extends State<MeetingPage> {
                                 context,
                                 MaterialPageRoute(builder: (context) => clubMainPage(clubId: widget.clubId)),
                               );
-                              // Navigator.pop(context);
                             },
                           ),
                           const SizedBox(width: 0),
@@ -259,193 +264,190 @@ class _MeetingPageState extends State<MeetingPage> {
 
             // 스크롤 가능한 콘텐츠
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 0),
+              child: RefreshIndicator(
+                onRefresh: _loadMeeting,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(), // 꼭 필요함!
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 0),
 
-                    // 회의 + 녹음중
-                    Row(
-                      children: [
-                        const Text(
-                          '회의',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(width: 8),
-                        OutlinedButton.icon(
-                          onPressed: _toggleRecording,
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6), // 크기 조절
-                            side: BorderSide(
-                              color: isRecording ? Colors.red : const Color(0xFF68B26C),
+                      // 회의 + 녹음중
+                      Row(
+                        children: [
+                          const Text(
+                            '회의',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 8),
+                          OutlinedButton.icon(
+                            onPressed: _toggleRecording,
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6), // 크기 조절
+                              side: BorderSide(
+                                color: isRecording ? Colors.red : const Color(0xFF68B26C),
+                              ),
+                              backgroundColor: Colors.white,
                             ),
-                            backgroundColor: Colors.white,
-                          ),
-                          icon: Icon(
-                            isRecording ? Icons.stop : Icons.mic,
-                            color: isRecording ? Colors.red : const Color(0xFF68B26C),
-                            size: 18, // 아이콘 크기도 살짝 줄임 (선택 사항)
-                          ),
-                          label: Text(
-                            isRecording ? '중단' : '녹음',
-                            style: TextStyle(
+                            icon: Icon(
+                              isRecording ? Icons.stop : Icons.mic,
                               color: isRecording ? Colors.red : const Color(0xFF68B26C),
-                              fontSize: 13, // 글자 크기도 조금 축소 (선택 사항)
+                              size: 18, // 아이콘 크기도 살짝 줄임 (선택 사항)
                             ),
-                          ),
-                        ),
-
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // 버튼 2개
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              // 파일 선택 다이얼로그 열기
-                              FilePickerResult? result = await FilePicker.platform.pickFiles(
-                                type: FileType.custom,      // 커스텀 확장자 제한
-                                allowedExtensions: ['aac'], // wav 확장자만 허용
-                              );
-
-
-                              if (result != null && result.files.isNotEmpty) {
-                                // 선택한 파일의 이름을 저장하는 로직 (setState 필요)
-                                setState(() {
-                                  uploadedFileName = result.files.single.name;
-                                  // 여기서 파일 경로나 데이터도 저장 가능
-                                });
-                                // 파일 업로드 자동 처리할 함수 호출 가능
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                              backgroundColor: const Color(0xFFFBFBFB),
-                              elevation: 2,
-                              shadowColor: Colors.grey.withOpacity(0.7),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                            label: Text(
+                              isRecording ? '중단' : '녹음',
+                              style: TextStyle(
+                                color: isRecording ? Colors.red : const Color(0xFF68B26C),
+                                fontSize: 13, // 글자 크기도 조금 축소 (선택 사항)
                               ),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                if (uploadedFileName == null) ...[
-                                  const Icon(Icons.file_upload, color: Color(0xFF9F9F9F)),
-                                  const SizedBox(width: 8),
-                                ],
-                                Flexible(
-                                  child: Text(
-                                    uploadedFileName ?? '파일 업로드',
-                                    style: const TextStyle(color: Color(0xFF9F9F9F)),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                  ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      // 버튼 2개
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                // 파일 선택 다이얼로그 열기
+                                FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                  type: FileType.custom,      // 커스텀 확장자 제한
+                                  allowedExtensions: ['aac'], // wav 확장자만 허용
+                                );
+
+                                if (result != null && result.files.isNotEmpty) {
+                                  setState(() {
+                                    uploadedFileName = result.files.single.name;
+                                  });
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                backgroundColor: const Color(0xFFFBFBFB),
+                                elevation: 2,
+                                shadowColor: Colors.grey.withOpacity(0.7),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                              ],
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  if (uploadedFileName == null) ...[
+                                    const Icon(Icons.file_upload, color: Color(0xFF9F9F9F)),
+                                    const SizedBox(width: 8),
+                                  ],
+                                  Flexible(
+                                    child: Text(
+                                      uploadedFileName ?? '파일 업로드',
+                                      style: const TextStyle(color: Color(0xFF9F9F9F)),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              if (uploadedFileName == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('현재 올라온 파일이 없습니다'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                                return;
+                              }
+                              SummaryDialog.show(
+                                context,
+                                recordFile: recordFile,
+                                clubId: widget.clubId,
+                              );
+                            },
+                            label: const Text('요약', style: TextStyle(color: Color(0xFF68B26C))),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              side: const BorderSide(color: Color(0xFF68B26C)),
+                              backgroundColor: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: const [
+                          SizedBox(width: 9),
+                          Text('파일 확장자는 wav로 제한되어있습니다.', style: TextStyle(color: Color(0xFFB2B2B2), fontSize: 10)),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+
+                      // 검색창
+                      TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.search),
+                          hintText: '회의록 검색',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF69B36D),
+                              width: 2.0,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        OutlinedButton.icon(
-                          onPressed: () {
-                            if (uploadedFileName == null) {
-                              // 파일이 없을 때 메시지 띄우고 동작 중지
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('현재 올라온 파일이 없습니다'),
-                                  duration: Duration(seconds: 2),
-                                ),
-                              );
-                              return; // 함수 종료
-                            }
-                            // 파일이 있을 때만 팝업창 호출
-                            SummaryDialog.show(
-                                context,
-                                recordFile: recordFile,
-                                clubId: widget.clubId
-                            );
-                          },
-                          label: const Text('요약', style: TextStyle(color: Color(0xFF68B26C))),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                            side: const BorderSide(color: Color(0xFF68B26C)),
-                            backgroundColor: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        const SizedBox(width: 9),
-                        const Text('파일 확장자는 wav로 제한되어있습니다.', style: TextStyle(color: Color(0xFFB2B2B2), fontSize: 10)),
-
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-
-
-
-                    // 검색창
-                    TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.search),
-                        hintText: '회의록 검색',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF69B36D),
-                            width: 2.0,
-                          ),
-                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _searchText = value;
+                          });
+                        },
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          _searchText = value;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                    // 3️⃣ 필터링된 리스트로 카드 출력
-                    ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: filteredMeetingList.length,
-                      itemBuilder: (context, index) {
-                        final meeting = filteredMeetingList[index];
+                      // 필터링된 리스트로 카드 출력
+                      ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: filteredMeetingList.length,
+                        itemBuilder: (context, index) {
+                          final meeting = filteredMeetingList[index];
 
-                        // 날짜 변환
-                        final List<dynamic> dateArray = meeting['date'];
-                        final dateTime = DateTime(
-                          dateArray[0], dateArray[1], dateArray[2],
-                          dateArray[3], dateArray[4], dateArray[5],
-                        );
-                        final formattedDate = "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} "
-                            "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
+                          final List<dynamic> dateArray = meeting['date'];
+                          if (dateArray.length < 6) {
+                            print("❗ dateArray 길이 부족: $dateArray");
+                            return const SizedBox();
+                          }
 
-                        return _buildMemoCard(
-                          formattedDate,
-                          meeting['title'] ?? '',
-                          meeting['minuteId'] ?? '',
-                          MediaQuery.of(context).size.width > 600,
-                        );
-                      },
-                    ),
+                          final dateTime = DateTime(
+                            dateArray[0], dateArray[1], dateArray[2],
+                            dateArray[3], dateArray[4], dateArray[5],
+                          );
 
+                          final formattedDate = "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} "
+                              "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
 
-                    const SizedBox(height: 10),
+                          return _buildMemoCard(
+                            formattedDate,
+                            meeting['title'] ?? '',
+                            meeting['minuteId'] ?? '',
+                            screenSize.width > 600,
+                          );
+                        },
+                      ),
 
-                  ],
+                      const SizedBox(height: 10),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -454,6 +456,7 @@ class _MeetingPageState extends State<MeetingPage> {
       ),
     );
   }
+
 
   Widget _buildMemoCard(String date, String content, String meetingId, bool isLargeScreen) {
     print('➡️➡️➡️$meetingId');
@@ -493,4 +496,6 @@ class _MeetingPageState extends State<MeetingPage> {
       ),
     );
   }
+
+
 }

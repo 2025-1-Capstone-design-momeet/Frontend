@@ -7,6 +7,8 @@ import 'package:momeet/user_provider.dart';
 import 'package:path/path.dart' as path ;
 import 'package:provider/provider.dart';
 
+import 'main_page.dart';
+
 class RequestClubPage extends StatefulWidget {
   final String clubId;
 
@@ -88,9 +90,27 @@ class _RequestClubPageState extends State<RequestClubPage> {
 
         final Map<String, dynamic> jsonResponse = jsonDecode(decodedBody);
 
-        if (jsonResponse['success'] == true) {
+        if (jsonResponse['success'].toString() == "true") {
           final data = jsonResponse['data'];
           print("🎉 서버에서 받은 데이터: $data");
+
+          // ✅ 메시지 띄우기
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("신청이 완료되었습니다"),
+                // duration: Duration(seconds: 2),
+              ),
+            );
+
+            // ✅ 약간의 지연 후 페이지 이동 (SnackBar 보여줄 시간)
+            await Future.delayed(Duration(seconds: 2));
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => MainPage()),
+            );
+          }
         } else {
           print("❌ 서버 응답 실패: ${jsonResponse['message']}");
         }

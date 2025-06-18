@@ -101,6 +101,7 @@ class _VotePageState extends State<VotePage> {
 
       if(response.statusCode == 200) {
         print("투표 완~");
+
         await fetchVotes();
       }
 
@@ -113,7 +114,7 @@ class _VotePageState extends State<VotePage> {
     final data = {
       "userId": userId,
       "voteID": voteID,
-      "voteNum": null
+      "voteNum": null,
     };
 
     try {
@@ -125,11 +126,15 @@ class _VotePageState extends State<VotePage> {
 
         if (jsonResponse["success"] == "true" && jsonResponse["data"] != null) {
           final int voteNum = jsonResponse["data"]["voteNum"];
-          setState(() {
-            selectedOptionIndexes[index] = voteNum;
-          });
+
+          // ✅ 비동기 작업 끝내고
+          if (mounted) {
+            // ✅ 동기적으로 setState
+            setState(() {
+              selectedOptionIndexes[index] = voteNum;
+            });
+          }
         } else {
-          // 아직 투표 안 했을 수도 있음, 이 경우 아무것도 안 함
           print("투표 안함 또는 데이터 없음: ${jsonResponse["data"]}");
         }
       }
@@ -141,7 +146,9 @@ class _VotePageState extends State<VotePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -207,7 +214,7 @@ class _VotePageState extends State<VotePage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => CreateVotePage(clubId: clubId)),
+                        MaterialPageRoute(builder: (context) => const CreateVotePage()),
                       );
                     },
                   ),
@@ -222,8 +229,7 @@ class _VotePageState extends State<VotePage> {
               itemBuilder: (context, index) {
                 final vote = votes[index];
                 final isExpanded = expandedIndexes.contains(index);
-                final sortedContents = [...vote.voteContents]
-                  ..sort((a, b) => (a.voteNum ?? 0).compareTo(b.voteNum ?? 0)); // 내림차순 정렬
+                final sortedContents = vote.voteContents;
 
 
                 return GestureDetector(
@@ -291,8 +297,6 @@ class _VotePageState extends State<VotePage> {
                                     style: TextStyle(color: Colors.red, fontSize: 13),
                                   ),
                                 ),
-
-
                               // 투표 항목 리스트
                               Column(
                                 children: List.generate(sortedContents.length, (i) {

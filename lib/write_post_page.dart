@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:momeet/clubMain_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:momeet/write_promotion_post_page.dart';
 import 'package:http/http.dart' as http;
@@ -77,7 +78,7 @@ class _WritePostPageState extends State<WritePostPage> {
 
 
 
-  Future<void> uploadPost(File postFile) async {
+  Future<bool> uploadPost([File? postFile]) async {
     final uri = Uri.parse("http://momeet.meowning.kr/api/post/write");
 
     final Map<String, dynamic> postWriteDTO = {
@@ -88,46 +89,49 @@ class _WritePostPageState extends State<WritePostPage> {
       "type": selectedType,
       "like": 0,
       "fixation": isChecked ? 1 : 0,
-      "date": DateTime.now().toIso8601String().split('.').first
+      "date": DateTime.now().toIso8601String().split('.').first,
     };
 
     final request = http.MultipartRequest('POST', uri);
 
-    // 이미지 파일 추가
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        'file',
-        postFile.path,
-        filename: path.basename(postFile.path),
-      ),
-    );
-
-    // JSON 데이터 MultipartFile로 추가하면서 content-type 지정
-    request.files.add(
-      http.MultipartFile.fromString(
-        'postWriteDTO',
-        jsonEncode(postWriteDTO),
-        contentType: MediaType('application', 'json'),
-      ),
-    );
-
     try {
+      // 파일이 있을 경우에만 파일 추가
+      if (postFile != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'file',
+            postFile.path,
+            filename: path.basename(postFile.path),
+          ),
+        );
+      }
+
+      request.files.add(
+        http.MultipartFile.fromString(
+          'postWriteDTO',
+          jsonEncode(postWriteDTO),
+          contentType: MediaType('application', 'json'),
+        ),
+      );
+
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
-
-      // 한글 깨짐 방지: bodyBytes를 utf8.decode로 변환
       final decodedBody = utf8.decode(response.bodyBytes);
 
       if (response.statusCode == 200) {
         print("✅ 업로드 성공: $decodedBody");
+        return true;
       } else {
         print("❌ 업로드 실패: ${response.statusCode} $decodedBody");
-        print(postWriteDTO);
+        return false;
       }
     } catch (e) {
       print("🚨 에러 발생: $e");
+      return false;
     }
   }
+
+
 
 
   @override
@@ -200,12 +204,24 @@ class _WritePostPageState extends State<WritePostPage> {
                     ),
                     const SizedBox(width: 60),
                     TextButton(
-                      onPressed: () {
-                        if (postFile != null) {
-                          uploadPost(postFile!);
+                      onPressed: () async {
+                        bool success = await uploadPost(postFile); // 파일 없어도 null 전달 가능
+
+                        if (success) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('게시글 작성이 완료되었습니다')),
+                          );
+                          await Future.delayed(const Duration(seconds: 1));
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => clubMainPage(clubId: widget.clubId),
+                            ),
+                          );
                         } else {
-                          print("❗ 첨부파일이 없습니다.");
-                          // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('첨부파일을 선택해주세요')));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('업로드에 실패했습니다.')),
+                          );
                         }
                       },
                       child: const Text(
@@ -217,6 +233,7 @@ class _WritePostPageState extends State<WritePostPage> {
                         ),
                       ),
                     ),
+
                   ],
                 ),
               ],

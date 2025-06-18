@@ -112,8 +112,10 @@ class _CreateClubPageState extends State<CreateClubPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("가입 신청", style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        title: Text("동아리 생성", style: TextStyle(fontWeight: FontWeight.bold)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -126,9 +128,9 @@ class _CreateClubPageState extends State<CreateClubPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
 
-
+              SizedBox(height: 130),
               _buildTextInputSection("동아리명", _clubNameController, "동아리명을 입력하세요"),
-              SizedBox(height: 16),
+              SizedBox(height: 30),
               _buildDropdownSection("카테고리", _categories),
 
               SizedBox(height: 100),

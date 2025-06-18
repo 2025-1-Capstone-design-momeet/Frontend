@@ -6,10 +6,10 @@ import 'package:momeet/user_provider.dart';
 import 'package:momeet/vote_page.dart';
 import 'package:provider/provider.dart';
 
-class CreateVotePage extends StatefulWidget {
-  final dynamic clubId;
+import 'club_provider.dart';
 
-  const CreateVotePage({super.key, required this.clubId});
+class CreateVotePage extends StatefulWidget {
+  const CreateVotePage({super.key});
 
   @override
   State<CreateVotePage> createState() => _CreateVotePageState();
@@ -17,14 +17,21 @@ class CreateVotePage extends StatefulWidget {
 
 class _CreateVotePageState extends State<CreateVotePage> {
   String? userId;
-
+  String? clubId;
+  late String clubName;
+  late bool official;
 
   @override
   void initState() {
     super.initState();
-    final user = Provider.of<UserProvider>(
-        context, listen: false); // listen: false로 값을 가져옴
+
+    final user = Provider.of<UserProvider>(context, listen: false);
     userId = user.userId ?? "";
+
+    final club = Provider.of<ClubProvider>(context, listen: false);
+    clubId = club.clubId ?? "";
+    clubName = club.clubName ?? "";
+    official = club.official ?? false;
   }
 
   final TextEditingController _titleController = TextEditingController();
@@ -67,7 +74,7 @@ class _CreateVotePageState extends State<CreateVotePage> {
 
     final Map<String, dynamic> voteData = {
       "userId": "gam1017",
-      "clubId": widget.clubId,
+      "clubId": clubId,
       "endDate": "${selectedDate!.toIso8601String().split('T')[0]}T23:59:00",
       "title": _titleController.text.trim(),
       "content": _contentController.text.trim(),
@@ -140,7 +147,9 @@ class _CreateVotePageState extends State<CreateVotePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -155,15 +164,15 @@ class _CreateVotePageState extends State<CreateVotePage> {
         actions: [
           Row(
             children: [
-              const Text(
-                '불모지대',
-                style: TextStyle(
+              Text(
+                clubName,
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.green,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              if (isApproved) ...[
+              if (official) ...[
                 const SizedBox(width: 4),
                 const Icon(Icons.verified, color: Colors.green, size: 20),
               ],

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:momeet/clubMain_page.dart';
+import 'package:momeet/main_page.dart';
 import 'package:momeet/recruiting_detail_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:momeet/write_post_page.dart';
@@ -38,21 +39,21 @@ class RecruitingPageState extends State<RecruitingPage> {
             color: Colors.white,
             child: Column(
               children: [
-                const SizedBox(height: 24),
+                SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        // IconButton(
-                        //   icon: const Icon(Icons.arrow_back),
-                        //   // onPressed: () {
-                        //   //   Navigator.push(
-                        //   //     context,
-                        //   //     MaterialPageRoute(builder: (context) => WritePostPage(clubId: clubId)),
-                        //   //   );
-                        //   // },
-                        // ),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => MainPage()),
+                            );
+                          },
+                        ),
                         const SizedBox(width: 0),
                         Text(
                           'mo.meet',
@@ -63,30 +64,23 @@ class RecruitingPageState extends State<RecruitingPage> {
                         ),
                       ],
                     ),
-
                   ],
                 ),
                 const SizedBox(height: 0),
-                Row(
-                  children: [
-                    SizedBox(width: 150),  // 왼쪽 공백 고정 (원하는 값으로 조절)
-                    Center(
-                      child: Text(
-                        '모집 동아리',
-                        style: TextStyle(
-                          color: Color(0xFF777777),
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                    Expanded(child: SizedBox()), // 오른쪽 공백은 유동적
-
-                  ],
+                const Text(
+                  '모집 동아리',
+                  style: TextStyle(
+                    color: Color(0xFF777777),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-
               ],
             ),
+          ),
+          Container(
+            height: 1,
+            color: Color(0xFFE0E0E0), // 조금 더 연한 회색
           ),
 
           Container(height: 1, color: const Color(0xFFE0E0E0)),
@@ -106,8 +100,8 @@ class RecruitingPageState extends State<RecruitingPage> {
 
                 return InkWell(
                   onTap: () {
-                    final clubId = club['clubId']; // clubId는 이 키가 있다고 가정
-                    if (clubId != null) {
+                    final clubId = club['clubId'];
+                    if (club['recruiting'] == true && clubId != null) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -183,18 +177,19 @@ class RecruitingPageState extends State<RecruitingPage> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.red,
+                            color: club['recruiting'] ? Colors.red : Colors.grey,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Text(
-                            '부원 모집',
-                            style: TextStyle(
+                          child: Text(
+                            club['recruiting'] ? '부원 모집' : '모집 마감',
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
+
                       ],
                     ),
                   ),

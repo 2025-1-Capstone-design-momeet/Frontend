@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'user_provider.dart';
+import 'package:momeet/login_page.dart';
 import 'http_service.dart';
+import 'member_registration_page.dart';
 
 class VerificationPage extends StatefulWidget {
   final String? userId;
@@ -15,17 +15,9 @@ class VerificationPage extends StatefulWidget {
 
 class _VerificationPageState extends State<VerificationPage> {
   final TextEditingController _schoolEmailController = TextEditingController();
-  final TextEditingController _userIdController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
 
   bool isCodeWrong = false;
-
-  @override
-  void initState() {
-    super.initState();
-    final user = Provider.of<UserProvider>(context, listen: false);
-    _userIdController.text = user.userId ?? "";
-  }
 
   void _showDialog(String message) {
     showDialog(
@@ -36,9 +28,7 @@ class _VerificationPageState extends State<VerificationPage> {
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text("확인"),
             ),
           ],
@@ -95,7 +85,7 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   Future<void> sendEmail() async {
-    final userId = _userIdController.text.trim();
+    final userId = widget.userId;
     final email = "${_schoolEmailController.text.trim()}@kumoh.ac.kr";
 
     final requestBody = {
@@ -104,15 +94,11 @@ class _VerificationPageState extends State<VerificationPage> {
       "userId": userId,
     };
 
-    print("$requestBody");
-
     try {
       final response = await HttpService().postRequest("univ/match", requestBody);
-
-      print(response.body);
+      final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
         if (data['success'] == "true" && data['data'] == true) {
           _showToast("이메일 전송 완료!");
         } else {
@@ -120,13 +106,12 @@ class _VerificationPageState extends State<VerificationPage> {
         }
       }
     } catch (e) {
-      print('요청 실패: $e');
       _showDialog("이메일 전송 실패: $e");
     }
   }
 
   Future<void> verifyCode() async {
-    final userId = _userIdController.text.trim();
+    final userId = widget.userId;
     final email = "${_schoolEmailController.text.trim()}@kumoh.ac.kr";
     final code = _codeController.text.trim();
 
@@ -138,12 +123,17 @@ class _VerificationPageState extends State<VerificationPage> {
 
     try {
       final response = await HttpService().postRequest("univ/match", requestBody);
+      final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
         if (data['success'] == "true") {
           _showToast(data['message']);
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MemberRegistrationPage(userId: widget.userId)),
+          );
+
         } else {
           setState(() {
             isCodeWrong = true;
@@ -161,10 +151,33 @@ class _VerificationPageState extends State<VerificationPage> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return PopScope(
-      canPop: false, // 뒤로가기 완전 차단
-      onPopInvoked: (didPop) {
-        // 뒤로가기 시도 시 로그나 토스트 띄우고 싶으면 여기에 작성
-        _showToast("뒤로가기가 제한되어 있습니다.");
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (!didPop) {
+          final shouldLeave = await showDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text("입력값 삭제됨"),
+                content: const Text("뒤로가기를 하면 입력하신 정보가 모두 사라질 수 있습니다.\n그래도 나가시겠습니까?"),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text("취소"),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text("나가기"),
+                  ),
+                ],
+              );
+            },
+          );
+
+          if (shouldLeave == true) {
+            Navigator.of(context).pop();
+          }
+        }
       },
       child: Scaffold(
         backgroundColor: const Color(0xFFFBFBFB),
@@ -172,9 +185,30 @@ class _VerificationPageState extends State<VerificationPage> {
           title: const Text('학교 인증'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              // 명시적 뒤로가기 버튼도 막으려면 빈 함수로 두세요
-              _showToast("뒤로가기가 제한되어 있습니다.");
+            onPressed: () async {
+              final shouldLeave = await showDialog<bool>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("입력 정보 삭제 경고"),
+                    content: const Text("뒤로가기를 하면 입력하신 정보가 모두 사라질 수 있습니다.\n그래도 나가시겠습니까?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text("취소"),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text("나가기"),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (shouldLeave == true) {
+                Navigator.of(context).pop();
+              }
             },
           ),
           centerTitle: true,
@@ -257,7 +291,6 @@ class _VerificationPageState extends State<VerificationPage> {
                       ),
                     ),
                     Divider(height: screenHeight * 0.1),
-
                     const Text(
                       '메일에 전송된 코드를 입력해주세요',
                       style: TextStyle(
@@ -268,7 +301,6 @@ class _VerificationPageState extends State<VerificationPage> {
                       ),
                     ),
                     _buildTextField('', '', _codeController),
-
                     if (isCodeWrong)
                       const Padding(
                         padding: EdgeInsets.only(top: 8.0),

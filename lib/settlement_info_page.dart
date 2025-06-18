@@ -127,7 +127,9 @@ class _SettlementInfoPageState extends State<SettlementInfoPage> {
     final currencyFormat = NumberFormat.decimalPattern('ko_KR');
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         leading: TextButton(
           onPressed: () {
             Navigator.of(context).pop();

@@ -35,6 +35,15 @@ class _MainPageState extends State<MainPage> {
   List<dynamic> clubPromotions = [];
   List<String> promotionClubNames = [];
 
+  List<String> items = ['Item 1', 'Item 2', 'Item 3'];
+
+  Future<void> _handleRefresh() async {
+    await Future.delayed(Duration(seconds: 2)); // 새로고침 대기 시간
+    setState(() {
+      fetchMainPageData();
+    });
+  }
+
   Future<void> fetchMainPageData() async {
     final url = Uri.parse('http://momeet.meowning.kr/api/user/main');
     final body = jsonEncode({"userId": _userId});
@@ -97,11 +106,10 @@ class _MainPageState extends State<MainPage> {
   }
 
   final List<String> clubActivityImages = [
-    'assets/clubAct_01.jpg',
-    'assets/mainImg_01.jpg',
-    'assets/mainImg_01.jpg',
-    'assets/mainImg_01.jpg',
-    'assets/mainImg_01.jpg',
+    'assets/main_post1.jpg',
+    'assets/main_post2.jpg',
+    'assets/main_post3.jpg',
+    'assets/main_post4.jpg'
   ];
 
   int _currentIndex = 0; // 현재 슬라이드 인덱스
@@ -118,6 +126,7 @@ class _MainPageState extends State<MainPage> {
         // 뒤로가기 막기: 아무것도 하지 않음
       },
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Color(0xFFFFFFFF),
           elevation: 0,
@@ -149,205 +158,233 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
         drawer: BuildSideMenu(),
-        body: SingleChildScrollView(
-        child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  univName,
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+        body: RefreshIndicator(
+          onRefresh: _handleRefresh, // 아래에서 정의됨
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    univName,
+                    style: TextStyle(
+                      color: Colors.green,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                SizedBox(height: 16),
+                  SizedBox(height: 16),
 
-                Column(
-                  children: [
-                    CarouselSlider(
-                      options: CarouselOptions(
-                        height: 180,
-                        enableInfiniteScroll: true,
-                        enlargeCenterPage: true,
-                        onPageChanged: (index, reason) {
-                          setState(() {
-                            _currentIndex = index;
-                          });
-                        },
-                      ),
-                      items: imageUrls.map((url) {
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            url,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Center(child: Icon(Icons.error));
-                            },
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(imageUrls.length, (index) {
-                        return Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 5),
-                          width: 10,
-                          height: 10,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _currentIndex == index ? Colors.green : Colors.grey,
-                          ),
-                        );
-                      }),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 24),
-
-                // 내 동아리
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 24),
-                    Text(
-                      '내 동아리',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Column(
-                      children: displayClubs.map<Widget>((club) {
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    clubMainPage(clubId: club['clubId']),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            margin: EdgeInsets.only(bottom: 10),
-                            padding: EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Color(0xFFFBFBFB),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  spreadRadius: 2,
-                                  blurRadius: 6,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundImage: NetworkImage(
-                                        club['official'] == true
-                                            ? 'https://example.com/default_logo.png'
-                                            : 'https://example.com/another_default.png',
-                                      ),
-                                    ),
-                                    SizedBox(width: 12),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          club['category'] ?? '',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                        Text(
-                                          club['clubName'] ?? '',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                Icon(Icons.chevron_right),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-
-                    SizedBox(height: 5),
-
-                    if (!_showAllClubs && myClubs.length > 2)
-                      Center(
-                        child: TextButton(
-                          onPressed: () {
+                  Column(
+                    children: [
+                      CarouselSlider(
+                        options: CarouselOptions(
+                          height: 180,
+                          enableInfiniteScroll: true,
+                          enlargeCenterPage: true,
+                          onPageChanged: (index, reason) {
                             setState(() {
-                              _showAllClubs = true;
+                              _currentIndex = index;
                             });
                           },
-                          child: Text(
-                            '더보기',
-                            style: TextStyle(color: Colors.green, fontSize: 16),
-                          ),
+                        ),
+                        items: (imageUrls.isNotEmpty
+                            ? imageUrls
+                            : ['assets/main_nullpost.png'])
+                            .map((url) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: imageUrls.isNotEmpty
+                                ? Image.network(
+                              url,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Center(child: Icon(Icons.error));
+                              },
+                            )
+                                : Image.asset(
+                              url,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 8),
+
+                      if (imageUrls.isNotEmpty)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(imageUrls.length, (index) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 5),
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _currentIndex == index
+                                    ? Colors.green
+                                    : Colors.grey,
+                              ),
+                            );
+                          }),
+                        ),
+                    ],
+                  ),
+
+                  SizedBox(height: 24),
+
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 24),
+                      Text(
+                        '내 동아리',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                  ],
-                ),
+                      SizedBox(height: 8),
 
-                SizedBox(height: 2),
+                      displayClubs.isEmpty
+                          ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 40),
+                          child: Text(
+                            '현재 가입한 동아리가 없습니다',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        ),
+                      )
+                          : Column(
+                        children: displayClubs.map<Widget>((club) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      clubMainPage(clubId: club['clubId']),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 10),
+                              padding: EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Color(0xFFFBFBFB),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    spreadRadius: 2,
+                                    blurRadius: 6,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                          club['official'] == true
+                                              ? 'https://example.com/default_logo.png'
+                                              : 'https://example.com/another_default.png',
+                                        ),
+                                      ),
+                                      SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            club['category'] ?? '',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          Text(
+                                            club['clubName'] ?? '',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Icon(Icons.chevron_right),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
 
-                // 동아리 활동
-                Text(
-                  '동아리 활동',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Scrollbar(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: List.generate(clubActivityImages.length, (index) {
-                        return Container(
-                          margin: const EdgeInsets.only(right: 10),
-                          width: 120,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            image: DecorationImage(
-                              image: AssetImage(clubActivityImages[index]),
-                              fit: BoxFit.cover,
+                      SizedBox(height: 5),
+
+                      if (!_showAllClubs && myClubs.length > 2)
+                        Center(
+                          child: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _showAllClubs = true;
+                              });
+                            },
+                            child: Text(
+                              '더보기',
+                              style: TextStyle(color: Colors.green, fontSize: 16),
                             ),
                           ),
-                        );
-                      }),
+                        ),
+                    ],
+                  ),
+
+                  SizedBox(height: 2),
+
+                  Text(
+                    '동아리 활동',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Scrollbar(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: List.generate(clubActivityImages.length, (index) {
+                          return Container(
+                            margin: const EdgeInsets.only(right: 10),
+                            width: 120,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              image: DecorationImage(
+                                image: AssetImage(clubActivityImages[index]),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(height: 50),
-              ],
+                  SizedBox(height: 50),
+                ],
+              ),
             ),
           ),
         ),
+
       ),
     );
   }

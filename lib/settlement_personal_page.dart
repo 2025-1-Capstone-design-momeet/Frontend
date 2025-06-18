@@ -192,6 +192,7 @@ class _SettlementPersonalPageState extends State<SettlementPersonalPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('정산 현황', style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
@@ -207,9 +208,9 @@ class _SettlementPersonalPageState extends State<SettlementPersonalPage> {
             const SizedBox(height: 8),
             membershipFee != null
                 ? _buildItemCard(
-              membershipFee!['title'],
-              membershipFee!['date'],
-              membershipFee!['amount'],
+                membershipFee!['title'],
+                membershipFee!['date'],
+                membershipFee!['amount'],
                 membershipFee!['complete'] ?? false
             )
                 : const Text("가입비 정보 없음", style: TextStyle(color: Colors.grey)),

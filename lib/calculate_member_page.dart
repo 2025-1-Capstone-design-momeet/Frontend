@@ -53,7 +53,7 @@ class _CalculateMembersPageState extends State<CalculateMembersPage>
 
   Future<void> members() async {
     final data = {
-      "userId": "gam1017",
+      "userId": userId,
       "voteID": widget.voteID,
       "voteContentId": widget.voteContentId,
       "voteNum": null,
@@ -121,7 +121,9 @@ class _CalculateMembersPageState extends State<CalculateMembersPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),

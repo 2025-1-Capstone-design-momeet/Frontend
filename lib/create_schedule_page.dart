@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:momeet/calendar_page.dart';
 import 'dart:convert';
 
@@ -104,7 +103,9 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
     final weekday = ['일', '월', '화', '수', '목', '금', '토'][widget.selectedDate.weekday % 7];
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),

@@ -18,8 +18,8 @@ class RecruitingDetailPage extends StatefulWidget {
 
 class RecruitingDetailPageState extends State<RecruitingDetailPage> {
   String clubName = '';
-  String target = '';
-  int dues = 0;
+  String target = '무관';
+  int dues = 20000;
   bool interview = false;
   late DateTime endDate;
   bool recruiting = false;
@@ -69,11 +69,19 @@ class RecruitingDetailPageState extends State<RecruitingDetailPage> {
               : int.tryParse(data['dues'].toString()) ?? 0;
           interview = data['interview'] ?? false;
 
-          if (data['endDate'] != null) {
-            endDate = DateTime.tryParse(data['endDate']) ?? DateTime.now();
+          if (data['endDate'] != null && data['endDate'] is List) {
+            List<dynamic> endDateList = data['endDate'];
+            endDate = DateTime(
+              endDateList[0],
+              endDateList[1],
+              endDateList[2],
+              endDateList.length > 3 ? endDateList[3] : 0,
+              endDateList.length > 4 ? endDateList[4] : 0,
+            );
           } else {
             endDate = DateTime.now();
           }
+
 
           recruiting = data['recruiting'] ?? false;
         });

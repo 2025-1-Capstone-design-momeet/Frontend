@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:momeet/login_page.dart';
 import 'package:momeet/verification_page.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart'; // ← 여기 추가됨!
 import 'user_provider.dart';
 import 'http_service.dart';
 
@@ -21,11 +22,6 @@ class _joinPageState extends State<joinPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   bool gender = false; // false = 여자, true = 남자
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   void _showDialog(String title, String message) {
     showDialog(
@@ -75,8 +71,7 @@ class _joinPageState extends State<joinPage> {
     };
 
     try {
-      final response =
-      await HttpService().postRequest('user/register', requestBody);
+      final response = await HttpService().postRequest('user/register', requestBody);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -102,7 +97,7 @@ class _joinPageState extends State<joinPage> {
 
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => VerificationPage(userId: userId,)),
+            MaterialPageRoute(builder: (context) => VerificationPage(userId: userId)),
           );
         } else {
           _showDialog("회원가입 실패", "회원가입에 실패하였습니다. 잠시후 다시 시도해 주십시오.");
@@ -147,7 +142,7 @@ class _joinPageState extends State<joinPage> {
               SizedBox(height: screenHeight * 0.02),
               _buildTextField('비밀번호', '비밀번호 입력', _pwController, obscure: true),
               SizedBox(height: screenHeight * 0.02),
-              _buildTextField('전화번호', '010xxxxnnnn', _phoneController),
+              _buildTextField('전화번호', '010xxxxnnnn', _phoneController), // ← 숫자 전용 적용됨
               SizedBox(height: screenHeight * 0.02),
               _buildTextField('이름', '홍길동', _nameController),
               SizedBox(height: screenHeight * 0.02),
@@ -186,6 +181,8 @@ class _joinPageState extends State<joinPage> {
   }
 
   Widget _buildTextField(String label, String hint, TextEditingController controller, {bool obscure = false}) {
+    final isPhoneField = label == '전화번호'; // 전화번호 필드만 숫자 입력으로 설정
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -201,6 +198,8 @@ class _joinPageState extends State<joinPage> {
         TextFormField(
           controller: controller,
           obscureText: obscure,
+          keyboardType: isPhoneField ? TextInputType.number : TextInputType.text,
+          inputFormatters: isPhoneField ? [FilteringTextInputFormatter.digitsOnly] : null,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: const TextStyle(

@@ -126,7 +126,9 @@ class _MembershipfeeInfoPageState extends State<MembershipfeeInfoPage> {
     final currencyFormat = NumberFormat.decimalPattern('ko_KR');
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         leading: TextButton(
           onPressed: () {
             Navigator.of(context).pop();
@@ -143,7 +145,7 @@ class _MembershipfeeInfoPageState extends State<MembershipfeeInfoPage> {
               _showDialog("완료", "정산 상태가 성공적으로 전송되었습니다.");
               Navigator.of(context).push(
 
-                MaterialPageRoute(builder: (context) => const SettlementPresidentPage())
+                  MaterialPageRoute(builder: (context) => const SettlementPresidentPage())
               );
             },
             child: const Text('확인'),

@@ -63,6 +63,19 @@ flutter:
     - assets/clubAct_01.jpg
     - assets/momeet_splash.png
     - assets/momeet_logo.png
+    - assets/club_banner_image.png
+    - assets/banner1.png
+    - assets/banner2.png
+    - assets/banner3.png
+    - assets/banner4.png
+    - assets/banner5.png
+    - assets/banner6.png
+    - assets/banner7.png
+    - assets/main_post1.jpg
+    - assets/main_post2.jpg
+    - assets/main_post3.jpg
+    - assets/main_post4.jpg
+    - assets/main_nullpost.png
 
 flutter_icons:
   android: true

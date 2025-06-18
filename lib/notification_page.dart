@@ -14,7 +14,8 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
   String? userId;
-  List<Map<String, dynamic>> notifications = [];
+  List<Map<String, dynamic>>? notifications;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -32,14 +33,26 @@ class _NotificationPageState extends State<NotificationPage> {
 
       if (response.statusCode == 200) {
         final responseData = json.decode(utf8.decode(response.bodyBytes));
+        final dataList = responseData['data'];
 
         setState(() {
-          notifications = List<Map<String, dynamic>>.from(responseData['data']);
+          notifications = dataList == null
+              ? []
+              : List<Map<String, dynamic>>.from(dataList);
+          isLoading = false;
         });
       } else {
+        setState(() {
+          notifications = [];
+          isLoading = false;
+        });
         _showDialog("에러", "알림을 불러오지 못했습니다.");
       }
     } catch (e) {
+      setState(() {
+        notifications = [];
+        isLoading = false;
+      });
       _showDialog("네트워크 오류", "네트워크 오류가 발생했습니다.");
       print("Error: $e");
     }
@@ -66,6 +79,7 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
@@ -83,14 +97,17 @@ class _NotificationPageState extends State<NotificationPage> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: notifications.isEmpty
+
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
+          : (notifications == null || notifications!.isEmpty)
+          ? const Center(child: Text("알림이 없습니다."))
           : ListView.separated(
         padding: const EdgeInsets.all(16),
-        itemCount: notifications.length,
+        itemCount: notifications!.length,
         separatorBuilder: (context, index) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
-          final item = notifications[index];
+          final item = notifications![index];
 
           String titleText = "";
           String content1 = "";
