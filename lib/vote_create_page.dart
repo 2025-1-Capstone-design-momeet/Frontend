@@ -5,7 +5,6 @@ import 'package:momeet/http_service.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:momeet/vote_page.dart';
 import 'package:provider/provider.dart';
-
 import 'club_provider.dart';
 
 class CreateVotePage extends StatefulWidget {
@@ -73,7 +72,7 @@ class _CreateVotePageState extends State<CreateVotePage> {
     }
 
     final Map<String, dynamic> voteData = {
-      "userId": "gam1017",
+      "userId": userId,
       "clubId": clubId,
       "endDate": "${selectedDate!.toIso8601String().split('T')[0]}T23:59:00",
       "title": _titleController.text.trim(),

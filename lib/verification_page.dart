@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
-import 'package:momeet/login_page.dart';
+import 'package:momeet/member_registration_page.dart';
 import 'http_service.dart';
-import 'member_registration_page.dart';
 
 class VerificationPage extends StatefulWidget {
   final String? userId;

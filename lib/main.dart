@@ -11,7 +11,6 @@ import 'package:momeet/write_promotion_post_page.dart';
 import 'package:provider/provider.dart';
 import 'package:momeet/login_page.dart';
 import 'package:momeet/request_club_page.dart';
-
 import 'club_provider.dart';
 import 'main_page.dart';
 import 'meeting_detail_page.dart';
@@ -42,7 +41,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // home:  MeetingDetailPage(clubId: 'c020fd825e4d4f67a87e8a233487e5e4'), // 메인 페이지 설정
-      home: loginPage(),
+      home: const loginPage(),
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:momeet/settlement_info_page.dart';
 import 'package:http/http.dart' as http;
@@ -8,7 +7,6 @@ import 'package:momeet/settlement_president_page.dart';
 import 'package:momeet/user_provider.dart';
 import 'package:momeet/write_promotion_post_page.dart';
 import 'package:provider/provider.dart';
-
 import 'board_page.dart';
 import 'buildSideMenu.dart';
 import 'club_member_sidebar.dart';
@@ -28,8 +26,6 @@ class clubMainPage extends StatefulWidget {
   clubMainPageState createState() => clubMainPageState();
 }
 
-
-
 class Member {
   final String name;
   final String department;
@@ -47,7 +43,7 @@ class Member {
 }
 
 class clubMainPageState extends State<clubMainPage> {
-  String _userName = '';  // 응답에 없으니 초기화만 해둠
+  String _userName = '';
   String _clubName = '';
   String _univName = '';
   String _category = '';
@@ -55,7 +51,6 @@ class clubMainPageState extends State<clubMainPage> {
   String _bannerImage = '';
   String _welcomeMessage = '';
   bool _official = false;
-
   bool isLoading = true;
   List<Map<String, dynamic>> postList = [];
 
@@ -375,7 +370,7 @@ class clubMainPageState extends State<clubMainPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFFFFFF),
         leading: Builder(
           builder: (context) => IconButton(
             icon: Icon(Icons.menu, color: Colors.black),
@@ -457,6 +452,7 @@ class clubMainPageState extends State<clubMainPage> {
                           child: Text('모집 게시글 작성'),
                         ),
                       ],
+
                     ),
                     SizedBox(height: 4),
                     Row(
